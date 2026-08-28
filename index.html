@@ -1031,17 +1031,27 @@ function render(){
  bar2.style.width=p2+"%";bar2.style.background="#262626";pct2.textContent=p2+"%";
  bar3.style.width=Math.max(5,p3)+"%";bar3.style.background="#f3efe5";pct3.textContent=Math.max(5,p3)+"%";
  const ph=hash32((state.name||"生成個体")+":price");
- const bucket=ph%1000;
  let price;
- if(bucket<100){
-   // 約10%：1億円超。1億100万円〜約5億円。
-   price=101000000 + ((ph>>>10)%399000)*1000;
+ // 通常個体：1万円～300万円以内。
+ // 9万円以下は少なめ、100万円前後が最も出やすい分布。
+ const r=(ph>>>8)&0xFFFFFF;
+ const bucket=r%100;
+ const frac=((ph>>>4)&0xFFFF)/0xFFFF;
+ if(bucket<8){
+   // 約8%：1万～9万円
+   price=10000+Math.round(frac*80000/1000)*1000;
+ }else if(bucket<28){
+   // 約20%：10万～69万円
+   price=100000+Math.round(frac*590000/1000)*1000;
+ }else if(bucket<73){
+   // 約45%：70万～130万円（100万円前後を中心）
+   const centered=(frac+(((ph>>>12)&0xFFFF)/0xFFFF))/2;
+   price=700000+Math.round(centered*600000/1000)*1000;
  }else{
-   // 約90%：通常帯。1万円〜9,999万円。
-   const u=((ph>>>8)&0xFFFFFF)/0xFFFFFF;
-   price=Math.round((10000*Math.pow(9999,u))/1000)*1000;
-   price=Math.min(99990000,Math.max(10000,price));
+   // 約27%：131万～300万円
+   price=1310000+Math.round(frac*1690000/1000)*1000;
  }
+ price=Math.min(3000000,Math.max(10000,price));
  if(isRealRare(state)){
    // All photo-real LEGEND specimens are genuinely top-tier.
    // Deterministic range: 300,000,000–999,999,999 yen.
@@ -1377,33 +1387,77 @@ certCloseBtn.onclick=()=>certificateOverlay.classList.remove("open");
 certificateOverlay.addEventListener("click",e=>{if(e.target===certificateOverlay)certificateOverlay.classList.remove("open")});
 
 async function saveCertificateAsPng(){
- const card=document.getElementById("certificateCard");
- // Render a clean certificate directly to canvas, avoiding external libraries.
- const c=document.createElement("canvas"); c.width=1200; c.height=1600;
+ // iPhone/Safariでも同じ位置になるよう、HTMLの見た目ではなく固定座標でCanvasに描画する。
+ if(document.fonts && document.fonts.ready){
+   try{ await document.fonts.ready; }catch(e){}
+ }
+
+ const c=document.createElement("canvas");
+ c.width=1200; c.height=1600;
  const ctx=c.getContext("2d");
- ctx.fillStyle="#f6edd8"; ctx.fillRect(0,0,c.width,c.height);
- ctx.strokeStyle="#5b4932"; ctx.lineWidth=10; ctx.strokeRect(25,25,1150,1550);
- ctx.strokeStyle="#8a7554"; ctx.lineWidth=3; ctx.strokeRect(40,40,1120,1520);
 
- ctx.fillStyle="#211b15"; ctx.textAlign="center";
- ctx.font="bold 64px serif"; ctx.fillText("越鯉 鑑定書",600,120);
- ctx.font="24px serif"; ctx.fillStyle="#8c4e00"; ctx.fillText("KOSHI NO KOI APPRAISAL",600,165);
+ const JP_SERIF='"Hiragino Mincho ProN","Yu Mincho","Hiragino Mincho Pro",serif';
+ const setFont=(size,bold=false)=>{
+   ctx.font=(bold?"bold ":"")+size+"px "+JP_SERIF;
+   ctx.textBaseline="alphabetic";
+ };
+ const fitText=(txt,maxWidth,startSize,minSize=16,bold=false)=>{
+   let size=startSize;
+   txt=String(txt??"");
+   while(size>minSize){
+     setFont(size,bold);
+     if(ctx.measureText(txt).width<=maxWidth) break;
+     size-=1;
+   }
+   return size;
+ };
+ const drawWrapped=(txt,x,y,maxWidth,lineHeight,maxLines)=>{
+   txt=String(txt??"");
+   let line="",lines=[];
+   for(const ch of txt){
+     const test=line+ch;
+     if(ctx.measureText(test).width>maxWidth && line){
+       lines.push(line);
+       line=ch;
+       if(lines.length===maxLines-1) break;
+     }else{
+       line=test;
+     }
+   }
+   if(lines.length<maxLines && line) lines.push(line);
 
- // Koi illustration — use exactly the same image as the result screen.
+   // まだ文字が残っている場合は最後を「…」で収める
+   const joined=lines.join("");
+   if(joined.length<txt.length && lines.length){
+     let last=lines[lines.length-1];
+     while(last && ctx.measureText(last+"…").width>maxWidth) last=last.slice(0,-1);
+     lines[lines.length-1]=last+"…";
+   }
+   lines.forEach((ln,i)=>ctx.fillText(ln,x,y+i*lineHeight));
+   return y+(lines.length-1)*lineHeight;
+ };
+
+ ctx.fillStyle="#f6edd8";ctx.fillRect(0,0,c.width,c.height);
+ ctx.strokeStyle="#5b4932";ctx.lineWidth=10;ctx.strokeRect(25,25,1150,1550);
+ ctx.strokeStyle="#8a7554";ctx.lineWidth=3;ctx.strokeRect(40,40,1120,1520);
+
+ ctx.textAlign="center";ctx.fillStyle="#211b15";
+ setFont(64,true);ctx.fillText("越鯉 鑑定書",600,120);
+ setFont(24,false);ctx.fillStyle="#8c4e00";ctx.fillText("KOSHI NO KOI APPRAISAL",600,165);
+
+ // 鯉画像
  ctx.fillStyle=isRealRare(state)?"#071a24":"#2d82ef";
  ctx.fillRect(80,240,360,620);
  if(isRealRare(state)){
    const img=new Image();
    await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;img.src=rareImageFor(state)});
-   const maxW=340,maxH=600;
-   const sc=Math.min(maxW/img.width,maxH/img.height);
+   const maxW=340,maxH=600,sc=Math.min(maxW/img.width,maxH/img.height);
    const dw=img.width*sc,dh=img.height*sc;
    ctx.drawImage(img,90+(maxW-dw)/2,250+(maxH-dh)/2,dw,dh);
  }else if(isIllustrationRare(state)){
    const img=new Image();
    await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;img.src=illustrationRareImageFor(state)});
-   const maxW=340,maxH=600;
-   const sc=Math.min(maxW/img.width,maxH/img.height);
+   const maxW=340,maxH=600,sc=Math.min(maxW/img.width,maxH/img.height);
    const dw=img.width*sc,dh=img.height*sc;
    ctx.fillStyle="#061a25";ctx.fillRect(80,240,360,620);
    ctx.drawImage(img,90+(maxW-dw)/2,250+(maxH-dh)/2,dw,dh);
@@ -1417,43 +1471,72 @@ async function saveCertificateAsPng(){
    URL.revokeObjectURL(url);
  }
 
- ctx.textAlign="left"; ctx.fillStyle="#211b15";
- let x=500,y=260;
- ctx.font="22px serif";ctx.fillStyle="#765b36";ctx.fillText("越鯉番号",x,y);
- ctx.font="bold 34px serif";ctx.fillStyle="#211b15";ctx.fillText("第 "+String(state.id).padStart(6,"0")+" 号",x,y+45);
- ctx.font="22px serif";ctx.fillStyle="#765b36";ctx.fillText("鯉名",x,y+110);
- ctx.font="bold 42px serif";ctx.fillStyle="#9a3a24";ctx.fillText(makeKoiName(state),x,y+160);
- ctx.font="22px serif";ctx.fillStyle="#765b36";ctx.fillText("名主",x,y+220);
- ctx.font="bold 32px serif";ctx.fillStyle="#211b15";ctx.fillText(state.name||"",x,y+265);
+ // 右側の個体情報
+ ctx.textAlign="left";
+ const x=500;
+ setFont(22);ctx.fillStyle="#765b36";ctx.fillText("越鯉番号",x,260);
+ setFont(34,true);ctx.fillStyle="#211b15";ctx.fillText("第 "+String(state.id).padStart(6,"0")+" 号",x,305);
+
+ setFont(22);ctx.fillStyle="#765b36";ctx.fillText("鯉名",x,370);
+ const koiName=makeKoiName(state);
+ fitText(koiName,610,42,24,true);
+ ctx.fillStyle="#9a3a24";ctx.fillText(koiName,x,420);
+
+ setFont(22);ctx.fillStyle="#765b36";ctx.fillText("名主",x,480);
+ const owner=state.name||"";
+ fitText(owner,610,32,20,true);
+ ctx.fillStyle="#211b15";ctx.fillText(owner,x,525);
 
  const rows=[
-   ["品種",VARIETIES[state.variety]],["体型",BODY_TYPES[state.body][0]],["体長",SIZES[state.size]+"cm"],
-   ["大模様",PATTERN_NAMES[state.big]],["細模様",FINE_NAMES[state.fine]]
+   ["品種",VARIETIES[state.variety]],
+   ["体型",BODY_TYPES[state.body][0]],
+   ["体長",SIZES[state.size]+"cm"],
+   ["大模様",PATTERN_NAMES[state.big]],
+   ["細模様",FINE_NAMES[state.fine]]
  ];
- y+=330;
- rows.forEach(([k,v])=>{ctx.font="22px serif";ctx.fillStyle="#765b36";ctx.fillText(k,x,y);ctx.font="bold 28px serif";ctx.fillStyle="#211b15";ctx.fillText(v,x+150,y);ctx.strokeStyle="#aa9877";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,y+12);ctx.lineTo(1110,y+12);ctx.stroke();y+=65});
+ let y=590;
+ rows.forEach(([k,v])=>{
+   setFont(22);ctx.fillStyle="#765b36";ctx.fillText(k,x,y);
+   fitText(v,450,28,18,true);ctx.fillStyle="#211b15";ctx.fillText(v,x+150,y);
+   ctx.strokeStyle="#aa9877";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,y+12);ctx.lineTo(1110,y+12);ctx.stroke();
+   y+=65;
+ });
 
- ctx.fillStyle="#765b36";ctx.font="22px serif";ctx.fillText("性格と特徴",80,960);
- ctx.fillStyle="#211b15";ctx.font="28px serif";ctx.fillText(PERSONALITIES[(state.id+state.big)%PERSONALITIES.length],80,1010);
- ctx.fillStyle="#765b36";ctx.font="22px serif";ctx.fillText("鑑定コメント",80,1060);
- ctx.fillStyle="#211b15";ctx.font="22px serif";
+ // 下段。iPhoneのフォント差で重ならないよう、領域を完全に分離
+ ctx.textAlign="left";
+ setFont(22);ctx.fillStyle="#765b36";ctx.fillText("性格と特徴",80,930);
+ const personality=PERSONALITIES[(state.id+state.big)%PERSONALITIES.length];
+ fitText(personality,1040,26,20,false);
+ ctx.fillStyle="#211b15";ctx.fillText(personality,80,975);
+
+ setFont(22);ctx.fillStyle="#765b36";ctx.fillText("鑑定コメント",80,1025);
+ setFont(21);ctx.fillStyle="#211b15";
  const cm=appraisalText(state,currentPriceValue());
- const words=cm.split("");let line="",yy=1100;
- for(const ch of words){const test=line+ch;if(ctx.measureText(test).width>1030){ctx.fillText(line,80,yy);line=ch;yy+=34}else line=test}
- if(line)ctx.fillText(line,80,yy);
+ drawWrapped(cm,80,1065,1040,32,4);
 
- ctx.strokeStyle="#8c7654";ctx.lineWidth=3;ctx.strokeRect(180,1100,840,180);
- ctx.textAlign="center";ctx.fillStyle="#765b36";ctx.font="22px serif";ctx.fillText("見立て鑑定額",600,1150);
- ctx.fillStyle="#9a3a24";ctx.font="bold 46px serif";ctx.fillText(currentPriceText(),600,1225);
+ // 鑑定額はコメント領域から十分離す
+ const priceTop=1235;
+ ctx.strokeStyle="#8c7654";ctx.lineWidth=3;ctx.strokeRect(180,priceTop,840,185);
+ ctx.textAlign="center";ctx.fillStyle="#765b36";setFont(22);ctx.fillText("見立て鑑定額",600,priceTop+52);
+ const priceText=currentPriceText();
+ fitText(priceText,760,46,30,true);
+ ctx.fillStyle="#9a3a24";ctx.fillText(priceText,600,priceTop+128);
 
- ctx.textAlign="left";ctx.fillStyle="#6e604b";ctx.font="18px serif";ctx.fillText("※本鑑定書はアプリ内の創作鑑定です。",80,1480);
- ctx.strokeStyle="#b5261a";ctx.lineWidth=6;ctx.strokeRect(980,1380,120,120);ctx.fillStyle="#b5261a";ctx.font="bold 36px serif";ctx.textAlign="center";ctx.fillText("越鯉",1040,1455);
+ // 下部
+ ctx.textAlign="left";ctx.fillStyle="#6e604b";setFont(18);ctx.fillText("※本鑑定書はアプリ内の創作鑑定です。",80,1515);
+ ctx.strokeStyle="#b5261a";ctx.lineWidth=6;ctx.strokeRect(980,1450,120,120);
+ ctx.fillStyle="#b5261a";setFont(36,true);ctx.textAlign="center";ctx.fillText("越鯉",1040,1525);
 
- c.toBlob(blob=>{
-  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
-  a.download="koshi-koi-certificate-"+String(state.id).padStart(6,"0")+".png";
-  a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
- },"image/png");
+ const blob=await new Promise(resolve=>c.toBlob(resolve,"image/png"));
+ if(!blob) return;
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");
+ a.href=url;
+ a.download="koshi-koi-certificate-"+String(state.id).padStart(6,"0")+".png";
+ document.body.appendChild(a);
+ a.click();
+ a.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),1500);
 }
 certSaveBtn.onclick=saveCertificateAsPng;
 
