@@ -1592,5 +1592,95 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
+
+<style>
+/* 鑑定書表示中：背景は固定、鑑定書だけスクロール */
+body.certificate-open{
+  overflow:hidden!important;
+  height:100vh!important;
+  touch-action:none!important;
+}
+#certificateModal,
+.certificate-modal,
+.certificate-overlay{
+  position:fixed!important;
+  inset:0!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior:contain!important;
+  touch-action:pan-y!important;
+  z-index:99990!important;
+}
+#certificateModal > *,
+.certificate-modal > *,
+.certificate-overlay > *{
+  max-height:none!important;
+}
+</style>
+
+<script>
+(function(){
+  function getCertModal(){
+    return document.getElementById('certificateModal') ||
+           document.querySelector('.certificate-modal') ||
+           document.querySelector('.certificate-overlay');
+  }
+
+  function lockBackgroundForCertificate(){
+    document.body.classList.add('certificate-open');
+    const modal=getCertModal();
+    if(modal){
+      modal.style.overflowY='auto';
+      modal.style.webkitOverflowScrolling='touch';
+      modal.scrollTop=0;
+    }
+  }
+
+  function unlockBackgroundForCertificate(){
+    document.body.classList.remove('certificate-open');
+  }
+
+  const observer=new MutationObserver(()=>{
+    const modal=getCertModal();
+    if(!modal)return;
+    const cs=getComputedStyle(modal);
+    const visible=cs.display!=='none' && cs.visibility!=='hidden' && cs.opacity!=='0';
+    if(visible) lockBackgroundForCertificate();
+    else unlockBackgroundForCertificate();
+  });
+  observer.observe(document.body,{subtree:true,attributes:true,attributeFilter:['style','class']});
+
+  document.addEventListener('click',e=>{
+    const t=e.target;
+    if(!(t instanceof Element))return;
+
+    if(
+      t.id==='certificateBtn' ||
+      t.closest('#certificateBtn') ||
+      /鑑定書を作成/.test(t.textContent||'')
+    ){
+      setTimeout(lockBackgroundForCertificate,50);
+    }
+
+    if(
+      /閉じる/.test(t.textContent||'') ||
+      t.classList.contains('certificate-close-btn') ||
+      t.classList.contains('close-btn') ||
+      t.classList.contains('modal-close')
+    ){
+      setTimeout(unlockBackgroundForCertificate,50);
+    }
+  });
+
+  // Existing closeCertificate function may be used elsewhere.
+  const oldClose=window.closeCertificate;
+  window.closeCertificate=function(){
+    if(typeof oldClose==='function') oldClose();
+    unlockBackgroundForCertificate();
+  };
+})();
+</script>
+
 </body>
 </html>
