@@ -1596,42 +1596,69 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
+
+
+
 <style>
-/* 鑑定書：背景を固定し、鑑定書だけをスクロール */
-body.certificate-open{
+/* iPhone / iOS WebKit 対応：背景固定＋鑑定書のみスクロール */
+html.cert-lock,
+body.cert-lock{
+  width:100%!important;
   overflow:hidden!important;
+}
+
+body.cert-lock{
+  position:fixed!important;
+  left:0!important;
+  right:0!important;
 }
 
 #certificateOverlay{
   position:fixed!important;
-  inset:0!important;
-  overflow-y:auto!important;
+  left:0!important;
+  top:0!important;
+  right:0!important;
+  bottom:0!important;
+  width:100vw!important;
+  height:100vh!important;
+  height:100dvh!important;
+  display:none;
+  overflow-y:scroll!important;
   overflow-x:hidden!important;
   -webkit-overflow-scrolling:touch!important;
-  overscroll-behavior:contain!important;
+  overscroll-behavior-y:contain!important;
+  touch-action:auto!important;
   align-items:flex-start!important;
   justify-content:center!important;
-  padding:70px 12px 28px!important;
   box-sizing:border-box!important;
-  touch-action:pan-y!important;
+  padding:72px 10px 34px!important;
+  z-index:99990!important;
 }
 
 #certificateOverlay.open{
-  display:flex!important;
+  display:block!important;
 }
 
 #certificateCard{
-  flex:0 0 auto!important;
-  margin:0 auto 30px!important;
+  width:min(760px,94vw)!important;
+  max-width:94vw!important;
+  height:auto!important;
   max-height:none!important;
   overflow:visible!important;
+  margin:0 auto 40px!important;
+  box-sizing:border-box!important;
 }
 
-/* 閉じるボタンは常に右上 */
+/* iOSでタッチスクロールを確実に受ける */
+#certificateOverlay,
+#certificateOverlay *{
+  -webkit-user-select:auto;
+}
+
 #certCloseBtn{
   position:fixed!important;
-  top:14px!important;
-  right:14px!important;
+  top:max(12px,env(safe-area-inset-top))!important;
+  right:12px!important;
   z-index:100001!important;
   min-width:82px!important;
   min-height:44px!important;
@@ -1645,11 +1672,13 @@ body.certificate-open{
 
 @media(max-width:600px){
   #certificateOverlay{
-    padding:64px 8px 24px!important;
+    padding-top:calc(64px + env(safe-area-inset-top))!important;
+    padding-bottom:calc(28px + env(safe-area-inset-bottom))!important;
   }
   #certificateCard{
-    width:94vw!important;
-    padding:18px!important;
+    width:96vw!important;
+    max-width:96vw!important;
+    padding:16px!important;
   }
 }
 </style>
@@ -1657,35 +1686,59 @@ body.certificate-open{
 <script>
 (function(){
   const overlay=document.getElementById("certificateOverlay");
-  const closeBtn=document.getElementById("certCloseBtn");
   const openBtn=document.getElementById("certificateBtn");
+  const closeBtn=document.getElementById("certCloseBtn");
+  let lockedScrollY=0;
 
-  function lockPage(){
-    document.body.classList.add("certificate-open");
-    if(overlay) overlay.scrollTop=0;
+  function lockBackground(){
+    lockedScrollY=window.scrollY||window.pageYOffset||0;
+    document.documentElement.classList.add("cert-lock");
+    document.body.classList.add("cert-lock");
+    document.body.style.top=(-lockedScrollY)+"px";
+    if(overlay){
+      overlay.scrollTop=0;
+      overlay.style.webkitOverflowScrolling="touch";
+    }
   }
-  function unlockPage(){
-    document.body.classList.remove("certificate-open");
+
+  function unlockBackground(){
+    document.documentElement.classList.remove("cert-lock");
+    document.body.classList.remove("cert-lock");
+    document.body.style.top="";
+    window.scrollTo(0,lockedScrollY);
   }
 
   if(openBtn){
-    openBtn.addEventListener("click",()=>setTimeout(lockPage,0));
+    openBtn.addEventListener("click",()=>setTimeout(lockBackground,0));
   }
+
   if(closeBtn){
-    closeBtn.addEventListener("click",unlockPage);
+    closeBtn.addEventListener("click",unlockBackground);
   }
+
   if(overlay){
     overlay.addEventListener("click",e=>{
-      if(e.target===overlay) unlockPage();
+      if(e.target===overlay) unlockBackground();
     });
+
+    // iOS: allow native one-finger scrolling inside the certificate.
+    overlay.addEventListener("touchmove",e=>{
+      e.stopPropagation();
+    },{passive:true});
   }
 
   const obs=new MutationObserver(()=>{
     if(!overlay)return;
-    if(overlay.classList.contains("open")) lockPage();
-    else unlockPage();
+    if(overlay.classList.contains("open")){
+      if(!document.body.classList.contains("cert-lock")) lockBackground();
+    }else{
+      if(document.body.classList.contains("cert-lock")) unlockBackground();
+    }
   });
-  if(overlay) obs.observe(overlay,{attributes:true,attributeFilter:["class"]});
+
+  if(overlay){
+    obs.observe(overlay,{attributes:true,attributeFilter:["class"]});
+  }
 })();
 </script>
 
