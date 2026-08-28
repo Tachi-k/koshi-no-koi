@@ -1593,92 +1593,99 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 
 
+
+
+
 <style>
-/* 鑑定書表示中：背景は固定、鑑定書だけスクロール */
+/* 鑑定書：背景を固定し、鑑定書だけをスクロール */
 body.certificate-open{
   overflow:hidden!important;
-  height:100vh!important;
-  touch-action:none!important;
 }
-#certificateModal,
-.certificate-modal,
-.certificate-overlay{
+
+#certificateOverlay{
   position:fixed!important;
   inset:0!important;
   overflow-y:auto!important;
   overflow-x:hidden!important;
   -webkit-overflow-scrolling:touch!important;
   overscroll-behavior:contain!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  padding:70px 12px 28px!important;
+  box-sizing:border-box!important;
   touch-action:pan-y!important;
-  z-index:99990!important;
 }
-#certificateModal > *,
-.certificate-modal > *,
-.certificate-overlay > *{
+
+#certificateOverlay.open{
+  display:flex!important;
+}
+
+#certificateCard{
+  flex:0 0 auto!important;
+  margin:0 auto 30px!important;
   max-height:none!important;
+  overflow:visible!important;
+}
+
+/* 閉じるボタンは常に右上 */
+#certCloseBtn{
+  position:fixed!important;
+  top:14px!important;
+  right:14px!important;
+  z-index:100001!important;
+  min-width:82px!important;
+  min-height:44px!important;
+  background:#9f1d18!important;
+  color:#fff!important;
+  border:2px solid #fff!important;
+  border-radius:10px!important;
+  font-weight:700!important;
+  box-shadow:0 3px 12px rgba(0,0,0,.35)!important;
+}
+
+@media(max-width:600px){
+  #certificateOverlay{
+    padding:64px 8px 24px!important;
+  }
+  #certificateCard{
+    width:94vw!important;
+    padding:18px!important;
+  }
 }
 </style>
 
 <script>
 (function(){
-  function getCertModal(){
-    return document.getElementById('certificateModal') ||
-           document.querySelector('.certificate-modal') ||
-           document.querySelector('.certificate-overlay');
+  const overlay=document.getElementById("certificateOverlay");
+  const closeBtn=document.getElementById("certCloseBtn");
+  const openBtn=document.getElementById("certificateBtn");
+
+  function lockPage(){
+    document.body.classList.add("certificate-open");
+    if(overlay) overlay.scrollTop=0;
+  }
+  function unlockPage(){
+    document.body.classList.remove("certificate-open");
   }
 
-  function lockBackgroundForCertificate(){
-    document.body.classList.add('certificate-open');
-    const modal=getCertModal();
-    if(modal){
-      modal.style.overflowY='auto';
-      modal.style.webkitOverflowScrolling='touch';
-      modal.scrollTop=0;
-    }
+  if(openBtn){
+    openBtn.addEventListener("click",()=>setTimeout(lockPage,0));
+  }
+  if(closeBtn){
+    closeBtn.addEventListener("click",unlockPage);
+  }
+  if(overlay){
+    overlay.addEventListener("click",e=>{
+      if(e.target===overlay) unlockPage();
+    });
   }
 
-  function unlockBackgroundForCertificate(){
-    document.body.classList.remove('certificate-open');
-  }
-
-  const observer=new MutationObserver(()=>{
-    const modal=getCertModal();
-    if(!modal)return;
-    const cs=getComputedStyle(modal);
-    const visible=cs.display!=='none' && cs.visibility!=='hidden' && cs.opacity!=='0';
-    if(visible) lockBackgroundForCertificate();
-    else unlockBackgroundForCertificate();
+  const obs=new MutationObserver(()=>{
+    if(!overlay)return;
+    if(overlay.classList.contains("open")) lockPage();
+    else unlockPage();
   });
-  observer.observe(document.body,{subtree:true,attributes:true,attributeFilter:['style','class']});
-
-  document.addEventListener('click',e=>{
-    const t=e.target;
-    if(!(t instanceof Element))return;
-
-    if(
-      t.id==='certificateBtn' ||
-      t.closest('#certificateBtn') ||
-      /鑑定書を作成/.test(t.textContent||'')
-    ){
-      setTimeout(lockBackgroundForCertificate,50);
-    }
-
-    if(
-      /閉じる/.test(t.textContent||'') ||
-      t.classList.contains('certificate-close-btn') ||
-      t.classList.contains('close-btn') ||
-      t.classList.contains('modal-close')
-    ){
-      setTimeout(unlockBackgroundForCertificate,50);
-    }
-  });
-
-  // Existing closeCertificate function may be used elsewhere.
-  const oldClose=window.closeCertificate;
-  window.closeCertificate=function(){
-    if(typeof oldClose==='function') oldClose();
-    unlockBackgroundForCertificate();
-  };
+  if(overlay) obs.observe(overlay,{attributes:true,attributeFilter:["class"]});
 })();
 </script>
 
