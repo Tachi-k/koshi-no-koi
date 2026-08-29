@@ -776,9 +776,13 @@ function deriveFromId(id,name=""){
   variety:h%42, body:(h>>>6)%8, size:(h>>>10)%7, color:(h>>>13)%16,
   big:h2%32, fine:(h2>>>8)%32, balance:h3%32};
 }
+function normalizeNameForSeed(name){
+ return String(name||"").normalize("NFKC").replace(/\s+/g,"");
+}
 function deriveFromName(name){
- const id=(hash32(name)%1000000)+1;
- return deriveFromId(id,name);
+ const seedName=normalizeNameForSeed(name);
+ const id=(hash32(seedName)%1000000)+1;
+ return deriveFromId(id,String(name||"").trim());
 }
 
 function ellipsePath(cx,cy,rx,ry,rot=0){
@@ -1225,7 +1229,18 @@ function generateFromName(){
  result.style.display="block";render();
 }
 generateBtn.onclick=generateFromName;
-nameInput.addEventListener("keydown",e=>{if(e.key==="Enter")generateFromName()});
+
+// 日本語IMEの漢字変換確定Enterでは生成しない。
+// 変換確定後にもう一度Enterを押した時だけ生成する。
+let nameInputComposing=false;
+nameInput.addEventListener("compositionstart",()=>{nameInputComposing=true});
+nameInput.addEventListener("compositionend",()=>{nameInputComposing=false});
+nameInput.addEventListener("keydown",e=>{
+ if(e.key!=="Enter")return;
+ if(nameInputComposing || e.isComposing || e.keyCode===229)return;
+ e.preventDefault();
+ generateFromName();
+});
 nameInput.addEventListener("input",()=>result.style.display="none");
 zoomBtn.onclick=()=>{overlay.innerHTML=beautifulNormalSVG(state);overlay.classList.add("open")};
 overlay.onclick=()=>overlay.classList.remove("open");
