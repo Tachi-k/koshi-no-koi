@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>越鯉 日本庭園</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+<h1>越鯉 日本庭園</h1>
+<section class="panel">
+  <div class="controls">
+    <div class="field">
+      <label for="koiId">越鯉番号</label>
+      <input id="koiId" inputmode="numeric" pattern="[0-9]*" maxlength="7" placeholder="例：123456">
+    </div>
+    <button id="loadBtn">池に放す</button>
+    <button id="toggleBtn" class="secondary" disabled>一時停止</button>
+  </div>
+  <div class="note">本体は変更せず、池アプリ側だけで越鯉本体と同じ番号生成ロジック・同じ希少判定を使う版です。通常・RARE・LEGENDのすべてで、番号そのものに対応する鯉を池側で再生成します。つまり381765号なら381765号固有の鯉が泳ぎます。最大10匹まで池に放せます。池をタップすると鯉たちがその場所へゆっくり寄ってきます。</div>
+  <div class="info" id="info">
+    <span>庭園時刻：<b id="gardenTime">08:00</b></span>
+    <span>池の鯉：<b id="count">0</b> / 10匹</span>
+    <span id="lastInfo">番号を入力して「池に放す」</span>
+  </div>
+</section>
+
+<div class="gardenLayout">
+  <section class="garden" id="garden">
+    <div class="nightSky" id="nightSky"></div>
+    <div class="lanternGlow" id="lanternGlow"></div>
+    <div class="sunGlow" id="sunGlow"></div>
+    <div class="moss m1"></div><div class="moss m2"></div><div class="moss m3"></div><div class="moss m4"></div>
+    <div class="shore"></div>
+    <div class="stepping t1"></div><div class="stepping t2"></div><div class="stepping t3"></div>
+    <div class="bridge"></div><div class="lantern"></div>
+    <div class="stone s1"></div><div class="stone s2"></div><div class="stone s3"></div><div class="stone s4"></div>
+    <div class="pond" id="pond">
+      <div class="waterShade"></div>
+      <div class="lily l1"></div><div class="lily l2"></div><div class="lily l3"></div>
+      <div class="status" id="status">越鯉番号を入力してください</div>
+    </div>
+  </section>
+
+  <aside class="koiRoster" aria-labelledby="rosterTitle">
+    <div class="rosterHeader">
+      <h2 id="rosterTitle">泳いでいる鯉</h2>
+      <span><b id="rosterCount">0</b> / 10匹</span>
+    </div>
+    <div id="koiList" class="koiList">
+      <div class="rosterEmpty">まだ鯉はいません</div>
+    </div>
+  </aside>
+</div>
+</div>
+
+<script src="../shared/koi-engine.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
