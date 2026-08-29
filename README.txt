@@ -1,22 +1,15 @@
-越鯉 共通エンジン版（手動アップロード用）
+# 越鯉 LEGEND 外部画像版
 
-GitHub の koshi-no-koi リポジトリ直下に、この構成のままアップロードしてください。
+GitHub リポジトリ直下に以下の構成でアップロードしてください。
 
 index.html
-shared/
-  koi-engine.js
-pond/
-  index.html
-  style.css
-  app.js
+legend/
+  00.jpg
+  01.jpg
+  ...
+  41.jpg
 
-公開後:
-- 本体: /koshi-no-koi/
-- 池:   /koshi-no-koi/pond/
+LEGEND画像は `legend/00.jpg` ～ `legend/41.jpg` を参照します。
+画像を差し替えるときは、同じファイル名で置き換えるだけです。
 
-重要:
-- 本体と池の両方が shared/koi-engine.js を利用します。
-- 同じ番号は同じ deriveFromId / beautifulNormalSVG / legendFullBodySVG を通ります。
-- 今後鯉の生成方式を変更するときは shared/koi-engine.js を更新すれば両方に反映できます。
-
-アップロード時は index.html もこのセットのものへ置き換えてください。
+39.jpg は「ドイツ白写り」の全身表示版です。
