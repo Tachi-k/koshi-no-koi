@@ -1381,12 +1381,27 @@ function openCertificate(){
    if(svg){svg.style.width="100%";svg.style.height="320px";}
  }
  document.getElementById("certificateOverlay").classList.add("open");
+ // iPhoneの共有シートを確実にタップ直後に開けるよう、鑑定書画像を先に準備しておく。
+ __certificateShareFile=null; __certificateDataUrl=null; __certificatePreparedId=null;
+ setTimeout(()=>{ saveCertificateAsPng(true).catch(()=>{}); },0);
 }
 certificateBtn.onclick=openCertificate;
 certCloseBtn.onclick=()=>certificateOverlay.classList.remove("open");
 certificateOverlay.addEventListener("click",e=>{if(e.target===certificateOverlay)certificateOverlay.classList.remove("open")});
 
-async function saveCertificateAsPng(){
+let __certificateShareFile=null;
+let __certificateDataUrl=null;
+let __certificatePreparedId=null;
+function dataUrlToBlob(dataUrl){
+ const parts=dataUrl.split(",");
+ const mime=(parts[0].match(/data:([^;]+)/)||[])[1]||"image/png";
+ const bin=atob(parts[1]);
+ const bytes=new Uint8Array(bin.length);
+ for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+ return new Blob([bytes],{type:mime});
+}
+
+async function saveCertificateAsPng(prepareOnly=false){
  // iPhone/Safariでも同じ位置になるよう、HTMLの見た目ではなく固定座標でCanvasに描画する。
  if(document.fonts && document.fonts.ready){
    try{ await document.fonts.ready; }catch(e){}
@@ -1527,18 +1542,92 @@ async function saveCertificateAsPng(){
  ctx.strokeStyle="#b5261a";ctx.lineWidth=6;ctx.strokeRect(980,1450,120,120);
  ctx.fillStyle="#b5261a";setFont(36,true);ctx.textAlign="center";ctx.fillText("越鯉",1040,1525);
 
- const blob=await new Promise(resolve=>c.toBlob(resolve,"image/png"));
- if(!blob) return;
+ const filename="koshi-koi-certificate-"+String(state.id).padStart(6,"0")+".png";
+ const isiOS=/iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+
+ let dataUrl;
+ try{ dataUrl=c.toDataURL("image/png"); }
+ catch(e){ if(!prepareOnly) alert("鑑定書画像を作成できませんでした。"); return; }
+ const blob=dataUrlToBlob(dataUrl);
+ const file=new File([blob],filename,{type:"image/png"});
+ __certificateDataUrl=dataUrl;
+ __certificateShareFile=file;
+ __certificatePreparedId=state.id;
+ if(prepareOnly) return;
+
+ // iPhoneでは共有シートを最優先。ここから「画像を保存」または「ファイルに保存」を選べる。
+ if(isiOS && navigator.share){
+   try{
+     const shareData={files:[file],title:"越鯉 鑑定書"};
+     if(!navigator.canShare || navigator.canShare(shareData)){
+       await navigator.share(shareData);
+       return;
+     }
+   }catch(e){
+     if(e && e.name==="AbortError") return;
+   }
+
+   // 共有が使えない場合だけ、従来の長押し保存画面へフォールバック。
+   let viewer=document.getElementById("certificateImageViewer");
+   if(!viewer){
+     viewer=document.createElement("div");
+     viewer.id="certificateImageViewer";
+     viewer.style.cssText="position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.94);overflow:auto;padding:14px;text-align:center;-webkit-overflow-scrolling:touch";
+     viewer.innerHTML='<div style="position:sticky;top:0;z-index:2;background:#111;color:#fff;padding:10px;border-radius:10px;margin:0 auto 10px;max-width:760px;font-size:15px;line-height:1.6">共有画面を開けませんでした。下の画像を長押しして「Save to Photos」を選んでください。<br><button id="certificateViewerClose" style="margin-top:7px;padding:9px 22px;font-size:16px;border-radius:8px;border:0">閉じる</button></div><img id="certificateViewerImg" alt="越鯉 鑑定書" style="display:block;width:min(100%,760px);height:auto;margin:0 auto;background:#fff">';
+     document.body.appendChild(viewer);
+     document.getElementById("certificateViewerClose").onclick=()=>{viewer.style.display="none"};
+   }
+   document.getElementById("certificateViewerImg").src=dataUrl;
+   viewer.style.display="block";
+   return;
+ }
+
+ // PC / Androidは通常のPNGダウンロード。
  const url=URL.createObjectURL(blob);
  const a=document.createElement("a");
- a.href=url;
- a.download="koshi-koi-certificate-"+String(state.id).padStart(6,"0")+".png";
- document.body.appendChild(a);
- a.click();
- a.remove();
- setTimeout(()=>URL.revokeObjectURL(url),1500);
+ a.href=url;a.download=filename;a.style.display="none";
+ document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),10000);
 }
-certSaveBtn.onclick=saveCertificateAsPng;
+
+let __certificateViewerBlobUrl=null;
+function showCertificateImageViewer(dataUrl){
+ let viewer=document.getElementById("certificateImageViewer");
+ if(!viewer){
+   viewer=document.createElement("div");
+   viewer.id="certificateImageViewer";
+   viewer.style.cssText="position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.96);overflow:auto;padding:12px;text-align:center;-webkit-overflow-scrolling:touch";
+   viewer.innerHTML='<div style="position:sticky;top:0;z-index:2;background:#111;color:#fff;padding:10px;border-radius:10px;margin:0 auto 10px;max-width:760px;font-size:15px;line-height:1.6">鑑定書PNGです。画像を長押しして「Save to Photos」を選んでください。<br><button id="certificateViewerClose" style="margin-top:7px;padding:10px 24px;font-size:16px;border-radius:8px;border:0">閉じる</button></div><img id="certificateViewerImg" alt="越鯉 鑑定書" style="display:block;width:min(100%,760px);height:auto;margin:0 auto;background:#fff;-webkit-touch-callout:default;user-select:auto">';
+   document.body.appendChild(viewer);
+   document.getElementById("certificateViewerClose").onclick=()=>{viewer.style.display="none"};
+ }
+ const img=document.getElementById("certificateViewerImg");
+ if(__certificateViewerBlobUrl){ try{URL.revokeObjectURL(__certificateViewerBlobUrl)}catch(e){} }
+ if(__certificateShareFile){
+   __certificateViewerBlobUrl=URL.createObjectURL(__certificateShareFile);
+   img.src=__certificateViewerBlobUrl;
+ }else{
+   img.src=dataUrl;
+ }
+ viewer.style.display="block";
+ viewer.scrollTop=0;
+}
+
+certSaveBtn.onclick=async()=>{
+ // iPhoneではWeb Share APIに依存せず、必ず保存可能な画像画面を出す。
+ try{
+   if(!__certificateDataUrl || __certificatePreparedId!==state.id){
+     await saveCertificateAsPng(true);
+   }
+   if(__certificateDataUrl){
+     showCertificateImageViewer(__certificateDataUrl);
+   }else{
+     alert("鑑定書画像を作成できませんでした。もう一度お試しください。");
+   }
+ }catch(e){
+   alert("鑑定書画像を作成できませんでした。もう一度お試しください。");
+ }
+};
 
 function downloadSVG(){
  if(isRealRare(state)){
