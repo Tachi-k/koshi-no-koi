@@ -539,6 +539,24 @@ main > .actions button{
   overflow:hidden!important;
   text-overflow:ellipsis!important;
 }
+
+/* LEGEND 42画像：全体表示・白線なし版 */
+.rare-real-card{background:#071a24!important}
+.rare-real-card img{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  opacity:1!important;
+  filter:none!important;
+  transform:none!important;
+  background:#071a24!important;
+}
+.rare-real-card::before{content:none!important;display:none!important}
+.rare-full-koi{display:none!important}
+
 </style>
 </head>
 <body>
