@@ -2234,48 +2234,11 @@ body.cert-lock{
   }
   function pondKoiSVG(s,instance){return stripKoiBackground(beautifulNormalSVG(s),"pond_"+instance)}
 
-  // LEGENDは通常SVGを作り直さず、鑑定書と同じLEGEND画像そのものから
-  // 青い水面背景を透明化して池用の鯉を作る。
-  const pondLegendCache=new Map();
+  // 池のLEGENDは、背景透過済みの専用PNGをそのまま使用する。
+  // GitHub側に pond_legend/00.png ～ pond_legend/41.png を配置する。
+  const POND_LEGEND_IMAGES=Array.from({length:42},(_,i)=>`pond_legend/${String(i).padStart(2,"0")}.png`);
   function legendPondImage(s){
-    const key=String(s.variety%42);
-    if(pondLegendCache.has(key))return pondLegendCache.get(key);
-    const promise=new Promise((resolve)=>{
-      const img=new Image();
-      img.onload=()=>{
-        try{
-          const sw=img.naturalWidth||img.width, sh=img.naturalHeight||img.height;
-          // 元画像の中央部を使用。上部タイトルや外枠を避け、魚体とヒレを残す。
-          const sx=Math.round(sw*0.17), sy=Math.round(sh*0.12);
-          const cw=Math.round(sw*0.66), ch=Math.round(sh*0.82);
-          const maxW=420, scale=Math.min(1,maxW/cw);
-          const c=document.createElement("canvas");
-          c.width=Math.max(1,Math.round(cw*scale));
-          c.height=Math.max(1,Math.round(ch*scale));
-          const ctx=c.getContext("2d",{willReadFrequently:true});
-          ctx.drawImage(img,sx,sy,cw,ch,0,0,c.width,c.height);
-          const im=ctx.getImageData(0,0,c.width,c.height), d=im.data;
-          for(let i=0;i<d.length;i+=4){
-            const r=d[i],g=d[i+1],b=d[i+2];
-            const mx=Math.max(r,g,b), mn=Math.min(r,g,b), delta=mx-mn;
-            const sat=mx?delta/mx:0;
-            // LEGEND画像の濃紺～青い水面を透明化。白・赤・黒の魚体は残す。
-            const blueWater=(b>r*1.18 && b>g*1.05 && sat>0.18) || (b>72 && b-r>22 && b-g>6);
-            // 水面に散る金色の粒は中央魚体から離れていれば消す。
-            const x=(i/4)%c.width, y=Math.floor((i/4)/c.width);
-            const nx=Math.abs(x-c.width/2)/(c.width/2);
-            const goldSpeck=(r>105 && g>75 && b<95 && nx>0.42);
-            if(blueWater||goldSpeck)d[i+3]=0;
-          }
-          ctx.putImageData(im,0,0);
-          resolve(c.toDataURL("image/png"));
-        }catch(e){resolve(rareImageFor(s));}
-      };
-      img.onerror=()=>resolve(rareImageFor(s));
-      img.src=rareImageFor(s);
-    });
-    pondLegendCache.set(key,promise);
-    return promise;
+    return Promise.resolve(POND_LEGEND_IMAGES[s.variety%42]);
   }
 
   function randomPoint(seedOffset=0){
