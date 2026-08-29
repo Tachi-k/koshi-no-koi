@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LEGEND池用PNG作成</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,"Yu Gothic",sans-serif;margin:0;background:#f5f7fa;color:#1c2733}
+main{max-width:980px;margin:auto;padding:20px}
+h1{font-size:26px;margin:0 0 8px}.note{line-height:1.7;color:#48576a}.actions{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
+button{padding:12px 18px;border:0;border-radius:9px;background:#1768d1;color:white;font-weight:700;font-size:16px;cursor:pointer}button.secondary{background:#5b6675}button:disabled{opacity:.45;cursor:default}
+#status{margin:12px 0;padding:12px;background:white;border:1px solid #d6dee8;border-radius:8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:12px}.card{background:#fff;border:1px solid #d6dee8;border-radius:10px;padding:8px;text-align:center}.card canvas{width:100%;height:190px;object-fit:contain;background:repeating-conic-gradient(#e8edf2 0 25%,#f8fafc 0 50%) 50%/16px 16px}.card b{display:block;margin-top:6px}
+.small{font-size:12px;color:#657487}
+</style>
+</head>
+<body><main>
+<h1>LEGEND 池用PNG作成</h1>
+<p class="note">GitHub上の <b>legend/00.jpg ～ legend/41.jpg</b> を読み込み、元の鯉を変更せず、画像の外周から連続している背景だけを透明化します。生成AIは使いません。</p>
+<div class="actions"><button id="make">42枚を変換</button><button id="download" disabled>PNGを順番にダウンロード</button><button id="clear" class="secondary">やり直す</button></div>
+<div id="status">「42枚を変換」を押してください。</div>
+<div id="grid" class="grid"></div>
+</main>
+<script>
+const N=42, results=[];
+const statusEl=document.getElementById('status'), grid=document.getElementById('grid');
+function colorDist(a,b){const dr=a[0]-b[0],dg=a[1]-b[1],db=a[2]-b[2];return Math.sqrt(dr*dr+dg*dg+db*db)}
+function median(vals){vals.sort((a,b)=>a-b);return vals[(vals.length/2)|0]}
+function estimateBg(data,w,h){
+ const pts=[]; const step=Math.max(1,Math.floor(Math.min(w,h)/120));
+ for(let x=0;x<w;x+=step){for(const y of [0,Math.min(h-1,step),Math.max(0,h-1-step),h-1]){let i=(y*w+x)*4;pts.push([data[i],data[i+1],data[i+2]])}}
+ for(let y=0;y<h;y+=step){for(const x of [0,Math.min(w-1,step),Math.max(0,w-1-step),w-1]){let i=(y*w+x)*4;pts.push([data[i],data[i+1],data[i+2]])}}
+ return [median(pts.map(p=>p[0])),median(pts.map(p=>p[1])),median(pts.map(p=>p[2]))];
+}
+function removeBackground(canvas){
+ const ctx=canvas.getContext('2d',{willReadFrequently:true}); const w=canvas.width,h=canvas.height; const im=ctx.getImageData(0,0,w,h),d=im.data;
+ const bg=estimateBg(d,w,h); const visited=new Uint8Array(w*h); const qx=new Int32Array(w*h),qy=new Int32Array(w*h); let head=0,tail=0;
+ function push(x,y){let p=y*w+x;if(!visited[p]){visited[p]=1;qx[tail]=x;qy[tail]=y;tail++}}
+ for(let x=0;x<w;x++){push(x,0);push(x,h-1)} for(let y=1;y<h-1;y++){push(0,y);push(w-1,y)}
+ // Adaptive flood fill: only pixels visually similar to the outer background can be removed.
+ const hard=62, soft=96;
+ while(head<tail){const x=qx[head],y=qy[head++],p=y*w+x,i=p*4; const c=[d[i],d[i+1],d[i+2]]; const dist=colorDist(c,bg);
+   if(dist>soft) continue;
+   let alpha=0; if(dist>hard) alpha=Math.round(255*(dist-hard)/(soft-hard)); d[i+3]=Math.min(d[i+3],alpha);
+   if(x>0) push(x-1,y); if(x+1<w) push(x+1,y); if(y>0) push(x,y-1); if(y+1<h) push(x,y+1);
+ }
+ // Remove tiny disconnected background islands around the fish, but do not alter opaque interior pixels.
+ ctx.putImageData(im,0,0);
+}
+async function loadOne(n){
+ const name=String(n).padStart(2,'0'); const img=new Image(); img.decoding='async'; img.src=`legend/${name}.jpg?ts=${Date.now()}`;
+ await img.decode(); const c=document.createElement('canvas'); c.width=img.naturalWidth;c.height=img.naturalHeight; c.getContext('2d').drawImage(img,0,0); removeBackground(c);
+ const blob=await new Promise(r=>c.toBlob(r,'image/png')); return {name:`${name}.png`,canvas:c,blob};
+}
+function show(r){const card=document.createElement('div');card.className='card';const copy=document.createElement('canvas');copy.width=r.canvas.width;copy.height=r.canvas.height;copy.getContext('2d').drawImage(r.canvas,0,0);card.append(copy);const b=document.createElement('b');b.textContent=r.name;card.append(b);grid.append(card)}
+document.getElementById('make').onclick=async()=>{results.length=0;grid.innerHTML='';document.getElementById('make').disabled=true;document.getElementById('download').disabled=true;
+ for(let i=0;i<N;i++){statusEl.textContent=`変換中 ${i+1}/42…`;try{const r=await loadOne(i);results.push(r);show(r)}catch(e){statusEl.textContent=`${String(i).padStart(2,'0')}.jpg の読み込みに失敗しました: ${e}`;document.getElementById('make').disabled=false;return}}
+ statusEl.innerHTML='<b>42枚の変換が完了しました。</b> プレビューで鯉の外側が透明になっていることを確認してください。';document.getElementById('download').disabled=false;document.getElementById('make').disabled=false;};
+document.getElementById('download').onclick=async()=>{for(let i=0;i<results.length;i++){const r=results[i],a=document.createElement('a');a.href=URL.createObjectURL(r.blob);a.download=r.name;document.body.append(a);a.click();a.remove();await new Promise(res=>setTimeout(res,350));setTimeout(()=>URL.revokeObjectURL(a.href),5000)}statusEl.textContent='42枚のPNGダウンロードを開始しました。ブラウザが複数ダウンロードの許可を求めたら「許可」を選んでください。'};
+document.getElementById('clear').onclick=()=>{results.length=0;grid.innerHTML='';document.getElementById('download').disabled=true;statusEl.textContent='「42枚を変換」を押してください。'};
+</script></body></html>
