@@ -1650,16 +1650,27 @@ function showCertificateImageViewer(dataUrl){
 }
 
 certSaveBtn.onclick=async()=>{
- // iPhoneではWeb Share APIに依存せず、必ず保存可能な画像画面を出す。
+ // iPhone/iPadだけ長押し保存用の画像画面を表示。
+ // PC・Androidではボタンを押した時点でPNGを直接ダウンロードする。
+ const isiOS=/iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+   (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+
  try{
-   if(!__certificateDataUrl || __certificatePreparedId!==state.id){
-     await saveCertificateAsPng(true);
+   if(isiOS){
+     if(!__certificateDataUrl || __certificatePreparedId!==state.id){
+       await saveCertificateAsPng(true);
+     }
+     if(__certificateDataUrl){
+       showCertificateImageViewer(__certificateDataUrl);
+     }else{
+       alert("鑑定書画像を作成できませんでした。もう一度お試しください。");
+     }
+     return;
    }
-   if(__certificateDataUrl){
-     showCertificateImageViewer(__certificateDataUrl);
-   }else{
-     alert("鑑定書画像を作成できませんでした。もう一度お試しください。");
-   }
+
+   // Windows / Mac / Linux / Android
+   // saveCertificateAsPng(false) 内の download 属性で即時保存。
+   await saveCertificateAsPng(false);
  }catch(e){
    alert("鑑定書画像を作成できませんでした。もう一度お試しください。");
  }
