@@ -1633,9 +1633,32 @@ function showCertificateImageViewer(dataUrl){
    viewer=document.createElement("div");
    viewer.id="certificateImageViewer";
    viewer.style.cssText="position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.96);overflow:auto;padding:12px;text-align:center;-webkit-overflow-scrolling:touch";
-   viewer.innerHTML='<div style="position:sticky;top:0;z-index:2;background:#111;color:#fff;padding:10px;border-radius:10px;margin:0 auto 10px;max-width:760px;font-size:15px;line-height:1.6">鑑定書PNGです。画像を長押しして「Save to Photos」を選んでください。<br><button id="certificateViewerClose" style="margin-top:7px;padding:10px 24px;font-size:16px;border-radius:8px;border:0">閉じる</button></div><img id="certificateViewerImg" alt="越鯉 鑑定書" style="display:block;width:min(100%,760px);height:auto;margin:0 auto;background:#fff;-webkit-touch-callout:default;user-select:auto">';
+
+   // 保存対象の画像を画面上部に置き、閉じるボタンは画像から十分離れた最下部に配置する。
+   // これにより長押し時に「閉じる」がタッチ対象になりにくい。
+   viewer.innerHTML=
+     '<div style="color:#fff;padding:8px 6px 12px;margin:0 auto;max-width:760px;font-size:15px;line-height:1.6">' +
+       '鑑定書画像を長押しして「Save to Photos」を選んでください。' +
+     '</div>' +
+     '<img id="certificateViewerImg" alt="越鯉 鑑定書" draggable="false" ' +
+       'style="display:block;width:min(100%,760px);height:auto;margin:0 auto;background:#fff;' +
+       '-webkit-touch-callout:default;-webkit-user-select:none;user-select:none;touch-action:manipulation">' +
+     '<div style="height:72px"></div>' +
+     '<button id="certificateViewerClose" ' +
+       'style="display:block;margin:0 auto 36px;padding:14px 42px;font-size:17px;border-radius:10px;border:0;' +
+       'background:#fff;color:#111;min-width:180px;touch-action:manipulation">閉じる</button>';
+
    document.body.appendChild(viewer);
-   document.getElementById("certificateViewerClose").onclick=()=>{viewer.style.display="none"};
+
+   const closeBtn=document.getElementById("certificateViewerClose");
+   closeBtn.onclick=(e)=>{
+     e.preventDefault();
+     e.stopPropagation();
+     viewer.style.display="none";
+   };
+
+   // 閉じるボタン自体では長押しメニューを出さない。
+   closeBtn.oncontextmenu=(e)=>e.preventDefault();
  }
  const img=document.getElementById("certificateViewerImg");
  if(__certificateViewerBlobUrl){ try{URL.revokeObjectURL(__certificateViewerBlobUrl)}catch(e){} }
