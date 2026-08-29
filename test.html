@@ -763,7 +763,7 @@ body.pond-mode #pondView{display:block!important}
 
 <section id="pondView" aria-label="越鯉 日本庭園の池">
   <div class="pond-page-head">
-    <div><h2>越鯉 日本庭園の池</h2><p>図鑑に保存された個体から最大10匹を選び、その個体データのまま泳がせます。</p></div>
+    <div><h2>越鯉 日本庭園の池</h2></div>
     <div class="pond-page-actions"><a href="#" class="pond-back-link">← 図鑑へ戻る</a><button type="button" id="pondClearBtn" class="pond-clear-btn">池を空にする</button></div>
   </div>
   <div class="pond-layout">
@@ -2234,6 +2234,50 @@ body.cert-lock{
   }
   function pondKoiSVG(s,instance){return stripKoiBackground(beautifulNormalSVG(s),"pond_"+instance)}
 
+  // LEGENDは通常SVGを作り直さず、鑑定書と同じLEGEND画像そのものから
+  // 青い水面背景を透明化して池用の鯉を作る。
+  const pondLegendCache=new Map();
+  function legendPondImage(s){
+    const key=String(s.variety%42);
+    if(pondLegendCache.has(key))return pondLegendCache.get(key);
+    const promise=new Promise((resolve)=>{
+      const img=new Image();
+      img.onload=()=>{
+        try{
+          const sw=img.naturalWidth||img.width, sh=img.naturalHeight||img.height;
+          // 元画像の中央部を使用。上部タイトルや外枠を避け、魚体とヒレを残す。
+          const sx=Math.round(sw*0.17), sy=Math.round(sh*0.12);
+          const cw=Math.round(sw*0.66), ch=Math.round(sh*0.82);
+          const maxW=420, scale=Math.min(1,maxW/cw);
+          const c=document.createElement("canvas");
+          c.width=Math.max(1,Math.round(cw*scale));
+          c.height=Math.max(1,Math.round(ch*scale));
+          const ctx=c.getContext("2d",{willReadFrequently:true});
+          ctx.drawImage(img,sx,sy,cw,ch,0,0,c.width,c.height);
+          const im=ctx.getImageData(0,0,c.width,c.height), d=im.data;
+          for(let i=0;i<d.length;i+=4){
+            const r=d[i],g=d[i+1],b=d[i+2];
+            const mx=Math.max(r,g,b), mn=Math.min(r,g,b), delta=mx-mn;
+            const sat=mx?delta/mx:0;
+            // LEGEND画像の濃紺～青い水面を透明化。白・赤・黒の魚体は残す。
+            const blueWater=(b>r*1.18 && b>g*1.05 && sat>0.18) || (b>72 && b-r>22 && b-g>6);
+            // 水面に散る金色の粒は中央魚体から離れていれば消す。
+            const x=(i/4)%c.width, y=Math.floor((i/4)/c.width);
+            const nx=Math.abs(x-c.width/2)/(c.width/2);
+            const goldSpeck=(r>105 && g>75 && b<95 && nx>0.42);
+            if(blueWater||goldSpeck)d[i+3]=0;
+          }
+          ctx.putImageData(im,0,0);
+          resolve(c.toDataURL("image/png"));
+        }catch(e){resolve(rareImageFor(s));}
+      };
+      img.onerror=()=>resolve(rareImageFor(s));
+      img.src=rareImageFor(s);
+    });
+    pondLegendCache.set(key,promise);
+    return promise;
+  }
+
   function randomPoint(seedOffset=0){
     const a=Math.random()*Math.PI*2;
     const r=.18+Math.random()*.72;
@@ -2253,7 +2297,16 @@ body.cert-lock{
       const size=62+(SIZES[s.size]||50)*.38;
       node.style.width=Math.round(size)+"px";
       node.style.height=Math.round(size*1.53)+"px";
-      node.innerHTML=pondKoiSVG(s,String(s.id)+"_"+i)+`<div class="pond-fish-label">${esc(makeKoiName(s))}</div>`;
+      if(item.tier==="legend"){
+        node.innerHTML=`<img class="pond-legend-img" alt="${esc(VARIETIES[s.variety])} LEGEND"><div class="pond-fish-label">${esc(makeKoiName(s))}</div>`;
+        const limg=node.querySelector(".pond-legend-img");
+        if(limg){
+          limg.style.cssText="width:100%;height:100%;object-fit:contain;display:block;pointer-events:none";
+          legendPondImage(s).then(src=>{if(limg.isConnected)limg.src=src});
+        }
+      }else{
+        node.innerHTML=pondKoiSVG(s,String(s.id)+"_"+i)+`<div class="pond-fish-label">${esc(makeKoiName(s))}</div>`;
+      }
       const p=randomPoint(i);
       const t=randomPoint(i+100);
       const f={node,item,x:p.x,y:p.y,tx:t.x,ty:t.y,angle:Math.random()*360,speed:.026+((hash32(canonicalSeed(s.id,"pondSpeed"))%14)/1000),pauseUntil:0,nextPause:performance.now()+3500+Math.random()*7000};
