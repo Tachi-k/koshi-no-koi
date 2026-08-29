@@ -511,47 +511,25 @@ main > .actions button{
 }
 
 
-/* ===== LEGEND 全身表示・最終修正 =====
-   元のLEGEND写真自体で鯉が画面外に切れている場合でも、
-   同じ越鯉番号から再現した鯉を全身で前面表示する。 */
+/* ===== LEGEND完成画像をそのまま表示 =====
+   42種類のLEGEND画像ファイルをそのまま表示する。
+   上に別の鯉を重ねず、背景の暗化・ぼかしも行わない。 */
 .rare-real-card img{
-  opacity:.15!important;
-  object-fit:cover!important;
-  object-position:center!important;
-  filter:blur(5px) brightness(.52) saturate(.78)!important;
-  transform:scale(1.05)!important;
+  opacity:1!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  filter:none!important;
+  transform:none!important;
+  background:#071a24!important;
 }
 .rare-real-card::before{
-  content:""!important;
-  position:absolute!important;
-  inset:0!important;
-  z-index:2!important;
-  pointer-events:none!important;
-  background:
-    radial-gradient(ellipse at center,rgba(8,28,35,.02) 0%,rgba(3,16,24,.22) 68%,rgba(2,12,20,.48) 100%)!important;
+  content:none!important;
+  background:none!important;
+  display:none!important;
 }
 .rare-full-koi{
-  position:absolute;
-  left:50%;
-  top:46%;
-  width:min(50%,390px);
-  height:64%;
-  transform:translate(-50%,-50%);
-  z-index:3;
-  display:grid;
-  place-items:center;
-  pointer-events:none;
+  display:none!important;
 }
-.rare-full-koi svg{
-  display:block;
-  width:100%!important;
-  height:100%!important;
-  max-width:100%!important;
-  max-height:100%!important;
-  overflow:visible!important;
-  filter:drop-shadow(0 14px 13px rgba(0,0,0,.58));
-}
-
 .rare-real-sub{
   left:14px!important;
   right:auto!important;
@@ -561,36 +539,6 @@ main > .actions button{
   overflow:hidden!important;
   text-overflow:ellipsis!important;
 }
-@media(max-width:600px){
-  .rare-full-koi{
-    width:56%;
-    height:63%;
-    top:46%;
-  }
-}
-
-/* ===== ドイツ白写り（index 39）専用：自然な全身LEGEND表示 ===== */
-.rare-real-card.natural-fullbody{
-  background:#071a24!important;
-  background-image:none!important;
-}
-.rare-real-card.natural-fullbody img{
-  opacity:1!important;
-  object-fit:contain!important;
-  object-position:center center!important;
-  filter:none!important;
-  transform:none!important;
-  background:#071a24!important;
-}
-.rare-real-card.natural-fullbody::before{
-  content:none!important;
-  background:none!important;
-  display:none!important;
-}
-.rare-real-card.natural-fullbody .rare-full-koi{
-  display:none!important;
-}
-
 </style>
 </head>
 <body>
@@ -618,7 +566,7 @@ main > .actions button{
         </div>
         <div class="rare-real-card" id="rareRealCard">
       <img id="rareRealImg" alt="伝説級背景">
-      <div class="rare-full-koi" id="rareFullKoi" aria-label="伝説級の越鯉・全身表示"></div>
+      <div class="rare-full-koi" id="rareFullKoi" aria-label="伝説級の越鯉・伝説級"></div>
       <div class="rare-real-label">伝説級　LEGEND</div>
       <div class="rare-real-sub" id="rareRealSub">実写級・浮世絵景観</div>
     </div>
@@ -1103,37 +1051,28 @@ function applyRealRare(){
   const card=document.getElementById("rareRealCard");
   const img=document.getElementById("rareRealImg");
   const full=document.getElementById("rareFullKoi");
-  const isNaturalFullBody = rare && ((state.variety % 42)===39);
 
-  if(card){
-    card.classList.toggle("show",rare);
-    card.classList.toggle("natural-fullbody",isNaturalFullBody);
-  }
-
-  if(full){
-    full.innerHTML = (rare && !isNaturalFullBody) ? legendFullBodySVG(state) : "";
-  }
+  if(card) card.classList.toggle("show",rare);
+  if(full) full.innerHTML="";
 
   const badgeEl=document.getElementById("badge");
-  if(badgeEl)badgeEl.style.display=(rare||isIllustrationRare(state))?"none":"block";
+  if(badgeEl) badgeEl.style.display=(rare||isIllustrationRare(state))?"none":"block";
 
   const newEl=document.getElementById("newBadge");
-  if(newEl && rare)newEl.style.right="10px";
+  if(newEl && rare) newEl.style.right="10px";
 
   if(rare && img){
     const src=rareImageFor(state);
     img.src=src;
-    if(card){
-      card.style.backgroundImage = isNaturalFullBody ? "none" : `url("${src}")`;
-    }
+    if(card) card.style.backgroundImage="none";
   }
 
   const svg=document.getElementById("koiSvg");
-  if(svg)svg.style.visibility=(rare||isIllustrationRare(state))?"hidden":"visible";
+  if(svg) svg.style.visibility=(rare||isIllustrationRare(state))?"hidden":"visible";
 
   if(rare){
     const sub=document.getElementById("rareRealSub");
-    if(sub)sub.textContent=(VARIETIES[state.variety]||"越鯉")+"・全身表示";
+    if(sub) sub.textContent=(VARIETIES[state.variety]||"越鯉")+"・伝説級";
   }
   return rare;
 }
