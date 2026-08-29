@@ -558,12 +558,124 @@ main > .actions button{
 .rare-full-koi{display:none!important}
 
 </style>
+<style>
+
+/* ===== 越鯉・日本庭園の池 ===== */
+.header-actions{display:flex;align-items:center;gap:12px}
+.pond-link,.pond-back-link{
+  display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:9px 16px;
+  border-radius:999px;border:1px solid #245796;background:#174887;color:#fff;text-decoration:none;
+  font-weight:800;box-shadow:0 3px 10px rgba(14,46,97,.18)
+}
+.pond-link:hover,.pond-back-link:hover{filter:brightness(1.08)}
+.pond-count-badge{display:inline-grid;place-items:center;min-width:25px;height:25px;padding:0 6px;margin-left:7px;border-radius:999px;background:#fff;color:#174887;font-size:12px}
+
+#pondView{display:none;margin-top:14px}
+body.pond-mode .generator,
+body.pond-mode #result,
+body.pond-mode .collection-card,
+body.pond-mode .footer{display:none!important}
+body.pond-mode #pondView{display:block!important}
+
+.pond-page-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.pond-page-head h2{margin:0;font-family:"Yu Mincho",serif;font-size:30px;color:#173f69}
+.pond-page-head p{margin:3px 0 0;color:#5e6d77;font-size:13px}
+.pond-page-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pond-clear-btn{min-height:44px;padding:9px 14px;border:1px solid #9a6a4d;border-radius:999px;background:#fff;color:#6e4530;font-weight:700}
+
+.pond-layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:14px;align-items:start}
+.pond-garden{
+  position:relative;min-height:720px;overflow:hidden;border-radius:26px;border:1px solid #98a78c;
+  background:
+    radial-gradient(circle at 11% 16%,rgba(255,255,255,.38) 0 2px,transparent 3px),
+    linear-gradient(145deg,#718c58 0%,#97a975 36%,#6d8653 100%);
+  box-shadow:inset 0 0 45px rgba(45,60,33,.22),0 7px 22px rgba(26,54,70,.14)
+}
+.pond-garden::before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.46;
+  background:repeating-radial-gradient(circle at 20% 30%,transparent 0 16px,rgba(255,255,255,.035) 17px 19px)
+}
+.pond-water{
+  position:absolute;left:5%;right:5%;top:12%;bottom:8%;overflow:hidden;
+  border-radius:45% 55% 48% 52% / 38% 45% 55% 62%;
+  background:
+    radial-gradient(circle at 34% 28%,rgba(255,255,255,.17),transparent 18%),
+    radial-gradient(circle at 73% 62%,rgba(255,255,255,.10),transparent 22%),
+    linear-gradient(160deg,#174d62,#1b6c7a 45%,#0d4358 100%);
+  box-shadow:0 0 0 16px rgba(143,139,111,.72),0 0 0 24px rgba(89,91,70,.42),inset 0 0 55px rgba(0,17,30,.34)
+}
+.pond-water::before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.38;
+  background:repeating-radial-gradient(ellipse at 50% 50%,transparent 0 22px,rgba(214,244,247,.16) 23px 24px,transparent 25px 47px)
+}
+.pond-water::after{
+  content:"池をタップすると鯉がゆっくり寄ってきます";position:absolute;left:50%;bottom:18px;transform:translateX(-50%);
+  color:rgba(239,250,250,.76);font-size:12px;white-space:nowrap;pointer-events:none;text-shadow:0 1px 4px rgba(0,0,0,.55)
+}
+.pond-bridge{position:absolute;right:3%;top:7%;width:30%;height:72px;border-radius:55% 55% 16px 16px;background:linear-gradient(#8f3e2d,#5e251c);transform:rotate(-8deg);box-shadow:0 7px 12px rgba(0,0,0,.3);z-index:4}
+.pond-bridge::after{content:"";position:absolute;left:6%;right:6%;top:13px;height:10px;border-top:4px solid #c77a55;border-bottom:4px solid #c77a55}
+.pond-lantern{position:absolute;left:5%;top:11%;width:46px;height:92px;z-index:5}
+.pond-lantern::before{content:"";position:absolute;left:5px;top:0;width:36px;height:27px;background:#d7d0b8;clip-path:polygon(12% 0,88% 0,100% 45%,82% 60%,77% 100%,23% 100%,18% 60%,0 45%);box-shadow:0 0 18px rgba(255,229,150,.48)}
+.pond-lantern::after{content:"";position:absolute;left:18px;top:25px;width:12px;height:66px;background:#8d8a7b;border-radius:4px}
+.pond-stone{position:absolute;background:linear-gradient(145deg,#a7a89b,#676b63);border-radius:50%;box-shadow:0 4px 10px rgba(0,0,0,.25);z-index:3}
+.pond-stone.s1{width:78px;height:48px;left:10%;bottom:4%;transform:rotate(8deg)}
+.pond-stone.s2{width:54px;height:38px;left:20%;bottom:8%;transform:rotate(-14deg)}
+.pond-stone.s3{width:84px;height:49px;right:8%;bottom:10%;transform:rotate(17deg)}
+.pond-stone.s4{width:48px;height:34px;right:17%;bottom:6%;transform:rotate(-8deg)}
+.pond-reed{position:absolute;z-index:3;width:5px;height:88px;background:#355b2f;border-radius:6px;transform-origin:bottom}
+.pond-reed.r1{left:3%;bottom:16%;transform:rotate(-8deg)}
+.pond-reed.r2{left:4.5%;bottom:15%;height:108px;transform:rotate(5deg)}
+.pond-reed.r3{right:4%;bottom:22%;height:95px;transform:rotate(8deg)}
+
+.pond-fish{position:absolute;left:50%;top:50%;width:86px;height:132px;z-index:10;transform-origin:50% 50%;filter:drop-shadow(0 8px 7px rgba(0,0,0,.32));will-change:left,top,transform;cursor:pointer;transition:filter .2s ease}
+.pond-fish svg{width:100%;height:100%;overflow:visible;display:block}
+.pond-fish.rare{filter:drop-shadow(0 0 8px rgba(185,220,236,.85)) drop-shadow(0 7px 6px rgba(0,0,0,.28))}
+.pond-fish.legend{filter:drop-shadow(0 0 10px rgba(255,212,76,.95)) drop-shadow(0 7px 6px rgba(0,0,0,.3))}
+.pond-fish:hover{filter:drop-shadow(0 0 11px rgba(255,255,255,.75)) drop-shadow(0 8px 7px rgba(0,0,0,.32))}
+.pond-fish-label{position:absolute;left:50%;top:100%;transform:translate(-50%,3px) rotate(var(--counter-rot,0deg));white-space:nowrap;background:rgba(5,31,42,.82);color:white;border-radius:999px;padding:2px 7px;font-size:9px;pointer-events:none}
+
+.pond-side{display:grid;gap:12px}
+.pond-card{background:#fff;border:1px solid #cbd8eb;border-radius:14px;padding:12px;box-shadow:0 4px 14px rgba(17,57,86,.08)}
+.pond-card h3{margin:0 0 8px;color:#194d9e;font-size:17px}
+.pond-status{min-height:48px;padding:9px 10px;border-radius:9px;background:#eef6f8;color:#274b5b;line-height:1.55;font-size:13px}
+.pond-picker{display:grid;gap:7px;max-height:495px;overflow:auto;padding-right:2px}
+.pond-picker-empty{padding:16px 8px;text-align:center;color:#74818c;font-size:13px;border:1px dashed #c7d2dc;border-radius:9px}
+.pond-pick-item{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;border:1px solid #d7e0e8;border-radius:10px;padding:8px;background:#fbfcfd}
+.pond-pick-item.selected{border-color:#2c739b;background:#edf8fb;box-shadow:inset 0 0 0 1px #89b9cd}
+.pond-pick-name{font-weight:800;color:#263f4c;font-size:13px}
+.pond-pick-meta{font-size:11px;color:#75838d;margin-top:2px}
+.pond-tier{font-size:10px;font-weight:900;letter-spacing:.04em;margin-left:4px}
+.pond-tier.normal{color:#4e6c7b}.pond-tier.rare{color:#39728b}.pond-tier.legend{color:#a36d12}
+.pond-pick-btn,.pond-mini-btn{border:1px solid #2f6790;border-radius:999px;background:#fff;color:#1b567c;font-weight:800;cursor:pointer}
+.pond-pick-btn{padding:7px 9px;font-size:11px;min-width:68px}
+.pond-pick-item.selected .pond-pick-btn{background:#1f668d;color:#fff}
+.pond-mini-btn{display:block;margin:5px auto 0;padding:4px 7px;font-size:10px;line-height:1.15}
+.pond-mini-btn.in-pond{background:#1f668d;color:white;border-color:#1f668d}
+.pond-roster{display:grid;gap:5px;margin-top:8px}
+.pond-roster-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px dotted #d3dce2;font-size:12px}
+.pond-roster-row:last-child{border-bottom:0}
+
+@media(max-width:900px){
+  header{align-items:flex-start}.header-actions{flex-direction:column-reverse;align-items:flex-end}
+  .pond-layout{grid-template-columns:1fr}.pond-side{grid-template-columns:1fr 1fr}.pond-picker{max-height:340px}
+  .pond-garden{min-height:620px}
+}
+@media(max-width:600px){
+  .app{padding:10px}.brand h1{font-size:34px}.brand>div:last-child{font-size:12px}
+  .stamp{font-size:13px;padding:5px 8px}.pond-link{padding:7px 11px;min-height:40px;font-size:13px}
+  .pond-page-head{align-items:flex-start;flex-direction:column}.pond-page-head h2{font-size:25px}
+  .pond-layout{display:block}.pond-side{display:grid;grid-template-columns:1fr;margin-top:10px}
+  .pond-garden{min-height:520px;border-radius:18px}.pond-water{left:4%;right:4%;top:13%;bottom:8%;box-shadow:0 0 0 9px rgba(143,139,111,.72),0 0 0 14px rgba(89,91,70,.42),inset 0 0 42px rgba(0,17,30,.34)}
+  .pond-bridge{width:35%;height:52px}.pond-lantern{transform:scale(.78);transform-origin:top left}
+  .pond-fish{width:66px;height:104px}.pond-water::after{font-size:10px;bottom:10px}
+}
+</style>
 </head>
 <body>
 <div class="app">
 <header>
  <div class="brand"><div><h1>越　鯉</h1><small>— KOSHI NO KOI —</small></div><div>名前から生まれる、世界に一つの錦鯉</div></div>
- <div class="stamp">越後之國<br>長岡</div>
+ <div class="header-actions"><a class="pond-link" id="pondNavLink" href="#pond">日本庭園の池 <span class="pond-count-badge" id="pondNavCount">0</span></a><div class="stamp">越後之國<br>長岡</div></div>
 </header>
 
 <section class="generator">
@@ -647,6 +759,26 @@ main > .actions button{
 <div id="storageNote" style="display:none;margin-top:8px;font-size:12px;color:#7a6a54">この表示方法では履歴はページを閉じるとリセットされます。</div>
 </div>
 
+
+
+<section id="pondView" aria-label="越鯉 日本庭園の池">
+  <div class="pond-page-head">
+    <div><h2>越鯉 日本庭園の池</h2></div>
+    <div class="pond-page-actions"><a href="#" class="pond-back-link">← 図鑑へ戻る</a><button type="button" id="pondClearBtn" class="pond-clear-btn">池を空にする</button></div>
+  </div>
+  <div class="pond-layout">
+    <div class="pond-garden" id="pondGarden">
+      <div class="pond-bridge"></div><div class="pond-lantern"></div>
+      <div class="pond-stone s1"></div><div class="pond-stone s2"></div><div class="pond-stone s3"></div><div class="pond-stone s4"></div>
+      <div class="pond-reed r1"></div><div class="pond-reed r2"></div><div class="pond-reed r3"></div>
+      <div class="pond-water" id="pondWater"></div>
+    </div>
+    <aside class="pond-side">
+      <div class="pond-card"><h3>泳いでいる越鯉</h3><div class="pond-status" id="pondStatus">図鑑から泳がせる鯉を選んでください。</div><div class="pond-roster" id="pondRoster"></div></div>
+      <div class="pond-card"><h3>図鑑から選ぶ <span id="pondPickerCount" style="font-size:12px;color:#71818c"></span></h3><div class="pond-picker" id="pondPicker"></div></div>
+    </aside>
+  </div>
+</section>
 
 <div class="footer"><span></span></div>
 </div>
@@ -2018,6 +2150,246 @@ body.cert-lock{
   if(overlay){
     obs.observe(overlay,{attributes:true,attributeFilter:["class"]});
   }
+})();
+</script>
+
+
+<script>
+/* ===== 図鑑と池の連携 ===== */
+(function(){
+  const POND_KEY="koshiKoiPondSelectionV1";
+  const MAX_POND_KOI=10;
+  let pondSelection=[];
+  let pondFish=[];
+  let pondAnimStarted=false;
+  let lastTick=0;
+  let attractPoint=null;
+  let attractUntil=0;
+
+  function esc(s){return String(s??"").replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'\"':"&quot;","'":"&#39;"}[c]))}
+  function tierLabel(t){return t==="legend"?"LEGEND":(t==="rare"?"RARE":"通常")}
+  function itemKey(tier,s){return tier+":"+String(s.variety)+":"+String(s.id)}
+
+  function loadPondSelection(){
+    try{
+      const raw=localStorage.getItem(POND_KEY);
+      pondSelection=raw?JSON.parse(raw):[];
+      if(!Array.isArray(pondSelection))pondSelection=[];
+    }catch(e){pondSelection=[]}
+    pondSelection=pondSelection.filter(x=>x&&x.state&&x.tier).slice(0,MAX_POND_KOI);
+    return pondSelection;
+  }
+  function savePondSelection(){
+    try{localStorage.setItem(POND_KEY,JSON.stringify(pondSelection))}catch(e){}
+  }
+  function allAtlasRecords(){
+    const out=[];
+    const normal=loadCollectionRecords();
+    const rare=loadIllustrationRareRecords();
+    const legend=loadLegendRecords();
+    for(let i=0;i<42;i++){
+      const n=normal[String(i)]||normal[i];if(n&&n.state)out.push({tier:"normal",state:{...n.state},price:n.price||null,savedAt:n.savedAt||0});
+      const r=rare[String(i)];if(r&&r.state)out.push({tier:"rare",state:{...r.state},price:r.price||null,savedAt:r.savedAt||0});
+      const l=legend[String(i)];if(l&&l.state)out.push({tier:"legend",state:{...l.state},price:l.price||null,savedAt:l.savedAt||0});
+    }
+    const rank={legend:0,rare:1,normal:2};
+    out.sort((a,b)=>(rank[a.tier]-rank[b.tier])||((b.savedAt||0)-(a.savedAt||0))||a.state.variety-b.state.variety);
+    return out;
+  }
+  function isSelected(tier,s){const k=itemKey(tier,s);return pondSelection.some(x=>itemKey(x.tier,x.state)===k)}
+
+  function setStatus(text){const el=document.getElementById("pondStatus");if(el)el.textContent=text}
+  function updateNavCount(){
+    const el=document.getElementById("pondNavCount");if(el)el.textContent=pondSelection.length;
+  }
+
+  function addToPond(tier,rec){
+    if(!rec||!rec.state)return;
+    const k=itemKey(tier,rec.state);
+    if(pondSelection.some(x=>itemKey(x.tier,x.state)===k)){
+      pondSelection=pondSelection.filter(x=>itemKey(x.tier,x.state)!==k);
+      setStatus(`${rec.state.name||makeKoiName(rec.state)} を池から戻しました。`);
+    }else{
+      if(pondSelection.length>=MAX_POND_KOI){alert("池で泳がせられるのは最大10匹です。");return}
+      pondSelection.push({tier,state:{...rec.state},price:rec.price||null});
+      setStatus(`${rec.state.name||makeKoiName(rec.state)} を池に放しました。`);
+    }
+    savePondSelection();
+    updatePondUI();
+    renderCollection();renderIllustrationRareCollection();renderLegendCollection();
+  }
+
+  function clearPond(){
+    pondSelection=[];savePondSelection();updatePondUI();
+    renderCollection();renderIllustrationRareCollection();renderLegendCollection();
+    setStatus("池を空にしました。図鑑から泳がせる鯉を選んでください。");
+  }
+
+  function stripKoiBackground(svg,suffix){
+    svg=svg.replace(/<rect width="500" height="760" rx="22"[^>]*\/>/,"");
+    svg=svg.replace(/<g opacity="\.22" fill="none" stroke="#fff" stroke-width="4">[\s\S]*?<\/g>/,"");
+    svg=svg.replace(/\bid="([^"]+)"/g,(m,id)=>`id="${id}_${suffix}"`);
+    svg=svg.replace(/url\(#([^)]+)\)/g,(m,id)=>`url(#${id}_${suffix})`);
+    return svg;
+  }
+  function pondKoiSVG(s,instance){return stripKoiBackground(beautifulNormalSVG(s),"pond_"+instance)}
+
+  // 池のLEGENDは、背景透過済みの専用PNGをそのまま使用する。
+  // GitHub側に pond_legend/00.png ～ pond_legend/41.png を配置する。
+  const POND_LEGEND_IMAGES=Array.from({length:42},(_,i)=>`pond_legend/${String(i).padStart(2,"0")}.png`);
+  function legendPondImage(s){
+    return Promise.resolve(POND_LEGEND_IMAGES[s.variety%42]);
+  }
+
+  function randomPoint(seedOffset=0){
+    const a=Math.random()*Math.PI*2;
+    const r=.18+Math.random()*.72;
+    return {x:.5+Math.cos(a)*r*.40,y:.5+Math.sin(a)*r*.36};
+  }
+  function shortestAngle(from,to){let d=(to-from)%360;if(d>180)d-=360;if(d<-180)d+=360;return d}
+
+  function rebuildPondFish(){
+    const water=document.getElementById("pondWater");if(!water)return;
+    water.querySelectorAll(".pond-fish").forEach(n=>n.remove());
+    pondFish=[];
+    pondSelection.forEach((item,i)=>{
+      const s=item.state;
+      const node=document.createElement("div");
+      node.className="pond-fish "+item.tier;
+      node.dataset.key=itemKey(item.tier,s);
+      const size=62+(SIZES[s.size]||50)*.38;
+      node.style.width=Math.round(size)+"px";
+      node.style.height=Math.round(size*1.53)+"px";
+      if(item.tier==="legend"){
+        node.innerHTML=`<img class="pond-legend-img" alt="${esc(VARIETIES[s.variety])} LEGEND"><div class="pond-fish-label">${esc(makeKoiName(s))}</div>`;
+        const limg=node.querySelector(".pond-legend-img");
+        if(limg){
+          limg.style.cssText="width:100%;height:100%;object-fit:contain;display:block;pointer-events:none";
+          legendPondImage(s).then(src=>{if(limg.isConnected)limg.src=src});
+        }
+      }else{
+        node.innerHTML=pondKoiSVG(s,String(s.id)+"_"+i)+`<div class="pond-fish-label">${esc(makeKoiName(s))}</div>`;
+      }
+      const p=randomPoint(i);
+      const t=randomPoint(i+100);
+      const f={node,item,x:p.x,y:p.y,tx:t.x,ty:t.y,angle:Math.random()*360,speed:.026+((hash32(canonicalSeed(s.id,"pondSpeed"))%14)/1000),pauseUntil:0,nextPause:performance.now()+3500+Math.random()*7000};
+      node.style.left=(f.x*100)+"%";node.style.top=(f.y*100)+"%";
+      node.addEventListener("click",e=>{e.stopPropagation();setStatus(`${s.name||"名主不明"} ／ ${makeKoiName(s)} ／ ${VARIETIES[s.variety]} ／ ${String(s.id).padStart(6,"0")} ／ ${tierLabel(item.tier)}`)});
+      water.appendChild(node);pondFish.push(f);
+    });
+    if(!pondSelection.length)setStatus("図鑑から泳がせる鯉を選んでください。");
+    if(!pondAnimStarted){pondAnimStarted=true;requestAnimationFrame(tick)}
+  }
+
+  function tick(ts){
+    const dt=Math.min(48,Math.max(0,ts-(lastTick||ts)))/1000;lastTick=ts;
+    const active=document.body.classList.contains("pond-mode");
+    if(active){
+      for(const f of pondFish){
+        if(attractPoint && ts<attractUntil){f.tx=attractPoint.x;f.ty=attractPoint.y}
+        if(ts<f.pauseUntil)continue;
+        let dx=f.tx-f.x,dy=f.ty-f.y,dist=Math.hypot(dx,dy);
+        if(dist<.025){
+          if(ts>f.nextPause && Math.random()<.42){f.pauseUntil=ts+1000+Math.random()*2500;f.nextPause=ts+5500+Math.random()*9000}
+          const p=randomPoint();f.tx=p.x;f.ty=p.y;dx=f.tx-f.x;dy=f.ty-f.y;dist=Math.hypot(dx,dy);
+        }
+        if(dist>.0001){
+          const step=Math.min(dist,f.speed*dt);
+          f.x+=dx/dist*step;f.y+=dy/dist*step;
+          const wanted=Math.atan2(dy,dx)*180/Math.PI-90;
+          f.angle+=shortestAngle(f.angle,wanted)*Math.min(1,dt*2.4);
+        }
+        f.node.style.left=(f.x*100)+"%";f.node.style.top=(f.y*100)+"%";
+        f.node.style.transform=`translate(-50%,-50%) rotate(${f.angle}deg)`;
+        const lab=f.node.querySelector(".pond-fish-label");if(lab)lab.style.setProperty("--counter-rot",(-f.angle)+"deg");
+      }
+      if(attractPoint && ts>=attractUntil)attractPoint=null;
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function renderRoster(){
+    const box=document.getElementById("pondRoster");if(!box)return;box.innerHTML="";
+    pondSelection.forEach((x,i)=>{
+      const r=document.createElement("div");r.className="pond-roster-row";
+      r.innerHTML=`<span>${i+1}. ${esc(makeKoiName(x.state))} <span class="pond-tier ${x.tier}">${tierLabel(x.tier)}</span></span><span>${esc(VARIETIES[x.state.variety])}</span>`;
+      box.appendChild(r);
+    });
+  }
+  function renderPondPicker(){
+    const box=document.getElementById("pondPicker");if(!box)return;
+    const records=allAtlasRecords();box.innerHTML="";
+    const count=document.getElementById("pondPickerCount");if(count)count.textContent=`${records.length}個体保存済み`;
+    if(!records.length){box.innerHTML='<div class="pond-picker-empty">まだ図鑑に保存された個体がありません。名前から越鯉を生成してください。</div>';return}
+    records.forEach(rec=>{
+      const s=rec.state,selected=isSelected(rec.tier,s);
+      const d=document.createElement("div");d.className="pond-pick-item"+(selected?" selected":"");
+      d.innerHTML=`<div><div class="pond-pick-name">${esc(makeKoiName(s))}<span class="pond-tier ${rec.tier}">${tierLabel(rec.tier)}</span></div><div class="pond-pick-meta">${esc(s.name||"名主不明")} ／ ${esc(VARIETIES[s.variety])} ／ 第${String(s.id).padStart(6,"0")}号</div></div><button type="button" class="pond-pick-btn">${selected?"泳いでいる":"池へ"}</button>`;
+      d.querySelector("button").onclick=()=>addToPond(rec.tier,rec);
+      box.appendChild(d);
+    });
+  }
+  function updatePondUI(){loadPondSelection();updateNavCount();renderPondPicker();renderRoster();rebuildPondFish()}
+
+  function pondButton(tier,rec){
+    if(!rec||!rec.state)return "";
+    const selected=isSelected(tier,rec.state);
+    return `<button type="button" class="pond-mini-btn${selected?" in-pond":""}" data-tier="${tier}" data-variety="${rec.state.variety}">${selected?"池で泳いでいる":"池へ"}</button>`;
+  }
+  function bindMiniButton(d,tier,rec){
+    const b=d.querySelector(".pond-mini-btn");if(!b)return;
+    b.onclick=e=>{e.stopPropagation();addToPond(tier,rec)};
+  }
+
+  renderCollection=function(newIndex=-1){
+    const found=loadCollection();const box=document.getElementById("collectionGrid");if(!box)return;box.innerHTML="";
+    const recs=loadCollectionRecords();
+    VARIETIES.forEach((v,i)=>{
+      const d=document.createElement("div"),isFound=found.includes(i),rec=recs[String(i)]||recs[i];
+      d.className="collection-item"+(isFound?" found":"")+(i===newIndex?" new":"")+(isFound&&currentHighlight&&currentHighlight.tier==="normal"&&currentHighlight.variety===i?" just-created":"");
+      d.innerHTML=`<div>${isFound?"◆":"?"}</div><div>${isFound?esc(v):"未発見"}</div>${isFound&&rec?pondButton("normal",rec):""}`;
+      if(isFound){d.title="タップして鑑定書を見る";d.setAttribute("role","button");d.tabIndex=0;d.onclick=()=>openCollectionCertificate(i);d.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openCollectionCertificate(i)}};if(rec)bindMiniButton(d,"normal",rec)}
+      box.appendChild(d);
+    });
+    const fc=document.getElementById("foundCount");if(fc)fc.textContent=found.length;
+  };
+
+  renderIllustrationRareCollection=function(){
+    const box=document.getElementById("illustrationRareGrid");if(!box)return;const recs=loadIllustrationRareRecords();box.innerHTML="";
+    for(let i=0;i<42;i++){
+      const rec=recs[String(i)],d=document.createElement("div");
+      d.className="legend-item"+(rec?" found":"")+(rec&&currentHighlight&&currentHighlight.tier==="rare"&&currentHighlight.variety===i?" just-created":"");
+      if(rec){d.innerHTML=`<div class="mark">◇</div><div>${esc(VARIETIES[i]||("第"+(i+1)+"種"))}</div>${pondButton("rare",rec)}`;d.onclick=()=>openIllustrationRareCertificate(String(i));bindMiniButton(d,"rare",rec)}
+      else d.innerHTML='<div class="mark">?</div><div>未発見</div>';
+      box.appendChild(d);
+    }
+  };
+
+  renderLegendCollection=function(){
+    const box=document.getElementById("legendGrid");if(!box)return;const recs=loadLegendRecords();box.innerHTML="";
+    for(let i=0;i<42;i++){
+      const rec=recs[String(i)],d=document.createElement("div");
+      d.className="legend-item"+(rec?" found":"")+(rec&&currentHighlight&&currentHighlight.tier==="legend"&&currentHighlight.variety===i?" just-created":"");
+      if(rec){d.innerHTML=`<div class="mark">◆</div><div>${esc(VARIETIES[i]||("第"+(i+1)+"種"))}</div>${pondButton("legend",rec)}`;d.title="タップして伝説級鑑定書を見る";d.onclick=()=>openLegendCertificate(String(i));bindMiniButton(d,"legend",rec)}
+      else d.innerHTML='<div class="mark">?</div><div>未発見</div>';
+      box.appendChild(d);
+    }
+  };
+
+  function applyMode(){
+    const pond=location.hash==="#pond";document.body.classList.toggle("pond-mode",pond);
+    const nav=document.getElementById("pondNavLink");if(nav)nav.setAttribute("aria-current",pond?"page":"false");
+    if(pond){updatePondUI();setTimeout(()=>document.getElementById("pondView")?.scrollIntoView({block:"start"}),0)}
+  }
+
+  document.addEventListener("DOMContentLoaded",()=>{
+    loadPondSelection();updatePondUI();applyMode();
+    const clear=document.getElementById("pondClearBtn");if(clear)clear.onclick=()=>{if(!pondSelection.length)return;clearPond()};
+    const water=document.getElementById("pondWater");if(water)water.addEventListener("click",e=>{
+      const r=water.getBoundingClientRect();attractPoint={x:Math.max(.08,Math.min(.92,(e.clientX-r.left)/r.width)),y:Math.max(.08,Math.min(.92,(e.clientY-r.top)/r.height))};attractUntil=performance.now()+5000;setStatus("鯉たちがタップした場所へゆっくり寄っていきます。");
+    });
+  });
+  window.addEventListener("hashchange",applyMode);
 })();
 </script>
 
