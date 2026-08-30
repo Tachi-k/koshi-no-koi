@@ -511,16 +511,16 @@ main > .actions button{
 }
 
 
-/* ===== LEGEND完成画像をそのまま表示 =====
-   42種類のLEGEND画像ファイルをそのまま表示する。
-   上に別の鯉を重ねず、背景の暗化・ぼかしも行わない。 */
+/* ===== LEGEND透過PNGを鑑定書と池で共通利用 ===== */
 .rare-real-card img{
   opacity:1!important;
   object-fit:contain!important;
   object-position:center center!important;
   filter:none!important;
   transform:none!important;
-  background:#071a24!important;
+  background:transparent!important;
+  padding:18px!important;
+  box-sizing:border-box!important;
 }
 .rare-real-card::before{
   content:none!important;
@@ -541,7 +541,7 @@ main > .actions button{
 }
 
 /* LEGEND 42画像：全体表示・白線なし版 */
-.rare-real-card{background:#071a24!important}
+.rare-real-card{background:#f7f3e8!important}
 .rare-real-card img{
   position:absolute!important;
   inset:0!important;
@@ -552,7 +552,9 @@ main > .actions button{
   opacity:1!important;
   filter:none!important;
   transform:none!important;
-  background:#071a24!important;
+  background:transparent!important;
+  padding:18px!important;
+  box-sizing:border-box!important;
 }
 .rare-real-card::before{content:none!important;display:none!important}
 .rare-full-koi{display:none!important}
@@ -1195,7 +1197,7 @@ function legendFullBodySVG(s){
   return svg;
 }
 
-function rareImageFor(s){ return RARE_REAL_IMAGES[s.variety % 42]; }
+function rareImageFor(s){ return `pond_legend/${String(s.variety%42).padStart(2,"0")}.png`; }
 function applyRealRare(){
   const rare=isRealRare(state);
   const card=document.getElementById("rareRealCard");
@@ -2234,11 +2236,11 @@ body.cert-lock{
   }
   function pondKoiSVG(s,instance){return stripKoiBackground(beautifulNormalSVG(s),"pond_"+instance)}
 
-  // 池のLEGENDは、背景透過済みの専用PNGをそのまま使用する。
-  // GitHub側に pond_legend/00.png ～ pond_legend/41.png を配置する。
-  const POND_LEGEND_IMAGES=Array.from({length:42},(_,i)=>`pond_legend/${String(i).padStart(2,"0")}.png`);
+  // LEGENDは池専用の透過PNGを直接使用する。
+  // 鑑定書と池の両方で pond_legend/*.png を共通利用する。
   function legendPondImage(s){
-    return Promise.resolve(POND_LEGEND_IMAGES[s.variety%42]);
+    const n=String(s.variety%42).padStart(2,"0");
+    return `pond_legend/${n}.png`;
   }
 
   function randomPoint(seedOffset=0){
@@ -2265,7 +2267,16 @@ body.cert-lock{
         const limg=node.querySelector(".pond-legend-img");
         if(limg){
           limg.style.cssText="width:100%;height:100%;object-fit:contain;display:block;pointer-events:none";
-          legendPondImage(s).then(src=>{if(limg.isConnected)limg.src=src});
+          limg.src=legendPondImage(s);
+          limg.onerror=()=>{
+            // 池専用PNGがまだ配置されていない場合は、魚を不正な背景付き画像へ戻さない。
+            limg.style.display="none";
+            const msg=document.createElement("div");
+            msg.className="pond-png-missing";
+            msg.textContent="PNG未配置";
+            msg.style.cssText="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:10px;font-weight:800;color:#fff;background:rgba(90,40,20,.78);padding:3px 6px;border-radius:999px;white-space:nowrap";
+            if(node.isConnected&&!node.querySelector('.pond-png-missing'))node.appendChild(msg);
+          };
         }
       }else{
         node.innerHTML=pondKoiSVG(s,String(s.id)+"_"+i)+`<div class="pond-fish-label">${esc(makeKoiName(s))}</div>`;
