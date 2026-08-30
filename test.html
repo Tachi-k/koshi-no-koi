@@ -625,6 +625,72 @@ main > .actions button{
   .pond-garden .pond-theme-moon{width:56px;height:56px;right:14%;top:14%}
 }
 
+
+/* ===== 写真調・日本庭園デザイン ===== */
+body.pond-mode{background:#151813}
+body.pond-mode .app{max-width:1480px}
+body.pond-mode header{background:linear-gradient(180deg,rgba(20,24,18,.96),rgba(20,24,18,.82));border-radius:0 0 18px 18px;padding:12px 18px;margin:-10px -10px 14px;color:#f4efe5}
+body.pond-mode .brand h1,body.pond-mode .brand small{color:#f4efe5}
+body.pond-mode .brand>div:last-child{color:#cfc8b9}
+body.pond-mode .stamp{border-color:#90754a;color:#e9d5aa;background:rgba(255,255,255,.04)}
+body.pond-mode .pond-link,body.pond-mode .pond-back-link{background:rgba(19,23,18,.8);border-color:#8f774d;color:#efe2c2;box-shadow:none}
+body.pond-mode #pondView{margin-top:0}
+.pond-page-head{margin:0 0 10px;padding:4px 4px}
+body.pond-mode .pond-page-head h2{color:#f3ead8;font-size:34px;text-shadow:0 2px 14px rgba(0,0,0,.5)}
+body.pond-mode .pond-clear-btn{background:rgba(24,27,20,.75);color:#ead9b8;border-color:#8e744d}
+.pond-theme-toolbar{justify-content:center;margin:0 0 12px;padding:8px;border-radius:15px;background:rgba(16,19,15,.82);border:1px solid rgba(194,168,116,.22);box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.pond-theme-label{color:#d9c9a7;margin-right:6px}
+.pond-theme-btn{background:rgba(38,40,33,.96);color:#e8dfcd;border-color:#5d5c4d;box-shadow:none;padding:10px 17px}
+.pond-theme-btn.active{background:linear-gradient(180deg,#f5edcf,#d8c28e);color:#3e3321;border-color:#eadcae;box-shadow:0 4px 14px rgba(0,0,0,.24)}
+.pond-layout{grid-template-columns:minmax(0,1fr) 300px;gap:12px}
+.pond-garden{
+  min-height:760px;border:1px solid rgba(173,151,104,.42);border-radius:22px;
+  background-image:url('garden_day.jpg');background-size:142% auto;background-position:50% 57%;background-repeat:no-repeat;
+  box-shadow:inset 0 0 70px rgba(0,0,0,.25),0 18px 38px rgba(0,0,0,.32);
+  isolation:isolate
+}
+.pond-garden::before{content:"";position:absolute;inset:0;z-index:1;opacity:1;background:linear-gradient(180deg,rgba(0,0,0,.06),rgba(0,0,0,.18));pointer-events:none}
+.pond-garden::after{content:"";position:absolute;inset:0;z-index:20;pointer-events:none;background:radial-gradient(ellipse at 50% 54%,transparent 35%,rgba(2,7,4,.06) 58%,rgba(2,6,3,.32) 100%)}
+.pond-scene-note{left:22px;top:20px;z-index:30;max-width:245px;background:rgba(15,18,14,.74);border:1px solid rgba(212,188,137,.32);color:#eee7d8;backdrop-filter:blur(8px);box-shadow:0 10px 26px rgba(0,0,0,.24)}
+.pond-scene-title,.pond-garden.theme-spring .pond-scene-title,.pond-garden.theme-dusk .pond-scene-title,.pond-garden.theme-moon .pond-scene-title{color:#f4ead5;font-size:27px}
+.pond-scene-desc,.pond-garden.theme-spring .pond-scene-desc,.pond-garden.theme-dusk .pond-scene-desc,.pond-garden.theme-moon .pond-scene-desc{color:#d8d0c2}
+.pond-theme-mist,.pond-theme-canopy,.pond-theme-petals,.pond-theme-maples,.pond-theme-moon,.pond-theme-sand,.pond-bridge,.pond-lantern,.pond-stone,.pond-reed{display:none!important}
+.pond-water{
+  z-index:8;left:18%;right:15%;top:28%;bottom:15%;border-radius:42% 58% 48% 52% / 38% 43% 57% 62%;
+  clip-path:polygon(13% 5%,36% 1%,62% 5%,83% 16%,96% 34%,100% 56%,89% 78%,70% 93%,45% 100%,22% 92%,7% 75%,0 52%,4% 28%);
+  background:
+    radial-gradient(circle at 48% 35%,rgba(255,255,255,.08),transparent 22%),
+    linear-gradient(180deg,rgba(17,68,71,.83),rgba(10,52,59,.88) 52%,rgba(7,38,46,.9));
+  box-shadow:inset 0 0 50px rgba(0,0,0,.35),inset 0 0 18px rgba(147,211,198,.08);
+  backdrop-filter:blur(2px) saturate(.8)
+}
+.pond-water::before{opacity:.28;background:repeating-radial-gradient(ellipse at 50% 52%,transparent 0 28px,rgba(195,231,224,.16) 29px 30px,transparent 31px 58px)}
+.pond-water::after{bottom:12px;color:rgba(239,234,216,.9);font-size:11px;text-shadow:0 2px 8px rgba(0,0,0,.8)}
+.pond-fish{filter:drop-shadow(0 8px 8px rgba(0,0,0,.42));z-index:12}
+.pond-fish.rare{filter:drop-shadow(0 0 8px rgba(190,227,238,.7)) drop-shadow(0 8px 8px rgba(0,0,0,.4))}
+.pond-fish.legend{filter:drop-shadow(0 0 11px rgba(255,211,89,.88)) drop-shadow(0 8px 8px rgba(0,0,0,.42))}
+.pond-fish-label{background:rgba(10,15,11,.78);color:#f4ead8;border:1px solid rgba(215,192,144,.22)}
+.pond-side{gap:10px}
+.pond-card{background:rgba(18,20,16,.93);border-color:rgba(179,153,104,.28);color:#eee5d2;box-shadow:0 14px 28px rgba(0,0,0,.28);backdrop-filter:blur(8px)}
+.pond-card h3{color:#ead9b9;border-bottom:1px solid rgba(216,193,146,.18);padding-bottom:8px}
+.pond-status{background:rgba(255,255,255,.055);color:#d7cfbe;border:1px solid rgba(255,255,255,.06)}
+.pond-pick-item{background:rgba(255,255,255,.035);border-color:rgba(255,255,255,.08)}
+.pond-pick-item.selected{background:rgba(174,143,83,.15);border-color:#8e7549;box-shadow:inset 0 0 0 1px rgba(222,195,139,.1)}
+.pond-pick-name{color:#f2e8d5}.pond-pick-meta{color:#a8a294}.pond-picker-empty{color:#aaa493;border-color:#5b584c}
+.pond-pick-btn,.pond-mini-btn{background:#262820;color:#e8dcc2;border-color:#8a744e}.pond-pick-item.selected .pond-pick-btn{background:#8b7144;color:#fff}
+.pond-roster-row{border-color:rgba(255,255,255,.08);color:#ded4c0}
+.pond-tier.normal{color:#bcb7aa}.pond-tier.rare{color:#86c5d8}.pond-tier.legend{color:#e8be63}
+.pond-garden.theme-dusk{filter:sepia(.14) brightness(.72) saturate(.95) hue-rotate(-7deg)}
+.pond-garden.theme-dusk .pond-water{background:linear-gradient(180deg,rgba(25,58,69,.9),rgba(10,37,51,.92));}
+.pond-garden.theme-spring{filter:brightness(1.06) saturate(.9) hue-rotate(342deg)}
+.pond-garden.theme-spring::before{background:radial-gradient(circle at 10% 20%,rgba(248,197,214,.20),transparent 26%),radial-gradient(circle at 86% 15%,rgba(248,207,220,.16),transparent 25%),linear-gradient(180deg,rgba(255,240,244,.04),rgba(0,0,0,.08))}
+.pond-garden.theme-moon{filter:brightness(.46) saturate(.75) hue-rotate(14deg)}
+.pond-garden.theme-moon::before{background:radial-gradient(circle at 78% 17%,rgba(245,232,180,.18),transparent 12%),linear-gradient(180deg,rgba(9,14,27,.24),rgba(4,8,16,.4))}
+.pond-garden.theme-bamboo{filter:brightness(.9) saturate(.88) hue-rotate(13deg)}
+.pond-garden.theme-bamboo::before{background:linear-gradient(90deg,rgba(21,61,31,.11),transparent 38%,transparent 70%,rgba(21,55,27,.09)),linear-gradient(180deg,rgba(0,0,0,.02),rgba(0,0,0,.13))}
+@media(max-width:900px){.pond-layout{grid-template-columns:1fr}.pond-garden{min-height:680px;background-size:165% auto}.pond-side{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){body.pond-mode .pond-page-head h2{font-size:27px}.pond-layout{display:block}.pond-garden{min-height:560px;background-size:auto 100%;background-position:50% 55%}.pond-water{left:10%;right:9%;top:30%;bottom:15%}.pond-side{grid-template-columns:1fr}.pond-theme-btn{padding:8px 11px}.pond-theme-label{width:100%;text-align:center}.pond-scene-note{max-width:185px;left:10px;top:10px}.pond-scene-title{font-size:20px}}
+
 </style>
 <style>
 
@@ -841,6 +907,7 @@ body.pond-mode #pondView{display:block!important}
     <button type="button" class="pond-theme-btn" data-theme="dusk">黄昏</button>
     <button type="button" class="pond-theme-btn" data-theme="spring">春桜</button>
     <button type="button" class="pond-theme-btn" data-theme="moon">月夜</button>
+    <button type="button" class="pond-theme-btn" data-theme="bamboo">竹林</button>
   </div>
   <div class="pond-layout">
     <div class="pond-garden theme-morning" id="pondGarden">
@@ -2244,7 +2311,8 @@ body.cert-lock{
     morning:{title:"朝霧の庭",desc:"竹林と朝の靄に包まれた、静けさを味わう庭園です。"},
     dusk:{title:"黄昏の庭",desc:"紅葉と灯りが水面に映る、あたたかな夕景の庭園です。"},
     spring:{title:"春桜の庭",desc:"桜の花びらが舞う、やさしく華やかな春の庭園です。"},
-    moon:{title:"月夜の庭",desc:"月明かりと石灯籠が照らす、幽玄で静謐な夜の庭園です。"}
+    moon:{title:"月夜の庭",desc:"月明かりと石灯籠が照らす、幽玄で静謐な夜の庭園です。"},
+    bamboo:{title:"竹林の庭",desc:"竹の葉音と水音に包まれた、深い緑の庭園です。"}
   };
   const MAX_POND_KOI=10;
   let pondSelection=[];
@@ -2283,7 +2351,7 @@ body.cert-lock{
     const garden=document.getElementById("pondGarden");
     if(!garden)return;
     const name=POND_THEMES[theme]?theme:"morning";
-    garden.classList.remove("theme-morning","theme-dusk","theme-spring","theme-moon");
+    garden.classList.remove("theme-morning","theme-dusk","theme-spring","theme-moon","theme-bamboo");
     garden.classList.add("theme-"+name);
     garden.dataset.theme=name;
     const meta=POND_THEMES[name];
