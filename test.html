@@ -559,6 +559,72 @@ main > .actions button{
 .rare-real-card::before{content:none!important;display:none!important}
 .rare-full-koi{display:none!important}
 
+
+/* ===== 情緒ある庭園テーマ追加 ===== */
+.pond-theme-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 14px}
+.pond-theme-label{font-size:12px;font-weight:800;letter-spacing:.08em;color:#6e5a44}
+.pond-theme-btn{appearance:none;border:1px solid #b6a282;background:rgba(255,250,243,.92);color:#5b4630;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.06);transition:transform .15s ease,filter .15s ease,background .2s ease,color .2s ease}
+.pond-theme-btn:hover{filter:brightness(1.03);transform:translateY(-1px)}
+.pond-theme-btn.active{background:linear-gradient(180deg,#8f6a45,#705131);color:#fff;border-color:#705131;box-shadow:0 6px 16px rgba(65,38,15,.22)}
+.pond-theme-btn small{font-weight:600;opacity:.8}
+
+.pond-garden{background:var(--garden-bg,linear-gradient(145deg,#718c58 0%,#97a975 36%,#6d8653 100%));box-shadow:inset 0 0 70px rgba(31,44,23,.18),0 10px 28px rgba(26,54,70,.14);border-color:rgba(101,120,84,.55)}
+.pond-garden::before{opacity:.28;background:var(--garden-overlay,radial-gradient(circle at 25% 20%,rgba(255,255,255,.18),transparent 18%),radial-gradient(circle at 75% 24%,rgba(255,255,255,.12),transparent 15%),repeating-radial-gradient(circle at 20% 30%,transparent 0 16px,rgba(255,255,255,.035) 17px 19px))}
+.pond-garden::after{content:"";position:absolute;inset:0;pointer-events:none;background:var(--garden-vignette,linear-gradient(180deg,rgba(255,255,255,.06),rgba(0,0,0,.08)));opacity:.95}
+.pond-garden>*{position:absolute}
+.pond-scene-note{left:24px;top:22px;z-index:12;max-width:290px;padding:16px 18px;border-radius:18px;background:rgba(255,248,239,.76);border:1px solid rgba(170,145,114,.35);backdrop-filter:blur(5px);box-shadow:0 10px 22px rgba(0,0,0,.09)}
+.pond-scene-title{display:block;font-family:'Yu Mincho',serif;font-size:28px;line-height:1.25;color:#4a3a2a;margin-bottom:6px}
+.pond-scene-desc{display:block;font-size:13px;line-height:1.7;color:#675544}
+.pond-theme-mist,.pond-theme-canopy,.pond-theme-petals,.pond-theme-maples,.pond-theme-moon,.pond-theme-sand{pointer-events:none}
+.pond-theme-mist{inset:-6% -4%;z-index:2;opacity:.7;background:radial-gradient(circle at 15% 22%,rgba(255,255,255,.65),transparent 20%),radial-gradient(circle at 83% 18%,rgba(255,255,255,.52),transparent 18%),radial-gradient(circle at 24% 80%,rgba(255,255,255,.45),transparent 19%);filter:blur(18px)}
+.pond-theme-canopy{left:0;right:0;top:0;height:34%;z-index:4;background:radial-gradient(circle at 16% 4%,rgba(75,109,53,.42),transparent 22%),radial-gradient(circle at 74% 5%,rgba(84,122,60,.35),transparent 24%),radial-gradient(circle at 89% 0%,rgba(81,113,52,.48),transparent 18%)}
+.pond-theme-petals{left:0;right:0;top:0;bottom:0;z-index:7;opacity:0;background:radial-gradient(circle at 14% 16%,rgba(255,216,228,.98) 0 2px,transparent 2.5px),radial-gradient(circle at 19% 26%,rgba(255,226,236,.9) 0 2.6px,transparent 3px),radial-gradient(circle at 29% 13%,rgba(255,220,231,.92) 0 2px,transparent 2.4px),radial-gradient(circle at 69% 17%,rgba(255,220,232,.85) 0 2px,transparent 2.6px),radial-gradient(circle at 82% 72%,rgba(255,221,232,.88) 0 2px,transparent 2.8px),radial-gradient(circle at 58% 64%,rgba(255,221,232,.75) 0 2px,transparent 2.7px)}
+.pond-theme-maples{left:0;right:0;top:0;height:38%;z-index:7;opacity:0;background:radial-gradient(circle at 17% 17%,rgba(182,70,37,.9) 0 7px,transparent 8px),radial-gradient(circle at 24% 10%,rgba(165,83,38,.84) 0 8px,transparent 9px),radial-gradient(circle at 69% 18%,rgba(205,99,44,.92) 0 8px,transparent 9px),radial-gradient(circle at 77% 14%,rgba(176,68,42,.92) 0 8px,transparent 9px),radial-gradient(circle at 87% 22%,rgba(205,113,57,.82) 0 7px,transparent 8px)}
+.pond-theme-moon{right:15%;top:12%;width:82px;height:82px;border-radius:50%;z-index:6;opacity:0;background:radial-gradient(circle at 35% 35%,rgba(255,250,234,.95),rgba(241,226,172,.96) 42%,rgba(245,215,120,.08) 62%,transparent 70%);box-shadow:0 0 28px rgba(255,236,160,.35)}
+.pond-theme-sand{left:2%;right:2%;bottom:1.5%;height:18%;z-index:2;opacity:.42;background:repeating-radial-gradient(circle at 35% 80%,rgba(255,255,255,.18) 0 1px,transparent 1px 18px)}
+.pond-water{z-index:6;left:5.5%;right:5.5%;top:13%;bottom:7.5%;border-radius:48% 52% 49% 51% / 42% 45% 55% 58%;background:var(--water-bg,linear-gradient(160deg,#174d62,#1b6c7a 45%,#0d4358 100%));box-shadow:var(--water-shadow,0 0 0 16px rgba(143,139,111,.72),0 0 0 24px rgba(89,91,70,.42),inset 0 0 55px rgba(0,17,30,.34))}
+.pond-water::before{opacity:var(--ripple-opacity,.38);background:var(--ripple-bg,repeating-radial-gradient(ellipse at 50% 50%,transparent 0 22px,rgba(214,244,247,.16) 23px 24px,transparent 25px 47px))}
+.pond-water::after{bottom:20px;color:var(--water-tip,#eef6f0)}
+.pond-bridge{z-index:8;right:3%;top:7%;height:76px;background:linear-gradient(180deg,#8b3e2b,#683021);box-shadow:0 10px 20px rgba(0,0,0,.26)}
+.pond-lantern{z-index:9}
+.pond-lantern::before{background:#d8d0bc;box-shadow:0 0 18px rgba(255,229,150,.42)}
+.pond-stone,.pond-reed{z-index:5}
+.pond-fish{z-index:10}
+
+.pond-garden.theme-morning{--garden-bg:linear-gradient(145deg,#b8c7a1 0%,#90ad79 40%,#6d875b 100%);--garden-overlay:radial-gradient(circle at 13% 14%,rgba(255,255,255,.28),transparent 18%),radial-gradient(circle at 84% 19%,rgba(255,255,255,.22),transparent 16%),repeating-radial-gradient(circle at 20% 30%,transparent 0 16px,rgba(255,255,255,.03) 17px 19px);--water-bg:radial-gradient(circle at 48% 32%,rgba(255,255,255,.18),transparent 20%),linear-gradient(160deg,#607f82,#4f8c89 46%,#3f6c70 100%);--water-shadow:0 0 0 15px rgba(162,162,136,.62),0 0 0 24px rgba(104,116,83,.36),inset 0 0 65px rgba(231,245,245,.15),inset 0 0 48px rgba(0,16,26,.18);--water-tip:rgba(244,252,250,.88)}
+.pond-garden.theme-morning .pond-theme-mist{opacity:.88}
+.pond-garden.theme-morning .pond-scene-note{background:rgba(249,250,244,.72)}
+
+.pond-garden.theme-dusk{--garden-bg:linear-gradient(160deg,#5f4e37 0%,#7a573f 18%,#6e4a38 40%,#324539 100%);--garden-overlay:radial-gradient(circle at 10% 24%,rgba(255,173,110,.18),transparent 20%),radial-gradient(circle at 86% 14%,rgba(208,102,58,.17),transparent 20%),linear-gradient(180deg,rgba(18,12,16,.04),rgba(32,18,12,.18));--water-bg:radial-gradient(circle at 50% 12%,rgba(255,173,101,.08),transparent 16%),linear-gradient(180deg,#2b6173 0%,#144d62 42%,#0c3445 100%);--water-shadow:0 0 0 15px rgba(113,92,69,.72),0 0 0 24px rgba(59,49,37,.52),inset 0 0 80px rgba(10,8,19,.28),inset 0 0 30px rgba(255,181,105,.08);--water-tip:rgba(253,232,194,.82)}
+.pond-garden.theme-dusk .pond-theme-maples{opacity:.86}
+.pond-garden.theme-dusk .pond-lantern::before{box-shadow:0 0 28px rgba(255,196,121,.7)}
+.pond-garden.theme-dusk .pond-scene-note{background:rgba(60,42,29,.54);border-color:rgba(214,165,115,.24)}
+.pond-garden.theme-dusk .pond-scene-title,.pond-garden.theme-dusk .pond-scene-desc{color:#f0ddc4}
+
+.pond-garden.theme-spring{--garden-bg:linear-gradient(145deg,#ecd9d9 0%,#d8c7b6 15%,#9cb28e 48%,#7a9464 100%);--garden-overlay:radial-gradient(circle at 14% 7%,rgba(255,225,233,.28),transparent 24%),radial-gradient(circle at 83% 11%,rgba(255,238,244,.22),transparent 20%),linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,0));--water-bg:radial-gradient(circle at 56% 25%,rgba(255,255,255,.22),transparent 18%),linear-gradient(180deg,#85afb5 0%,#89bcc0 28%,#6fa1a5 58%,#63878a 100%);--water-shadow:0 0 0 15px rgba(162,152,133,.58),0 0 0 24px rgba(127,132,101,.34),inset 0 0 65px rgba(255,255,255,.18),inset 0 0 36px rgba(38,67,75,.18);--water-tip:rgba(247,251,252,.96)}
+.pond-garden.theme-spring .pond-theme-petals{opacity:.9}
+.pond-garden.theme-spring .pond-theme-canopy{background:radial-gradient(circle at 8% 4%,rgba(246,195,213,.58),transparent 26%),radial-gradient(circle at 23% 8%,rgba(247,204,218,.58),transparent 21%),radial-gradient(circle at 76% 5%,rgba(242,201,214,.45),transparent 24%),radial-gradient(circle at 91% 8%,rgba(248,210,222,.48),transparent 18%)}
+.pond-garden.theme-spring .pond-scene-note{background:rgba(255,247,250,.76)}
+.pond-garden.theme-spring .pond-scene-title{color:#7f4963}
+.pond-garden.theme-spring .pond-scene-desc{color:#7d5f69}
+
+.pond-garden.theme-moon{--garden-bg:linear-gradient(180deg,#141c2c 0%,#182235 38%,#243528 100%);--garden-overlay:radial-gradient(circle at 79% 15%,rgba(251,235,178,.12),transparent 19%),linear-gradient(180deg,rgba(5,10,20,.18),rgba(3,7,15,.28));--water-bg:radial-gradient(circle at 74% 12%,rgba(255,245,204,.22),transparent 10%),linear-gradient(180deg,#173051 0%,#0d2440 40%,#08172b 100%);--water-shadow:0 0 0 15px rgba(92,83,63,.7),0 0 0 24px rgba(30,33,38,.64),inset 0 0 90px rgba(0,0,0,.4),inset 0 0 24px rgba(216,197,126,.12);--water-tip:rgba(243,231,197,.88);--ripple-opacity:.22}
+.pond-garden.theme-moon .pond-theme-moon{opacity:1}
+.pond-garden.theme-moon .pond-theme-mist{opacity:.18}
+.pond-garden.theme-moon .pond-lantern::before{box-shadow:0 0 34px rgba(255,211,123,.8)}
+.pond-garden.theme-moon .pond-scene-note{background:rgba(12,21,36,.56);border-color:rgba(186,160,103,.28)}
+.pond-garden.theme-moon .pond-scene-title,.pond-garden.theme-moon .pond-scene-desc{color:#f2dfb4}
+
+@media(max-width:900px){
+  .pond-scene-note{max-width:240px;padding:13px 14px}.pond-scene-title{font-size:24px}
+}
+@media(max-width:600px){
+  .pond-theme-toolbar{gap:6px}.pond-theme-btn{padding:7px 10px;font-size:11px}
+  .pond-scene-note{left:12px;top:12px;max-width:190px;padding:11px 12px;border-radius:14px}
+  .pond-scene-title{font-size:20px;margin-bottom:4px}.pond-scene-desc{font-size:11px;line-height:1.55}
+  .pond-garden .pond-theme-moon{width:56px;height:56px;right:14%;top:14%}
+}
+
 </style>
 <style>
 
@@ -671,6 +737,7 @@ body.pond-mode #pondView{display:block!important}
   .pond-bridge{width:35%;height:52px}.pond-lantern{transform:scale(.78);transform-origin:top left}
   .pond-fish{width:66px;height:104px}.pond-water::after{font-size:10px;bottom:10px}
 }
+
 </style>
 </head>
 <body>
@@ -768,8 +835,17 @@ body.pond-mode #pondView{display:block!important}
     <div><h2>越鯉 日本庭園の池</h2></div>
     <div class="pond-page-actions"><a href="#" class="pond-back-link">← 図鑑へ戻る</a><button type="button" id="pondClearBtn" class="pond-clear-btn">池を空にする</button></div>
   </div>
+  <div class="pond-theme-toolbar" aria-label="庭園テーマの切り替え">
+    <span class="pond-theme-label">庭園の情緒</span>
+    <button type="button" class="pond-theme-btn" data-theme="morning">朝霧</button>
+    <button type="button" class="pond-theme-btn" data-theme="dusk">黄昏</button>
+    <button type="button" class="pond-theme-btn" data-theme="spring">春桜</button>
+    <button type="button" class="pond-theme-btn" data-theme="moon">月夜</button>
+  </div>
   <div class="pond-layout">
-    <div class="pond-garden" id="pondGarden">
+    <div class="pond-garden theme-morning" id="pondGarden">
+      <div class="pond-scene-note"><span class="pond-scene-title" id="pondSceneTitle">朝霧の庭</span><span class="pond-scene-desc" id="pondSceneDesc">竹林と朝の靄に包まれた、静けさを味わう庭園です。</span></div>
+      <div class="pond-theme-mist"></div><div class="pond-theme-canopy"></div><div class="pond-theme-petals"></div><div class="pond-theme-maples"></div><div class="pond-theme-moon"></div><div class="pond-theme-sand"></div>
       <div class="pond-bridge"></div><div class="pond-lantern"></div>
       <div class="pond-stone s1"></div><div class="pond-stone s2"></div><div class="pond-stone s3"></div><div class="pond-stone s4"></div>
       <div class="pond-reed r1"></div><div class="pond-reed r2"></div><div class="pond-reed r3"></div>
@@ -1948,6 +2024,7 @@ function closeCertificate(){
   white-space:nowrap;
   z-index:60;
 }
+
 </style>
 
 <style>
@@ -1975,6 +2052,7 @@ function closeCertificate(){
   font-weight: 700 !important;
   box-shadow: 0 3px 12px rgba(0,0,0,.35) !important;
 }
+
 </style>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -2094,6 +2172,7 @@ body.cert-lock{
     padding:16px!important;
   }
 }
+
 </style>
 
 <script>
@@ -2160,6 +2239,13 @@ body.cert-lock{
 /* ===== 図鑑と池の連携 ===== */
 (function(){
   const POND_KEY="koshiKoiPondSelectionV1";
+  const POND_THEME_KEY="koshiKoiPondThemeV1";
+  const POND_THEMES={
+    morning:{title:"朝霧の庭",desc:"竹林と朝の靄に包まれた、静けさを味わう庭園です。"},
+    dusk:{title:"黄昏の庭",desc:"紅葉と灯りが水面に映る、あたたかな夕景の庭園です。"},
+    spring:{title:"春桜の庭",desc:"桜の花びらが舞う、やさしく華やかな春の庭園です。"},
+    moon:{title:"月夜の庭",desc:"月明かりと石灯籠が照らす、幽玄で静謐な夜の庭園です。"}
+  };
   const MAX_POND_KOI=10;
   let pondSelection=[];
   let pondFish=[];
@@ -2183,6 +2269,32 @@ body.cert-lock{
   }
   function savePondSelection(){
     try{localStorage.setItem(POND_KEY,JSON.stringify(pondSelection))}catch(e){}
+  }
+  function loadPondTheme(){
+    try{
+      const raw=localStorage.getItem(POND_THEME_KEY);
+      return POND_THEMES[raw]?raw:"morning";
+    }catch(e){return "morning"}
+  }
+  function savePondTheme(theme){
+    try{localStorage.setItem(POND_THEME_KEY,theme)}catch(e){}
+  }
+  function applyPondTheme(theme){
+    const garden=document.getElementById("pondGarden");
+    if(!garden)return;
+    const name=POND_THEMES[theme]?theme:"morning";
+    garden.classList.remove("theme-morning","theme-dusk","theme-spring","theme-moon");
+    garden.classList.add("theme-"+name);
+    garden.dataset.theme=name;
+    const meta=POND_THEMES[name];
+    const title=document.getElementById("pondSceneTitle"); if(title) title.textContent=meta.title;
+    const desc=document.getElementById("pondSceneDesc"); if(desc) desc.textContent=meta.desc;
+    document.querySelectorAll(".pond-theme-btn[data-theme]").forEach(btn=>{
+      const on=btn.dataset.theme===name;
+      btn.classList.toggle("active",on);
+      btn.setAttribute("aria-pressed",on?"true":"false");
+    });
+    savePondTheme(name);
   }
   function allAtlasRecords(){
     const out=[];
@@ -2395,6 +2507,10 @@ body.cert-lock{
 
   document.addEventListener("DOMContentLoaded",()=>{
     loadPondSelection();updatePondUI();applyMode();
+    applyPondTheme(loadPondTheme());
+    document.querySelectorAll(".pond-theme-btn[data-theme]").forEach(btn=>{
+      btn.addEventListener("click",()=>applyPondTheme(btn.dataset.theme||"morning"));
+    });
     const clear=document.getElementById("pondClearBtn");if(clear)clear.onclick=()=>{if(!pondSelection.length)return;clearPond()};
     const water=document.getElementById("pondWater");if(water)water.addEventListener("click",e=>{
       const r=water.getBoundingClientRect();attractPoint={x:Math.max(.08,Math.min(.92,(e.clientX-r.left)/r.width)),y:Math.max(.08,Math.min(.92,(e.clientY-r.top)/r.height))};attractUntil=performance.now()+5000;setStatus("鯉たちがタップした場所へゆっくり寄っていきます。");
