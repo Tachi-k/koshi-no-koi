@@ -2515,7 +2515,9 @@ body.cert-lock{
   // 鑑定書と池の両方で pond_legend/*.png を共通利用する。
   function legendPondImage(s){
     const n=String(s.variety%42).padStart(2,"0");
-    return legendImageSource(n);
+    // 鑑定画面では青背景付きの高画質画像を使うが、池では背景を
+    // 一緒に泳がせないよう、透過済みの池専用PNGを必ず使う。
+    return `pond_legend/${n}.png?v=${LEGEND_IMAGE_VERSION}`;
   }
   function setIllustrationRarePondImage(target,s){
 	target.classList.add("premium-pond-koi","smart-rare-koi");
