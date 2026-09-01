@@ -2593,15 +2593,24 @@ body.cert-lock{
     }
   };
 
+  let previousPondMode=location.hash==="#pond";
   function applyMode(){
     const pond=location.hash==="#pond";document.body.classList.toggle("pond-mode",pond);
     const nav=document.getElementById("pondNavLink");if(nav)nav.setAttribute("aria-current",pond?"page":"false");
     if(pond){updatePondUI();setTimeout(()=>document.getElementById("pondView")?.scrollIntoView({block:"start"}),0)}
-    else if(pondSoundOn){
-      pondSoundOn=false;lastPondSoundKey="";syncPondSound(true);
-      const soundBtn=document.getElementById("pondSoundBtn");
-      if(soundBtn){soundBtn.classList.remove("on");soundBtn.setAttribute("aria-pressed","false");soundBtn.textContent="🔇 環境音を再生"}
+    else{
+      if(previousPondMode){
+        const nameInput=document.getElementById("nameInput");if(nameInput)nameInput.value="";
+        const result=document.getElementById("result");if(result)result.style.display="none";
+        currentHighlight=null;
+      }
+      if(pondSoundOn){
+        pondSoundOn=false;lastPondSoundKey="";syncPondSound(true);
+        const soundBtn=document.getElementById("pondSoundBtn");
+        if(soundBtn){soundBtn.classList.remove("on");soundBtn.setAttribute("aria-pressed","false");soundBtn.textContent="🔇 環境音を再生"}
+      }
     }
+    previousPondMode=pond;
   }
 
   document.addEventListener("DOMContentLoaded",()=>{
