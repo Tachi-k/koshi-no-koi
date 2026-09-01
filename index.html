@@ -660,6 +660,9 @@ body.pond-mode #pondView{display:block!important}
 .pond-pick-item.selected .pond-pick-btn{background:#1f668d;color:#fff}
 .pond-mini-btn{display:block;margin:5px auto 0;padding:4px 7px;font-size:10px;line-height:1.15}
 .pond-mini-btn.in-pond{background:#1f668d;color:white;border-color:#1f668d}
+.catalog-mini-actions{display:flex;justify-content:center;gap:4px;flex-wrap:wrap;margin-top:5px}
+.catalog-mini-actions .pond-mini-btn{margin:0}
+.certificate-mini-btn{border:1px solid #a78335;border-radius:999px;background:#fff8dc;color:#745411;padding:4px 7px;font-size:10px;line-height:1.15;font-weight:800;cursor:pointer}
 .pond-roster{display:grid;gap:5px;margin-top:8px}
 .pond-roster-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px dotted #d3dce2;font-size:12px}
 .pond-roster-row:last-child{border-bottom:0}
@@ -2551,11 +2554,19 @@ body.cert-lock{
   function pondButton(tier,rec){
     if(!rec||!rec.state)return "";
     const selected=isSelected(tier,rec.state);
-    return `<button type="button" class="pond-mini-btn${selected?" in-pond":""}" data-tier="${tier}" data-variety="${rec.state.variety}">${selected?"池で泳いでいる":"池へ"}</button>`;
+    return `<div class="catalog-mini-actions"><button type="button" class="pond-mini-btn${selected?" in-pond":""}" data-action="pond" data-tier="${tier}" data-variety="${rec.state.variety}">${selected?"池で泳いでいる":"池へ"}</button><button type="button" class="certificate-mini-btn" data-action="certificate">鑑定書</button></div>`;
   }
   function bindMiniButton(d,tier,rec){
-    const b=d.querySelector(".pond-mini-btn");if(!b)return;
-    b.onclick=e=>{e.stopPropagation();addToPond(tier,rec)};
+    const pondBtn=d.querySelector('[data-action="pond"]');
+    if(pondBtn)pondBtn.onclick=e=>{e.stopPropagation();addToPond(tier,rec)};
+    const certificateBtn=d.querySelector('[data-action="certificate"]');
+    if(certificateBtn)certificateBtn.onclick=e=>{
+      e.stopPropagation();
+      const key=String(rec.state.variety);
+      if(tier==="legend")openLegendCertificate(key);
+      else if(tier==="rare")openIllustrationRareCertificate(key);
+      else openCollectionCertificate(rec.state.variety);
+    };
   }
 
   renderCollection=function(newIndex=-1){
