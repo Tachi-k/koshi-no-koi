@@ -922,10 +922,25 @@ function deriveFromId(id,name=""){
  const h=hash32(canonicalSeed(id,"base"));
  const h2=hash32(canonicalSeed(id,"pattern"));
  const h3=hash32(canonicalSeed(id,"detail"));
- return {id,name,
-  variety:h%42, body:(h>>>6)%8, size:(h>>>10)%7, color:(h>>>13)%16,
-  big:h2%32, fine:(h2>>>8)%32, balance:h3%32};
-}
+	 return normalizeBodySize({id,name,
+	  variety:h%42, body:(h>>>6)%8, size:(h>>>10)%7, color:(h>>>13)%16,
+	  big:h2%32, fine:(h2>>>8)%32, balance:h3%32});
+	}
+	function normalizeBodySize(s){
+	 if(!s)return s;
+	 if(s.body===7)s.size=6;
+	 else if(s.body===6)s.size=Math.max(5,Number(s.size)||0);
+	 return s;
+	}
+	function koiVisualScale(s){
+	 normalizeBodySize(s);
+	 return Math.max(.92,Math.min(1.22,.90+(Number(s.size)||0)*.035+Math.max(0,(Number(s.body)||0)-3)*.025));
+	}
+	function setPremiumScale(img,s,withTranslate=false){
+	 if(!img)return;
+	 const z=koiVisualScale(s),prefix=withTranslate?"translate(-50%,-50%) ":"";
+	 img.style.setProperty("transform",`${prefix}scale(${z}) scaleX(.88) scaleY(1.06)`,"important");
+	}
 function normalizeNameForSeed(name){
  return String(name||"").normalize("NFKC").replace(/\s+/g,"");
 }
@@ -1257,7 +1272,7 @@ function applyIllustrationRare(){
   const card=document.getElementById("illusRareCard");
   const img=document.getElementById("illusRareImg");
   if(card)card.classList.toggle("show",rare);
-  if(rare&&img){img.className="premium-koi-image smart-rare-koi";smartRareImageFor(state).then(src=>{if(isIllustrationRare(state))img.src=src})}
+  if(rare&&img){img.className="premium-koi-image smart-rare-koi";setPremiumScale(img,state,true);smartRareImageFor(state).then(src=>{if(isIllustrationRare(state))img.src=src})}
   const sub=document.getElementById("illusRareSub");
   if(rare&&sub)sub.textContent=(VARIETIES[state.variety]||"越鯉")+"・希少級";
   return rare;
@@ -1298,6 +1313,7 @@ function applyRealRare(){
   if(rare && img){
     const src=rareImageFor(state);
     img.className="premium-koi-image smart-legend-koi";
+	setPremiumScale(img,state,true);
     img.src=src;
     if(card) card.style.backgroundImage="none";
   }
@@ -1313,9 +1329,15 @@ function applyRealRare(){
 }
 
 function render(){
+	 normalizeBodySize(state);
  document.getElementById("koiSvg").outerHTML=beautifulNormalSVG(state).replace("<svg ","<svg id=\"koiSvg\" ");
- applyRealRare();
- applyIllustrationRare();
+	 applyRealRare();
+	 applyIllustrationRare();
+	 const mainSvg=document.getElementById("koiSvg");
+	 if(mainSvg&&!isRealRare(state)&&!isIllustrationRare(state)){
+	   mainSvg.style.transform=`scale(${koiVisualScale(state)})`;
+	   mainSvg.style.transformOrigin="center";
+	 }
  badge.textContent=VARIETIES[state.variety];
  idOut.textContent=String(state.id).padStart(6,"0");
  nameOut.textContent=state.name||"生成個体"; koiNameOut.textContent=makeKoiName(state);
@@ -1686,6 +1708,7 @@ function openCertificate(){
 	   const certImg=document.createElement("img");
 	   certImg.src=rareImageFor(state);
 	   certImg.className="certificate-premium-koi smart-legend-koi";
+	   setPremiumScale(certImg,state,false);
 	   certImg.alt="伝説級の越鯉";
    certImg.style.cssText="width:100%;height:320px;object-fit:contain;background:#071a24;display:block";
    certWrap.appendChild(certImg);
@@ -1693,14 +1716,16 @@ function openCertificate(){
 	   certWrap.innerHTML="";
 	   const certImg=document.createElement("img");
 	   certImg.className="certificate-premium-koi smart-rare-koi";
+	   setPremiumScale(certImg,state,false);
 	   smartRareImageFor(state).then(src=>certImg.src=src);
 	   certImg.alt="希少級の越鯉";
    certImg.style.cssText="width:100%;height:320px;object-fit:contain;background:#061a25;display:block";
    certWrap.appendChild(certImg);
- }else{
-   certWrap.innerHTML=beautifulNormalSVG(state);
-   const svg=certWrap.querySelector("svg");
-   if(svg){svg.style.width="100%";svg.style.height="320px";}
+	 }else{
+	   certWrap.innerHTML=legendFullBodySVG(state);
+	   certWrap.style.background="#2d82ef";
+	   const svg=certWrap.querySelector("svg");
+	   if(svg){svg.style.width="100%";svg.style.height="320px";svg.style.transform=`scale(${koiVisualScale(state)})`;svg.style.transformOrigin="center";}
  }
  document.getElementById("certificateOverlay").classList.add("open");
  // iPhoneの共有シートを確実にタップ直後に開けるよう、鑑定書画像を先に準備しておく。
@@ -1788,23 +1813,24 @@ async function saveCertificateAsPng(prepareOnly=false){
 	 if(isRealRare(state)){
 	   const img=new Image();
 	   await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;img.src=rareImageFor(state)});
-	   const dw=300,dh=600;
-	   ctx.drawImage(img,90+(340-dw)/2,250,dw,dh);
+	   const z=koiVisualScale(state),dw=Math.min(340,280*z),dh=Math.min(600,500*z);
+	   ctx.drawImage(img,90+(340-dw)/2,250+(600-dh)/2,dw,dh);
 	 }else if(isIllustrationRare(state)){
 	   const img=new Image();
 	   const smartSrc=await smartRareImageFor(state);
 	   await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;img.src=smartSrc});
-	   const maxW=315,maxH=600,sc=Math.min(maxW/img.width,maxH/img.height)*1.08;
+	   const maxW=315,maxH=600,sc=Math.min(maxW/img.width,maxH/img.height)*koiVisualScale(state);
 	   const dw=img.width*sc,dh=img.height*sc;
 	   ctx.fillStyle="#071923";ctx.fillRect(80,240,360,620);
    ctx.drawImage(img,90+(maxW-dw)/2,250+(maxH-dh)/2,dw,dh);
- }else{
-   const svgText=beautifulNormalSVG(state);
+	 }else{
+	   const svgText=legendFullBodySVG(state);
    const blob=new Blob([svgText],{type:"image/svg+xml"});
    const url=URL.createObjectURL(blob);
    const img=new Image();
    await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;img.src=url});
-   ctx.drawImage(img,90,250,340,600);
+	   const z=koiVisualScale(state),dw=Math.min(340,300*z),dh=Math.min(600,520*z);
+	   ctx.drawImage(img,90+(340-dw)/2,250+(600-dh)/2,dw,dh);
    URL.revokeObjectURL(url);
  }
 
@@ -2455,6 +2481,7 @@ body.cert-lock{
   }
   function setIllustrationRarePondImage(target,s){
 	target.classList.add("premium-pond-koi","smart-rare-koi");
+	setPremiumScale(target,s,false);
 	smartRareImageFor(s).then(src=>target.src=src);
   }
 
@@ -2469,8 +2496,9 @@ body.cert-lock{
     const water=document.getElementById("pondWater");if(!water)return;
     water.querySelectorAll(".pond-fish").forEach(n=>n.remove());
     pondFish=[];
-    pondSelection.forEach((item,i)=>{
-      const s=item.state;
+	pondSelection.forEach((item,i)=>{
+	  const s=item.state;
+	  normalizeBodySize(s);
       const node=document.createElement("div");
       node.className="pond-fish "+item.tier;
       if(item.tier==="newborn"&&item.bornAt&&Date.now()-item.bornAt<16000){node.classList.add("newborn-flash");setTimeout(()=>node.classList.remove("newborn-flash"),16000-(Date.now()-item.bornAt))}
@@ -2484,6 +2512,7 @@ body.cert-lock{
 		const limg=node.querySelector(".pond-legend-img");
 		if(limg){
 		  limg.classList.add("premium-pond-koi","smart-legend-koi");
+		  setPremiumScale(limg,s,false);
 		  limg.style.cssText="width:100%;height:100%;object-fit:contain;display:block;pointer-events:none";
           limg.src=legendPondImage(s);
           limg.onerror=()=>{
