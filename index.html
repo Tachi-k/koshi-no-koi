@@ -669,7 +669,7 @@ body.pond-mode #pondView{display:block!important}
 .pond-sound-controls{display:flex;align-items:center;gap:8px;margin-left:4px}.pond-sound-btn{border:1px solid #d6bd82;border-radius:999px;background:#f8efd8;color:#4b3a20;padding:7px 12px;font-weight:800;cursor:pointer}.pond-sound-btn.on{background:#dcae49;color:#221a0d}.pond-volume{width:90px;accent-color:#dcae49}.pond-volume-label{font-size:11px;color:#dfd3ba}
 .pond-sound-credit{font-size:11px;color:#cfc4ae}.pond-sound-credit a{color:#f0d48f;text-decoration:underline}
 .pond-birth-notice{display:none;position:absolute;inset:0;z-index:30;place-items:center;text-align:center;pointer-events:none;background:radial-gradient(circle,rgba(255,250,205,.48),transparent 58%);color:#fff9d7;text-shadow:0 2px 8px #5a3510;font-family:"Yu Mincho",serif;font-size:clamp(25px,5vw,46px);font-weight:900}
-.pond-birth-notice.show{display:grid;animation:birthNotice 5s ease both}.pond-birth-notice small{display:block;margin-top:8px;font:700 14px sans-serif}
+.pond-birth-notice.show{display:grid;animation:birthNotice 8s ease both}.pond-birth-notice small{display:block;margin-top:8px;font:700 14px sans-serif}
 .pond-fish.newborn{filter:drop-shadow(0 0 9px rgba(255,239,127,.95)) drop-shadow(0 7px 6px rgba(0,0,0,.28))}.pond-fish.newborn-flash{animation:newbornGlow 1.2s ease-in-out infinite}
 .pond-fish.breeding-parent{filter:drop-shadow(0 0 14px rgba(255,210,225,.95)) drop-shadow(0 7px 6px rgba(0,0,0,.28))}
 .pond-fish.koi-jump{z-index:22;animation:koiJump .95s cubic-bezier(.25,.8,.35,1)}.pond-fish.koi-jump::after{content:"";position:absolute;left:50%;top:55%;width:90px;height:28px;border:4px solid rgba(220,248,255,.78);border-radius:50%;transform:translate(-50%,-50%);animation:splashRing .95s ease-out both;pointer-events:none}
@@ -2326,7 +2326,7 @@ body.cert-lock{
   function announceBirth(rec,addedToPond){
     const notice=document.getElementById("pondBirthNotice"),detail=document.getElementById("pondBirthDetail");
     if(detail)detail.textContent=`${rec.parents[0].name} × ${rec.parents[1].name} → ${makeKoiName(rec.state)}`;
-    if(notice){notice.classList.remove("show");void notice.offsetWidth;notice.classList.add("show");setTimeout(()=>notice.classList.remove("show"),5200)}
+    if(notice){notice.classList.remove("show");void notice.offsetWidth;notice.classList.add("show");setTimeout(()=>notice.classList.remove("show"),8200)}
     setStatus(addedToPond?`新生鯉「${makeKoiName(rec.state)}」が誕生しました！`:`「${makeKoiName(rec.state)}」が誕生しました。池は10匹のため新生鯉図鑑で待機しています。`);
   }
   function scheduleNextBirth(){
