@@ -77,6 +77,7 @@ button{font:inherit;cursor:pointer}
 }
 .collection-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
 .collection-head h3{margin:0;color:#194d9e}
+.collection-reset-btn{border:1px solid #b85c52;border-radius:999px;background:#fff;color:#9c3028;padding:8px 13px;font-weight:800;cursor:pointer}.collection-reset-btn:hover{background:#fff0ee}
 .collection-count{font-size:22px;font-weight:700;color:#b8822b}
 .collection-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
 .collection-item{
@@ -661,6 +662,7 @@ body.pond-mode #pondView{display:block!important}
 .pond-cycle-status{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:10px 14px;border-radius:14px;background:#172219;color:#f3ead7;font-weight:800}
 .pond-cycle-status span{white-space:nowrap}.pond-cycle-sep{opacity:.45}.pond-cycle-bar{width:min(320px,70vw);height:7px;border-radius:10px;overflow:hidden;background:rgba(255,255,255,.16)}
 .pond-cycle-fill{height:100%;background:linear-gradient(90deg,#efb954,#fff0b0);transition:width 1s linear}
+.pond-sound-controls{display:flex;align-items:center;gap:8px;margin-left:4px}.pond-sound-btn{border:1px solid #d6bd82;border-radius:999px;background:#f8efd8;color:#4b3a20;padding:7px 12px;font-weight:800;cursor:pointer}.pond-sound-btn.on{background:#dcae49;color:#221a0d}.pond-volume{width:90px;accent-color:#dcae49}.pond-volume-label{font-size:11px;color:#dfd3ba}
 .pond-season-layer,.pond-rain,.pond-snow,.pond-frog,.pond-sun,.pond-moon-auto{position:absolute;pointer-events:none}
 .pond-season-layer{inset:0;z-index:7;overflow:hidden}.pond-rain,.pond-snow{inset:-25% 0 0;z-index:8;display:none}
 .pond-sun,.pond-moon-auto{z-index:8;width:64px;height:64px;border-radius:50%;left:8%;top:66%;opacity:0;transition:opacity 2s,transform 2s}
@@ -676,6 +678,15 @@ body.pond-mode #pondView{display:block!important}
 .pond-garden.season-autumn .pond-season-layer{background-image:radial-gradient(ellipse,rgba(211,86,29,.94) 0 4px,transparent 5px);background-size:76px 89px;animation:seasonFall 12s linear infinite}
 .pond-garden.season-winter::before{background:linear-gradient(rgba(228,238,241,.52),rgba(143,163,168,.3))}.pond-garden.season-winter .pond-snow{display:block;background-image:radial-gradient(circle,white 0 2px,transparent 3px),radial-gradient(circle,rgba(255,255,255,.78) 0 3px,transparent 4px);background-size:47px 61px,83px 97px;animation:snowFall 10s linear infinite}
 @keyframes rainFall{to{transform:translate(-28px,120px)}}@keyframes snowFall{to{transform:translate(25px,140px)}}@keyframes seasonFall{to{background-position:30px 120px}}@keyframes frogBob{50%{transform:translateY(-6px) rotate(-3deg)}}
+.pond-birth-notice{display:none;position:absolute;inset:0;z-index:30;place-items:center;text-align:center;pointer-events:none;background:radial-gradient(circle,rgba(255,250,205,.48),transparent 58%);color:#fff9d7;text-shadow:0 2px 8px #5a3510;font-family:"Yu Mincho",serif;font-size:clamp(25px,5vw,46px);font-weight:900}
+.pond-birth-notice.show{display:grid;animation:birthNotice 5s ease both}.pond-birth-notice small{display:block;margin-top:8px;font:700 14px sans-serif}
+.pond-fish.newborn{filter:drop-shadow(0 0 9px rgba(255,239,127,.95)) drop-shadow(0 7px 6px rgba(0,0,0,.28))}.pond-fish.newborn-flash{animation:newbornGlow 1.2s ease-in-out infinite}
+.pond-fish.koi-jump{z-index:22;animation:koiJump .95s cubic-bezier(.25,.8,.35,1)}.pond-fish.koi-jump::after{content:"";position:absolute;left:50%;top:55%;width:90px;height:28px;border:4px solid rgba(220,248,255,.78);border-radius:50%;transform:translate(-50%,-50%);animation:splashRing .95s ease-out both;pointer-events:none}
+.pond-tier.newborn{color:#d18b18}.newborn-collection{margin-top:18px;padding-top:16px;border-top:4px double #d6a642}.newborn-title{font-family:"Yu Mincho",serif;font-size:23px;font-weight:800;color:#996514;margin-bottom:4px}.newborn-note{font-size:12px;color:#7a6a4d;margin-bottom:12px}
+.newborn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}.newborn-item{position:relative;min-height:230px;border:1px solid #d9bd7b;border-radius:12px;padding:10px;background:linear-gradient(#fffdf4,#fff4ce);text-align:center}.newborn-item svg{width:82px;height:125px}.newborn-name{font-weight:900;color:#8d5c0b}.newborn-meta{font-size:11px;color:#796b55;line-height:1.5;margin:5px 0}.newborn-item .pond-mini-btn{margin-top:7px}
+.newborn-actions{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}.newborn-release-btn{margin-top:7px;border:1px solid #b86c61;border-radius:999px;background:#fff;color:#9b3d32;padding:4px 9px;font-size:10px;font-weight:800;cursor:pointer}.newborn-release-btn:hover{background:#fff0ed}
+@keyframes birthNotice{0%{opacity:0;transform:scale(.75)}15%,70%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.08)}}@keyframes newbornGlow{50%{filter:drop-shadow(0 0 22px #fff28a) drop-shadow(0 0 9px #ffca45)}}
+@keyframes koiJump{0%,100%{margin-top:0;scale:1}42%{margin-top:-34px;scale:1.08}70%{margin-top:-9px;scale:1.02}}@keyframes splashRing{0%{opacity:0;scale:.25}45%{opacity:1}100%{opacity:0;scale:1.55}}
 
 @media(max-width:900px){
   header{align-items:flex-start}.header-actions{flex-direction:column-reverse;align-items:flex-end}
@@ -759,6 +770,7 @@ body.pond-mode #pondView{display:block!important}
 <div class="collection-card">
   <div class="collection-head">
     <h3>越鯉図鑑</h3>
+    <button type="button" id="collectionResetBtn" class="collection-reset-btn">図鑑をリセット</button>
   </div>
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">
     <div style="background:#f7f9fc;border:1px solid #d6dfec;border-radius:8px;padding:10px;text-align:center"><small>発見個体数</small><div style="font-size:20px;font-weight:700"><span id="specimenCount">0</span> / 1,000,000</div></div>
@@ -778,6 +790,11 @@ body.pond-mode #pondView{display:block!important}
   <div class="legend-collection-note"></div>
   <div id="legendGrid" class="legend-grid"></div>
 </div>
+<div id="newbornCollection" class="newborn-collection" style="display:none">
+  <div class="newborn-title">新生鯉図鑑</div>
+  <div class="newborn-note">池で暮らす二匹から生まれた、新しい世代の越鯉です。</div>
+  <div id="newbornGrid" class="newborn-grid"></div>
+</div>
 <div id="storageNote" style="display:none;margin-top:8px;font-size:12px;color:#7a6a54">この表示方法では履歴はページを閉じるとリセットされます。</div>
 </div>
 
@@ -788,9 +805,10 @@ body.pond-mode #pondView{display:block!important}
     <div><h2>越鯉 日本庭園の池</h2></div>
     <div class="pond-page-actions"><a href="#" class="pond-back-link">← 図鑑へ戻る</a><button type="button" id="pondClearBtn" class="pond-clear-btn">池を空にする</button></div>
   </div>
-  <div class="pond-cycle-status"><span id="pondSeasonText">春・桜</span><span class="pond-cycle-sep">｜</span><span id="pondTimeText">朝</span><div class="pond-cycle-bar"><div class="pond-cycle-fill" id="pondCycleFill"></div></div></div>
+  <div class="pond-cycle-status"><span id="pondSeasonText">春・桜</span><span class="pond-cycle-sep">｜</span><span id="pondTimeText">朝</span><div class="pond-cycle-bar"><div class="pond-cycle-fill" id="pondCycleFill"></div></div><div class="pond-sound-controls"><button type="button" id="pondSoundBtn" class="pond-sound-btn" aria-pressed="false">🔇 環境音を再生</button><label class="pond-volume-label">音量 <input type="range" id="pondVolume" class="pond-volume" min="0" max="100" value="35"></label></div></div>
   <div class="pond-layout">
     <div class="pond-garden season-spring time-morning" id="pondGarden">
+      <div class="pond-birth-notice" id="pondBirthNotice"><div>新しい命が生まれました<small id="pondBirthDetail"></small></div></div>
       <div class="pond-season-layer"></div><div class="pond-rain"></div><div class="pond-snow"></div><div class="pond-frog" aria-label="カエル">🐸</div><div class="pond-sun"></div><div class="pond-moon-auto"></div>
       <div class="pond-bridge"></div><div class="pond-lantern"></div>
       <div class="pond-stone s1"></div><div class="pond-stone s2"></div><div class="pond-stone s3"></div><div class="pond-stone s4"></div>
@@ -803,6 +821,7 @@ body.pond-mode #pondView{display:block!important}
     </aside>
   </div>
 </section>
+<audio id="pondAmbientAudio" loop preload="none"></audio><audio id="pondAccentAudio" loop preload="none"></audio><audio id="pondSplashAudio" src="sounds/pond-splash.mp3" preload="auto"></audio>
 
 <div class="footer"><span></span></div>
 </div>
@@ -2182,21 +2201,27 @@ body.cert-lock{
 /* ===== 図鑑と池の連携 ===== */
 (function(){
   const POND_KEY="koshiKoiPondSelectionV1";
+  const NEWBORN_KEY="koshiKoiNewbornRecordsV1";
   const MAX_POND_KOI=10;
+  const MAX_NEWBORN_KOI=5;
   const POND_SEASONS=[
     {key:"spring",label:"春・桜"},{key:"rainy",label:"梅雨・雨とカエル"},{key:"summer",label:"夏・新緑"},{key:"autumn",label:"秋・紅葉"},{key:"winter",label:"冬・雪"}
   ];
   const POND_TIMES=[{key:"morning",label:"朝"},{key:"day",label:"昼"},{key:"night",label:"夜"}];
-  const DAY_CYCLE_MS=60000,SEASON_MS=DAY_CYCLE_MS*2,pondClockStarted=performance.now();
+  const POND_SOUNDS={spring:"sounds/spring-birds.mp3",rainy:"sounds/rainy-rain.mp3",summer:"sounds/summer-cicadas.mp3",autumn:"sounds/autumn-insects.mp3",winter:"sounds/winter-wind.mp3"};
+  const DAY_CYCLE_MS=60000,SEASON_MS=DAY_CYCLE_MS*2,FULL_SEASON_CYCLE_MS=SEASON_MS*POND_SEASONS.length,pondClockStarted=performance.now();
   let pondSelection=[];
   let pondFish=[];
   let pondAnimStarted=false;
   let lastTick=0;
   let attractPoint=null;
   let attractUntil=0;
+  let lastSeasonLoop=0;
+  let pondSoundOn=false,lastPondSoundKey="",currentPondSeason="spring",currentPondTime="morning",pondVolume=.35;
+  let nextKoiJump=performance.now()+15000+Math.random()*18000;
 
   function esc(s){return String(s??"").replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'\"':"&quot;","'":"&#39;"}[c]))}
-  function tierLabel(t){return t==="legend"?"LEGEND":(t==="rare"?"RARE":"通常")}
+  function tierLabel(t){return t==="legend"?"LEGEND":(t==="rare"?"RARE":(t==="newborn"?"新生鯉":"通常"))}
   function itemKey(tier,s){return tier+":"+String(s.variety)+":"+String(s.id)}
 
   function loadPondSelection(){
@@ -2211,16 +2236,73 @@ body.cert-lock{
   function savePondSelection(){
     try{localStorage.setItem(POND_KEY,JSON.stringify(pondSelection))}catch(e){}
   }
+  function loadNewbornRecords(){
+    try{const raw=localStorage.getItem(NEWBORN_KEY);const list=raw?JSON.parse(raw):[];return Array.isArray(list)?list:[]}catch(e){return []}
+  }
+  function saveNewbornRecords(list){try{localStorage.setItem(NEWBORN_KEY,JSON.stringify(list))}catch(e){}}
+  function fadeAudio(audio,target,ms=1100){
+    if(!audio)return;clearInterval(audio._pondFade);const start=audio.volume,steps=18,delta=(target-start)/steps;let n=0;
+    audio._pondFade=setInterval(()=>{n++;audio.volume=Math.max(0,Math.min(1,start+delta*n));if(n>=steps)clearInterval(audio._pondFade)},ms/steps);
+  }
+  function switchAudio(audio,src,target){
+    if(!audio)return;if(!src){fadeAudio(audio,0,500);setTimeout(()=>audio.pause(),550);audio.dataset.src="";return}
+    if(audio.dataset.src!==src){fadeAudio(audio,0,400);setTimeout(()=>{audio.src=src;audio.dataset.src=src;audio.volume=0;audio.play().then(()=>fadeAudio(audio,target)).catch(()=>setStatus("環境音ファイルがまだ配置されていません。"))},430)}
+    else{audio.play().then(()=>fadeAudio(audio,target)).catch(()=>setStatus("環境音ファイルがまだ配置されていません。"))}
+  }
+  function syncPondSound(season=currentPondSeason,time=currentPondTime,force=false){
+    currentPondSeason=season;currentPondTime=time;const key=season+":"+time+":"+pondSoundOn;if(!force&&key===lastPondSoundKey)return;lastPondSoundKey=key;
+    const main=document.getElementById("pondAmbientAudio"),accent=document.getElementById("pondAccentAudio");
+    if(!pondSoundOn){[main,accent].forEach(a=>{if(a){a.pause();a.volume=0}});return}
+    const nightFactor=time==="night"?.72:1;switchAudio(main,POND_SOUNDS[season],pondVolume*nightFactor);
+    switchAudio(accent,season==="rainy"&&time==="night"?"sounds/rainy-frogs.mp3":"",pondVolume*.72);
+  }
+  function triggerKoiJump(){
+    if(!pondFish.length)return;const fish=pondFish[Math.floor(Math.random()*pondFish.length)],node=fish.node;
+    node.classList.remove("koi-jump");void node.offsetWidth;node.classList.add("koi-jump");setTimeout(()=>node.classList.remove("koi-jump"),1000);
+    if(pondSoundOn){const splash=document.getElementById("pondSplashAudio");if(splash){splash.volume=Math.min(1,pondVolume*.9);splash.currentTime=0;splash.play().catch(()=>{})}}
+  }
+  function inheritedValue(a,b,max,seed){
+    const r=seeded(seed);if(r()<.42)return a;if(r()<.84)return b;
+    return Math.max(0,Math.min(max,Math.round((Number(a)+Number(b))/2)+(r()<.18?(r()<.5?-1:1):0)));
+  }
+  function breedNewborn(){
+    if(pondSelection.length<2)return;
+    const records=loadNewbornRecords();
+    if(records.length>=MAX_NEWBORN_KOI){setStatus("新生鯉は5尾います。新しい子を迎えるには、新生鯉図鑑から1尾を放流してください。");return}
+    const first=Math.floor(Math.random()*pondSelection.length);
+    let second=Math.floor(Math.random()*(pondSelection.length-1));if(second>=first)second++;
+    const pa=pondSelection[first],pb=pondSelection[second],a=pa.state,b=pb.state;
+    const bornAt=Date.now();
+    let id=(hash32([a.id,b.id].sort((x,y)=>x-y).join(":")+":"+(records.length+1)+":"+bornAt)%1000000)+1;
+    while(records.some(x=>x.state&&x.state.id===id))id=id%1000000+1;
+    const seed=hash32(canonicalSeed(id,"newborn"));
+    const child={id,name:"新生鯉",variety:inheritedValue(a.variety,b.variety,41,seed+1),body:inheritedValue(a.body,b.body,7,seed+2),size:inheritedValue(a.size,b.size,6,seed+3),color:inheritedValue(a.color,b.color,15,seed+4),big:inheritedValue(a.big,b.big,31,seed+5),fine:inheritedValue(a.fine,b.fine,31,seed+6),balance:inheritedValue(a.balance,b.balance,31,seed+7)};
+    const rec={tier:"newborn",state:child,bornAt,parents:[{id:a.id,name:makeKoiName(a)},{id:b.id,name:makeKoiName(b)}]};
+    records.push(rec);saveNewbornRecords(records);
+    const addedToPond=pondSelection.length<MAX_POND_KOI;
+    if(addedToPond){pondSelection.push(rec);savePondSelection();updatePondUI()}
+    renderNewbornCollection();announceBirth(rec,addedToPond);
+  }
+  function announceBirth(rec,addedToPond){
+    const notice=document.getElementById("pondBirthNotice"),detail=document.getElementById("pondBirthDetail");
+    if(detail)detail.textContent=`${rec.parents[0].name} × ${rec.parents[1].name} → ${makeKoiName(rec.state)}`;
+    if(notice){notice.classList.remove("show");void notice.offsetWidth;notice.classList.add("show");setTimeout(()=>notice.classList.remove("show"),5200)}
+    setStatus(addedToPond?`新生鯉「${makeKoiName(rec.state)}」が誕生しました！`:`「${makeKoiName(rec.state)}」が誕生しました。池は10匹のため新生鯉図鑑で待機しています。`);
+  }
   function updatePondClock(){
     const garden=document.getElementById("pondGarden");if(!garden)return;
     const elapsed=performance.now()-pondClockStarted;
     const season=POND_SEASONS[Math.floor(elapsed/SEASON_MS)%POND_SEASONS.length];
     const time=POND_TIMES[Math.min(2,Math.floor((elapsed%DAY_CYCLE_MS)/(DAY_CYCLE_MS/3)))];
+    currentPondSeason=season.key;currentPondTime=time.key;
+    const completedLoops=Math.floor(elapsed/FULL_SEASON_CYCLE_MS);
     garden.classList.remove("season-spring","season-rainy","season-summer","season-autumn","season-winter","time-morning","time-day","time-night");
     garden.classList.add("season-"+season.key,"time-"+time.key);
     const se=document.getElementById("pondSeasonText");if(se)se.textContent=season.label;
     const ti=document.getElementById("pondTimeText");if(ti)ti.textContent=time.label;
     const bar=document.getElementById("pondCycleFill");if(bar)bar.style.width=((elapsed%SEASON_MS)/SEASON_MS*100).toFixed(1)+"%";
+    if(completedLoops>lastSeasonLoop){lastSeasonLoop=completedLoops;breedNewborn()}
+    syncPondSound(season.key,time.key);
   }
   function runPondClock(){updatePondClock();setTimeout(runPondClock,1000)}
   function allAtlasRecords(){
@@ -2228,12 +2310,14 @@ body.cert-lock{
     const normal=loadCollectionRecords();
     const rare=loadIllustrationRareRecords();
     const legend=loadLegendRecords();
+    const newborn=loadNewbornRecords();
     for(let i=0;i<42;i++){
       const n=normal[String(i)]||normal[i];if(n&&n.state)out.push({tier:"normal",state:{...n.state},price:n.price||null,savedAt:n.savedAt||0});
       const r=rare[String(i)];if(r&&r.state)out.push({tier:"rare",state:{...r.state},price:r.price||null,savedAt:r.savedAt||0});
       const l=legend[String(i)];if(l&&l.state)out.push({tier:"legend",state:{...l.state},price:l.price||null,savedAt:l.savedAt||0});
     }
-    const rank={legend:0,rare:1,normal:2};
+    newborn.forEach(rec=>{if(rec&&rec.state)out.push({...rec,tier:"newborn"})});
+    const rank={legend:0,newborn:1,rare:2,normal:3};
     out.sort((a,b)=>(rank[a.tier]-rank[b.tier])||((b.savedAt||0)-(a.savedAt||0))||a.state.variety-b.state.variety);
     return out;
   }
@@ -2257,13 +2341,22 @@ body.cert-lock{
     }
     savePondSelection();
     updatePondUI();
-    renderCollection();renderIllustrationRareCollection();renderLegendCollection();
+    renderCollection();renderIllustrationRareCollection();renderLegendCollection();renderNewbornCollection();
   }
 
   function clearPond(){
     pondSelection=[];savePondSelection();updatePondUI();
-    renderCollection();renderIllustrationRareCollection();renderLegendCollection();
+    renderCollection();renderIllustrationRareCollection();renderLegendCollection();renderNewbornCollection();
     setStatus("池を空にしました。図鑑から泳がせる鯉を選んでください。");
+  }
+  function resetAllCollections(){
+    if(!confirm("通常・希少級・伝説級・新生鯉の図鑑記録をすべて消去します。池の鯉も空になります。\n\nこの操作は元に戻せません。リセットしますか？"))return;
+    ["koshiKoiSpecimenStats","koshiKoiCollection","koshiKoiCollectionRecords","koshiKoiIllustrationRareRecords","koshiKoiLegendRecords",NEWBORN_KEY,POND_KEY].forEach(key=>{try{localStorage.removeItem(key)}catch(e){}});
+    memorySpecimenStats={ids:[],highest:0,legends:0};memoryCollection=[];memoryCollectionRecords={};memoryIllustrationRareRecords={};memoryLegendRecords={};currentHighlight=null;pondSelection=[];
+    renderSpecimenStats();renderCollection();renderIllustrationRareCollection();renderLegendCollection();renderNewbornCollection();updatePondUI();
+    const result=document.getElementById("result");if(result)result.style.display="none";
+    setStatus("図鑑をリセットし、池を空にしました。");
+    alert("図鑑をリセットしました。");
   }
 
   function stripKoiBackground(svg,suffix){
@@ -2297,6 +2390,7 @@ body.cert-lock{
       const s=item.state;
       const node=document.createElement("div");
       node.className="pond-fish "+item.tier;
+      if(item.tier==="newborn"&&item.bornAt&&Date.now()-item.bornAt<16000){node.classList.add("newborn-flash");setTimeout(()=>node.classList.remove("newborn-flash"),16000-(Date.now()-item.bornAt))}
       node.dataset.key=itemKey(item.tier,s);
       const size=62+(SIZES[s.size]||50)*.38;
       node.style.width=Math.round(size)+"px";
@@ -2335,6 +2429,7 @@ body.cert-lock{
     const dt=Math.min(48,Math.max(0,ts-(lastTick||ts)))/1000;lastTick=ts;
     const active=document.body.classList.contains("pond-mode");
     if(active){
+      if(ts>=nextKoiJump){triggerKoiJump();nextKoiJump=ts+18000+Math.random()*26000}
       for(const f of pondFish){
         if(attractPoint && ts<attractUntil){f.tx=attractPoint.x;f.ty=attractPoint.y}
         if(ts<f.pauseUntil)continue;
@@ -2378,6 +2473,24 @@ body.cert-lock{
       d.querySelector("button").onclick=()=>addToPond(rec.tier,rec);
       box.appendChild(d);
     });
+  }
+  function renderNewbornCollection(){
+    const section=document.getElementById("newbornCollection"),box=document.getElementById("newbornGrid");if(!section||!box)return;
+    const records=loadNewbornRecords();section.style.display=records.length?"block":"none";box.innerHTML="";
+    records.slice().reverse().forEach((rec,i)=>{
+      const s=rec.state,d=document.createElement("div"),selected=isSelected("newborn",s);
+      d.className="newborn-item";
+      d.innerHTML=pondKoiSVG(s,"newborn_catalog_"+i)+`<div class="newborn-name">${esc(makeKoiName(s))}</div><div class="newborn-meta">${esc(VARIETIES[s.variety])} ／ 第${String(s.id).padStart(6,"0")}号<br>親：${esc(rec.parents?.[0]?.name||"不明")} × ${esc(rec.parents?.[1]?.name||"不明")}</div><div class="newborn-actions"><button type="button" class="pond-mini-btn${selected?" in-pond":""}" data-action="pond">${selected?"池で泳いでいる":"池へ"}</button><button type="button" class="newborn-release-btn" data-action="release">放流</button></div>`;
+      d.querySelector('[data-action="pond"]').onclick=()=>addToPond("newborn",rec);d.querySelector('[data-action="release"]').onclick=()=>releaseNewborn(rec);box.appendChild(d);
+    });
+  }
+  function releaseNewborn(rec){
+    if(!rec||!rec.state)return;const name=makeKoiName(rec.state);
+    if(!confirm(`新生鯉「${name}」を放流しますか？\n新生鯉図鑑から削除され、この操作は元に戻せません。`))return;
+    const key=itemKey("newborn",rec.state);
+    saveNewbornRecords(loadNewbornRecords().filter(x=>!x.state||itemKey("newborn",x.state)!==key));
+    pondSelection=pondSelection.filter(x=>itemKey(x.tier,x.state)!==key);savePondSelection();updatePondUI();renderNewbornCollection();
+    setStatus(`新生鯉「${name}」を自然へ放流しました。`);
   }
   function updatePondUI(){loadPondSelection();updateNavCount();renderPondPicker();renderRoster();rebuildPondFish()}
 
@@ -2434,8 +2547,13 @@ body.cert-lock{
 
   document.addEventListener("DOMContentLoaded",()=>{
     loadPondSelection();updatePondUI();applyMode();
+    renderNewbornCollection();
     runPondClock();
+    const soundBtn=document.getElementById("pondSoundBtn"),volume=document.getElementById("pondVolume");
+    if(soundBtn)soundBtn.onclick=()=>{pondSoundOn=!pondSoundOn;soundBtn.classList.toggle("on",pondSoundOn);soundBtn.setAttribute("aria-pressed",pondSoundOn?"true":"false");soundBtn.textContent=pondSoundOn?"🔊 環境音を停止":"🔇 環境音を再生";lastPondSoundKey="";syncPondSound(currentPondSeason,currentPondTime,true)};
+    if(volume)volume.oninput=()=>{pondVolume=Number(volume.value)/100;if(pondSoundOn){lastPondSoundKey="";syncPondSound(currentPondSeason,currentPondTime,true)}};
     const clear=document.getElementById("pondClearBtn");if(clear)clear.onclick=()=>{if(!pondSelection.length)return;clearPond()};
+    const reset=document.getElementById("collectionResetBtn");if(reset)reset.onclick=resetAllCollections;
     const water=document.getElementById("pondWater");if(water)water.addEventListener("click",e=>{
       const r=water.getBoundingClientRect();attractPoint={x:Math.max(.08,Math.min(.92,(e.clientX-r.left)/r.width)),y:Math.max(.08,Math.min(.92,(e.clientY-r.top)/r.height))};attractUntil=performance.now()+5000;setStatus("鯉たちがタップした場所へゆっくり寄っていきます。");
     });
