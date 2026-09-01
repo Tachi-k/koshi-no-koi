@@ -661,6 +661,7 @@ body.pond-mode #pondView{display:block!important}
 /* 池の環境音 */
 .pond-cycle-status{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:10px 14px;border-radius:14px;background:#172219;color:#f3ead7;font-weight:800}
 .pond-sound-controls{display:flex;align-items:center;gap:8px;margin-left:4px}.pond-sound-btn{border:1px solid #d6bd82;border-radius:999px;background:#f8efd8;color:#4b3a20;padding:7px 12px;font-weight:800;cursor:pointer}.pond-sound-btn.on{background:#dcae49;color:#221a0d}.pond-volume{width:90px;accent-color:#dcae49}.pond-volume-label{font-size:11px;color:#dfd3ba}
+.pond-sound-credit{font-size:11px;color:#cfc4ae}.pond-sound-credit a{color:#f0d48f;text-decoration:underline}
 .pond-birth-notice{display:none;position:absolute;inset:0;z-index:30;place-items:center;text-align:center;pointer-events:none;background:radial-gradient(circle,rgba(255,250,205,.48),transparent 58%);color:#fff9d7;text-shadow:0 2px 8px #5a3510;font-family:"Yu Mincho",serif;font-size:clamp(25px,5vw,46px);font-weight:900}
 .pond-birth-notice.show{display:grid;animation:birthNotice 5s ease both}.pond-birth-notice small{display:block;margin-top:8px;font:700 14px sans-serif}
 .pond-fish.newborn{filter:drop-shadow(0 0 9px rgba(255,239,127,.95)) drop-shadow(0 7px 6px rgba(0,0,0,.28))}.pond-fish.newborn-flash{animation:newbornGlow 1.2s ease-in-out infinite}
@@ -788,7 +789,7 @@ body.pond-mode #pondView{display:block!important}
     <div><h2>越鯉 日本庭園の池</h2></div>
     <div class="pond-page-actions"><a href="#" class="pond-back-link">← 図鑑へ戻る</a><button type="button" id="pondClearBtn" class="pond-clear-btn">池を空にする</button></div>
   </div>
-  <div class="pond-cycle-status"><div class="pond-sound-controls"><button type="button" id="pondSoundBtn" class="pond-sound-btn" aria-pressed="false">🔇 環境音を再生</button><label class="pond-volume-label">音量 <input type="range" id="pondVolume" class="pond-volume" min="0" max="100" value="35"></label></div></div>
+  <div class="pond-cycle-status"><div class="pond-sound-controls"><button type="button" id="pondSoundBtn" class="pond-sound-btn" aria-pressed="false">🔇 環境音を再生</button><label class="pond-volume-label">音量 <input type="range" id="pondVolume" class="pond-volume" min="0" max="100" value="35"></label></div><span class="pond-sound-credit">環境音・効果音：<a href="https://soundeffect-lab.info/" target="_blank" rel="noopener noreferrer">効果音ラボ</a></span></div>
   <div class="pond-layout">
     <div class="pond-garden" id="pondGarden">
       <div class="pond-birth-notice" id="pondBirthNotice"><div>新しい命が生まれました<small id="pondBirthDetail"></small></div></div>
@@ -803,7 +804,7 @@ body.pond-mode #pondView{display:block!important}
     </aside>
   </div>
 </section>
-<audio id="pondAmbientAudio" loop preload="none"></audio><audio id="pondAccentAudio" loop preload="none"></audio><audio id="pondSplashAudio" src="sounds/pond-splash.mp3" preload="auto"></audio>
+<audio id="pondAmbientAudio" loop preload="none"></audio><audio id="pondAccentAudio" loop preload="none"></audio><audio id="pondSplashAudio" src="sounds/pond-splash.mp3" preload="auto"></audio><audio id="pondSplashAudioLarge" src="sounds/pond-splash_2.mp3" preload="auto"></audio>
 
 <div class="footer"><span></span></div>
 </div>
@@ -2236,7 +2237,11 @@ body.cert-lock{
   function triggerKoiJump(){
     if(!pondFish.length)return;const fish=pondFish[Math.floor(Math.random()*pondFish.length)],node=fish.node;
     node.classList.remove("koi-jump");void node.offsetWidth;node.classList.add("koi-jump");setTimeout(()=>node.classList.remove("koi-jump"),1000);
-    if(pondSoundOn){const splash=document.getElementById("pondSplashAudio");if(splash){splash.volume=Math.min(1,pondVolume*.9);splash.currentTime=0;splash.play().catch(()=>{})}}
+    if(pondSoundOn){
+      const isLarge=(SIZES[fish.item.state.size]||50)>=70;
+      const splash=document.getElementById(isLarge?"pondSplashAudioLarge":"pondSplashAudio");
+      if(splash){splash.volume=Math.min(1,pondVolume*(isLarge?1:.9));splash.currentTime=0;splash.play().catch(()=>{})}
+    }
   }
   function inheritedValue(a,b,max,seed){
     const r=seeded(seed);if(r()<.42)return a;if(r()<.84)return b;
