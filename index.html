@@ -2238,7 +2238,16 @@ body.cert-lock{
       pondSelection=raw?JSON.parse(raw):[];
       if(!Array.isArray(pondSelection))pondSelection=[];
     }catch(e){pondSelection=[]}
-    pondSelection=pondSelection.filter(x=>x&&x.state&&x.tier).slice(0,MAX_POND_KOI);
+    const newbornKeys=new Set(loadNewbornRecords().filter(x=>x&&x.state).map(x=>itemKey("newborn",x.state)));
+    const seen=new Set();
+    pondSelection=pondSelection.filter(x=>{
+      if(!x||!x.state||!x.tier)return false;
+      const key=itemKey(x.tier,x.state);
+      if(seen.has(key))return false;
+      if(x.tier==="newborn"&&!newbornKeys.has(key))return false;
+      seen.add(key);return true;
+    }).slice(0,MAX_POND_KOI);
+    savePondSelection();
     return pondSelection;
   }
   function savePondSelection(){
@@ -2584,6 +2593,11 @@ body.cert-lock{
     const pond=location.hash==="#pond";document.body.classList.toggle("pond-mode",pond);
     const nav=document.getElementById("pondNavLink");if(nav)nav.setAttribute("aria-current",pond?"page":"false");
     if(pond){updatePondUI();setTimeout(()=>document.getElementById("pondView")?.scrollIntoView({block:"start"}),0)}
+    else if(pondSoundOn){
+      pondSoundOn=false;lastPondSoundKey="";syncPondSound(true);
+      const soundBtn=document.getElementById("pondSoundBtn");
+      if(soundBtn){soundBtn.classList.remove("on");soundBtn.setAttribute("aria-pressed","false");soundBtn.textContent="🔇 環境音を再生"}
+    }
   }
 
   document.addEventListener("DOMContentLoaded",()=>{
