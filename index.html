@@ -665,6 +665,7 @@ body.pond-mode #pondView{display:block!important}
 .pond-birth-notice{display:none;position:absolute;inset:0;z-index:30;place-items:center;text-align:center;pointer-events:none;background:radial-gradient(circle,rgba(255,250,205,.48),transparent 58%);color:#fff9d7;text-shadow:0 2px 8px #5a3510;font-family:"Yu Mincho",serif;font-size:clamp(25px,5vw,46px);font-weight:900}
 .pond-birth-notice.show{display:grid;animation:birthNotice 5s ease both}.pond-birth-notice small{display:block;margin-top:8px;font:700 14px sans-serif}
 .pond-fish.newborn{filter:drop-shadow(0 0 9px rgba(255,239,127,.95)) drop-shadow(0 7px 6px rgba(0,0,0,.28))}.pond-fish.newborn-flash{animation:newbornGlow 1.2s ease-in-out infinite}
+.pond-fish.breeding-parent{filter:drop-shadow(0 0 14px rgba(255,210,225,.95)) drop-shadow(0 7px 6px rgba(0,0,0,.28))}
 .pond-fish.koi-jump{z-index:22;animation:koiJump .95s cubic-bezier(.25,.8,.35,1)}.pond-fish.koi-jump::after{content:"";position:absolute;left:50%;top:55%;width:90px;height:28px;border:4px solid rgba(220,248,255,.78);border-radius:50%;transform:translate(-50%,-50%);animation:splashRing .95s ease-out both;pointer-events:none}
 .pond-tier.newborn{color:#d18b18}.newborn-collection{margin-top:18px;padding-top:16px;border-top:4px double #d6a642}.newborn-title{font-family:"Yu Mincho",serif;font-size:23px;font-weight:800;color:#996514;margin-bottom:4px}.newborn-note{font-size:12px;color:#7a6a4d;margin-bottom:12px}
 .newborn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}.newborn-item{position:relative;min-height:230px;border:1px solid #d9bd7b;border-radius:12px;padding:10px;background:linear-gradient(#fffdf4,#fff4ce);text-align:center}.newborn-item svg{width:82px;height:125px}.newborn-name{font-weight:900;color:#8d5c0b}.newborn-meta{font-size:11px;color:#796b55;line-height:1.5;margin:5px 0}.newborn-item .pond-mini-btn{margin-top:7px}
@@ -828,6 +829,7 @@ body.pond-mode #pondView{display:block!important}
           <tr><td style="padding:6px;border-bottom:1px solid #aa9877">体長</td><td id="certLength" style="padding:6px;border-bottom:1px solid #aa9877;font-weight:bold"></td></tr>
           <tr><td style="padding:6px;border-bottom:1px solid #aa9877">大模様</td><td id="certPattern" style="padding:6px;border-bottom:1px solid #aa9877;font-weight:bold"></td></tr>
           <tr><td style="padding:6px;border-bottom:1px solid #aa9877">細模様</td><td id="certFine" style="padding:6px;border-bottom:1px solid #aa9877;font-weight:bold"></td></tr>
+          <tr id="certParentsRow" style="display:none"><td style="padding:6px;border-bottom:1px solid #aa9877">両親</td><td id="certParents" style="padding:6px;border-bottom:1px solid #aa9877;font-weight:bold"></td></tr>
         </table>
       </div>
     </div>
@@ -1368,6 +1370,7 @@ let memoryCollection=[];
 let memoryCollectionRecords={};
 let memoryLegendRecords={};
 let collectionPriceOverride=null;
+let currentCertificateParents=null;
 let currentHighlight=null;
 
 function loadSpecimenStats(){
@@ -1421,6 +1424,7 @@ function saveIllustrationRareRecord(s,price){
 }
 function openIllustrationRareCertificate(key){
  currentHighlight=null;
+ currentCertificateParents=null;
  const rec=loadIllustrationRareRecords()[key];
  if(!rec||!rec.state)return;
  state={...rec.state};collectionPriceOverride=rec.price||null;
@@ -1462,6 +1466,7 @@ function saveLegendRecord(s,price){
 }
 function openLegendCertificate(key){
  currentHighlight=null;
+ currentCertificateParents=null;
  const rec=loadLegendRecords()[key];
  if(!rec||!rec.state)return;
  state={...rec.state};
@@ -1509,6 +1514,7 @@ function saveCollectionRecord(varietyIndex,s,price){
 }
 function openCollectionCertificate(varietyIndex){
  currentHighlight=null;
+ currentCertificateParents=null;
  const rec=loadCollectionRecords()[varietyIndex];
  if(!rec || !rec.state){
    alert("この品種は、もう一度生成すると鑑定書から開けるようになります。");
@@ -1609,6 +1615,12 @@ function openCertificate(){
  document.getElementById("certLength").textContent=SIZES[state.size]+"cm";
  document.getElementById("certPattern").textContent=PATTERN_NAMES[state.big];
  document.getElementById("certFine").textContent=FINE_NAMES[state.fine];
+ const parentsRow=document.getElementById("certParentsRow");
+ const parentsText=currentCertificateParents?.length===2
+   ?currentCertificateParents.map(p=>`${p.name}（第${String(p.id).padStart(6,"0")}号）`).join(" × ")
+   :"";
+ if(parentsRow)parentsRow.style.display=parentsText?"table-row":"none";
+ const parentsCell=document.getElementById("certParents");if(parentsCell)parentsCell.textContent=parentsText;
  document.getElementById("certPersonality").textContent=PERSONALITIES[(state.id+state.big)%PERSONALITIES.length]; document.getElementById("certComment").textContent=appraisalText(state,currentPriceValue());
  document.getElementById("certPrice").textContent=currentPriceText();
  const certWrap=document.getElementById("certKoiWrap");
@@ -1636,7 +1648,7 @@ function openCertificate(){
  __certificateShareFile=null; __certificateDataUrl=null; __certificatePreparedId=null;
  setTimeout(()=>{ saveCertificateAsPng(true).catch(()=>{}); },0);
 }
-certificateBtn.onclick=openCertificate;
+certificateBtn.onclick=()=>{currentCertificateParents=null;openCertificate()};
 certCloseBtn.onclick=()=>certificateOverlay.classList.remove("open");
 certificateOverlay.addEventListener("click",e=>{if(e.target===certificateOverlay)certificateOverlay.classList.remove("open")});
 
@@ -1762,25 +1774,31 @@ async function saveCertificateAsPng(prepareOnly=false){
    ["大模様",PATTERN_NAMES[state.big]],
    ["細模様",FINE_NAMES[state.fine]]
  ];
+ const certificateParentsText=currentCertificateParents?.length===2
+   ?currentCertificateParents.map(p=>`${p.name}（第${String(p.id).padStart(6,"0")}号）`).join(" × ")
+   :"";
+ if(certificateParentsText)rows.push(["両親",certificateParentsText]);
  let y=590;
+ const rowStep=certificateParentsText?55:65;
  rows.forEach(([k,v])=>{
    setFont(22);ctx.fillStyle="#765b36";ctx.fillText(k,x,y);
    fitText(v,450,28,18,true);ctx.fillStyle="#211b15";ctx.fillText(v,x+150,y);
    ctx.strokeStyle="#aa9877";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,y+12);ctx.lineTo(1110,y+12);ctx.stroke();
-   y+=65;
+   y+=rowStep;
  });
 
  // 下段。iPhoneのフォント差で重ならないよう、領域を完全に分離
  ctx.textAlign="left";
- setFont(22);ctx.fillStyle="#765b36";ctx.fillText("性格と特徴",80,930);
+ const lowerOffset=certificateParentsText?35:0;
+ setFont(22);ctx.fillStyle="#765b36";ctx.fillText("性格と特徴",80,930+lowerOffset);
  const personality=PERSONALITIES[(state.id+state.big)%PERSONALITIES.length];
  fitText(personality,1040,26,20,false);
- ctx.fillStyle="#211b15";ctx.fillText(personality,80,975);
+ ctx.fillStyle="#211b15";ctx.fillText(personality,80,975+lowerOffset);
 
- setFont(22);ctx.fillStyle="#765b36";ctx.fillText("鑑定コメント",80,1025);
+ setFont(22);ctx.fillStyle="#765b36";ctx.fillText("鑑定コメント",80,1025+lowerOffset);
  setFont(21);ctx.fillStyle="#211b15";
  const cm=appraisalText(state,currentPriceValue());
- drawWrapped(cm,80,1065,1040,32,4);
+ drawWrapped(cm,80,1065+lowerOffset,1040,32,certificateParentsText?3:4);
 
  // 鑑定額はコメント領域から十分離す
  const priceTop=1235;
@@ -2188,7 +2206,9 @@ body.cert-lock{
   const MAX_POND_KOI=10;
   const MAX_NEWBORN_KOI=5;
   const POND_AMBIENT_SOUND="sounds/spring-birds.mp3";
-  const BREEDING_INTERVAL_MS=10*60*1000;
+  const BREEDING_MIN_MS=2*60*1000;
+  const BREEDING_MAX_MS=10*60*1000;
+  const COURTSHIP_MS=30*1000;
   let pondSelection=[];
   let pondFish=[];
   let pondAnimStarted=false;
@@ -2197,6 +2217,7 @@ body.cert-lock{
   let attractUntil=0;
   let pondSoundOn=false,lastPondSoundKey="",pondVolume=.35;
   let nextKoiJump=performance.now()+15000+Math.random()*18000;
+  let breedingPair=null,breedingPairTarget=null,nextBreedingPairTarget=0;
 
   function esc(s){return String(s??"").replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'\"':"&quot;","'":"&#39;"}[c]))}
   function tierLabel(t){return t==="legend"?"LEGEND":(t==="rare"?"RARE":(t==="newborn"?"新生鯉":"通常"))}
@@ -2247,13 +2268,32 @@ body.cert-lock{
     const r=seeded(seed);if(r()<.42)return a;if(r()<.84)return b;
     return Math.max(0,Math.min(max,Math.round((Number(a)+Number(b))/2)+(r()<.18?(r()<.5?-1:1):0)));
   }
-  function breedNewborn(){
+  function selectBreedingPair(){
+    if(pondSelection.length<2||loadNewbornRecords().length>=MAX_NEWBORN_KOI)return null;
+    const first=Math.floor(Math.random()*pondSelection.length);
+    let second=Math.floor(Math.random()*(pondSelection.length-1));if(second>=first)second++;
+    return [pondSelection[first],pondSelection[second]];
+  }
+  function clearBreedingPair(){
+    pondFish.forEach(f=>f.node.classList.remove("breeding-parent"));
+    breedingPair=null;breedingPairTarget=null;nextBreedingPairTarget=0;
+  }
+  function beginCourtship(){
+    clearBreedingPair();breedingPair=selectBreedingPair();if(!breedingPair)return;
+    breedingPairTarget=randomPoint();nextBreedingPairTarget=performance.now()+5000;
+    const keys=breedingPair.map(x=>itemKey(x.tier,x.state));
+    pondFish.filter(f=>keys.includes(itemKey(f.item.tier,f.item.state))).forEach(f=>f.node.classList.add("breeding-parent"));
+    setStatus(`${makeKoiName(breedingPair[0].state)}と${makeKoiName(breedingPair[1].state)}が寄り添って泳いでいます。`);
+  }
+  function breedNewborn(parentPair=breedingPair){
     if(pondSelection.length<2)return;
     const records=loadNewbornRecords();
     if(records.length>=MAX_NEWBORN_KOI){setStatus("新生鯉は5尾います。新しい子を迎えるには、新生鯉図鑑から1尾を放流してください。");return}
-    const first=Math.floor(Math.random()*pondSelection.length);
-    let second=Math.floor(Math.random()*(pondSelection.length-1));if(second>=first)second++;
-    const pa=pondSelection[first],pb=pondSelection[second],a=pa.state,b=pb.state;
+    if(!parentPair||parentPair.length!==2)return;
+    const keys=parentPair.map(x=>itemKey(x.tier,x.state));
+    const currentParents=keys.map(k=>pondSelection.find(x=>itemKey(x.tier,x.state)===k));
+    if(currentParents.some(x=>!x))return;
+    const [pa,pb]=currentParents,a=pa.state,b=pb.state;
     const bornAt=Date.now();
     let id=(hash32([a.id,b.id].sort((x,y)=>x-y).join(":")+":"+(records.length+1)+":"+bornAt)%1000000)+1;
     while(records.some(x=>x.state&&x.state.id===id))id=id%1000000+1;
@@ -2271,7 +2311,12 @@ body.cert-lock{
     if(notice){notice.classList.remove("show");void notice.offsetWidth;notice.classList.add("show");setTimeout(()=>notice.classList.remove("show"),5200)}
     setStatus(addedToPond?`新生鯉「${makeKoiName(rec.state)}」が誕生しました！`:`「${makeKoiName(rec.state)}」が誕生しました。池は10匹のため新生鯉図鑑で待機しています。`);
   }
-  function runBreedingTimer(){setTimeout(()=>{breedNewborn();runBreedingTimer()},BREEDING_INTERVAL_MS)}
+  function scheduleNextBirth(){
+    clearBreedingPair();
+    const delay=BREEDING_MIN_MS+Math.random()*(BREEDING_MAX_MS-BREEDING_MIN_MS);
+    setTimeout(beginCourtship,delay-COURTSHIP_MS);
+    setTimeout(()=>{breedNewborn();clearBreedingPair();scheduleNextBirth()},delay);
+  }
   function allAtlasRecords(){
     const out=[];
     const normal=loadCollectionRecords();
@@ -2397,13 +2442,24 @@ body.cert-lock{
     const active=document.body.classList.contains("pond-mode");
     if(active){
       if(ts>=nextKoiJump){triggerKoiJump();nextKoiJump=ts+18000+Math.random()*26000}
+      const breedingKeys=breedingPair?breedingPair.map(x=>itemKey(x.tier,x.state)):[];
+      if(breedingPair&&ts>=nextBreedingPairTarget){breedingPairTarget=randomPoint();nextBreedingPairTarget=ts+4500+Math.random()*3500}
       for(const f of pondFish){
-        if(attractPoint && ts<attractUntil){f.tx=attractPoint.x;f.ty=attractPoint.y}
+        const pairIndex=breedingKeys.indexOf(itemKey(f.item.tier,f.item.state));
+        const isCourting=pairIndex>=0&&breedingPairTarget;
+        if(isCourting){
+          const side=pairIndex===0?-1:1;
+          f.tx=Math.max(.08,Math.min(.92,breedingPairTarget.x+side*.018));
+          f.ty=Math.max(.08,Math.min(.92,breedingPairTarget.y+side*.014));
+          f.pauseUntil=0;
+        }else if(attractPoint && ts<attractUntil){f.tx=attractPoint.x;f.ty=attractPoint.y}
         if(ts<f.pauseUntil)continue;
         let dx=f.tx-f.x,dy=f.ty-f.y,dist=Math.hypot(dx,dy);
         if(dist<.025){
-          if(ts>f.nextPause && Math.random()<.42){f.pauseUntil=ts+1000+Math.random()*2500;f.nextPause=ts+5500+Math.random()*9000}
-          const p=randomPoint();f.tx=p.x;f.ty=p.y;dx=f.tx-f.x;dy=f.ty-f.y;dist=Math.hypot(dx,dy);
+          if(!isCourting){
+            if(ts>f.nextPause && Math.random()<.42){f.pauseUntil=ts+1000+Math.random()*2500;f.nextPause=ts+5500+Math.random()*9000}
+            const p=randomPoint();f.tx=p.x;f.ty=p.y;dx=f.tx-f.x;dy=f.ty-f.y;dist=Math.hypot(dx,dy);
+          }
         }
         if(dist>.0001){
           const step=Math.min(dist,f.speed*dt);
@@ -2447,9 +2503,18 @@ body.cert-lock{
     records.slice().reverse().forEach((rec,i)=>{
       const s=rec.state,d=document.createElement("div"),selected=isSelected("newborn",s);
       d.className="newborn-item";
-      d.innerHTML=pondKoiSVG(s,"newborn_catalog_"+i)+`<div class="newborn-name">${esc(makeKoiName(s))}</div><div class="newborn-meta">${esc(VARIETIES[s.variety])} ／ 第${String(s.id).padStart(6,"0")}号<br>親：${esc(rec.parents?.[0]?.name||"不明")} × ${esc(rec.parents?.[1]?.name||"不明")}</div><div class="newborn-actions"><button type="button" class="pond-mini-btn${selected?" in-pond":""}" data-action="pond">${selected?"池で泳いでいる":"池へ"}</button><button type="button" class="newborn-release-btn" data-action="release">放流</button></div>`;
-      d.querySelector('[data-action="pond"]').onclick=()=>addToPond("newborn",rec);d.querySelector('[data-action="release"]').onclick=()=>releaseNewborn(rec);box.appendChild(d);
+      d.innerHTML=pondKoiSVG(s,"newborn_catalog_"+i)+`<div class="newborn-name">${esc(makeKoiName(s))}</div><div class="newborn-meta">${esc(VARIETIES[s.variety])} ／ 第${String(s.id).padStart(6,"0")}号<br>親：${esc(rec.parents?.[0]?.name||"不明")} × ${esc(rec.parents?.[1]?.name||"不明")}</div><div class="newborn-actions"><button type="button" class="pond-mini-btn${selected?" in-pond":""}" data-action="pond">${selected?"池で泳いでいる":"池へ"}</button><button type="button" class="pond-mini-btn" data-action="certificate">鑑定書</button><button type="button" class="newborn-release-btn" data-action="release">放流</button></div>`;
+      d.querySelector('[data-action="pond"]').onclick=()=>addToPond("newborn",rec);
+      d.querySelector('[data-action="certificate"]').onclick=()=>openNewbornCertificate(rec);
+      d.querySelector('[data-action="release"]').onclick=()=>releaseNewborn(rec);box.appendChild(d);
     });
+  }
+  function openNewbornCertificate(rec){
+    if(!rec||!rec.state)return;
+    currentHighlight=null;currentCertificateParents=Array.isArray(rec.parents)?rec.parents.map(p=>({...p})):null;
+    state={...rec.state};collectionPriceOverride=rec.price||null;
+    document.getElementById("result").style.display="block";
+    render();setTimeout(()=>openCertificate(),0);
   }
   function releaseNewborn(rec){
     if(!rec||!rec.state)return;const name=makeKoiName(rec.state);
@@ -2515,7 +2580,7 @@ body.cert-lock{
   document.addEventListener("DOMContentLoaded",()=>{
     loadPondSelection();updatePondUI();applyMode();
     renderNewbornCollection();
-    runBreedingTimer();
+    scheduleNextBirth();
     const soundBtn=document.getElementById("pondSoundBtn"),volume=document.getElementById("pondVolume");
     if(soundBtn)soundBtn.onclick=()=>{pondSoundOn=!pondSoundOn;soundBtn.classList.toggle("on",pondSoundOn);soundBtn.setAttribute("aria-pressed",pondSoundOn?"true":"false");soundBtn.textContent=pondSoundOn?"🔊 環境音を停止":"🔇 環境音を再生";lastPondSoundKey="";syncPondSound(true)};
     if(volume)volume.oninput=()=>{pondVolume=Number(volume.value)/100;if(pondSoundOn){lastPondSoundKey="";syncPondSound(true)}};
