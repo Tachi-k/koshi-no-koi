@@ -657,6 +657,26 @@ body.pond-mode #pondView{display:block!important}
 .pond-roster-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px dotted #d3dce2;font-size:12px}
 .pond-roster-row:last-child{border-bottom:0}
 
+/* 季節と朝昼夜の自動進行 */
+.pond-cycle-status{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:10px 14px;border-radius:14px;background:#172219;color:#f3ead7;font-weight:800}
+.pond-cycle-status span{white-space:nowrap}.pond-cycle-sep{opacity:.45}.pond-cycle-bar{width:min(320px,70vw);height:7px;border-radius:10px;overflow:hidden;background:rgba(255,255,255,.16)}
+.pond-cycle-fill{height:100%;background:linear-gradient(90deg,#efb954,#fff0b0);transition:width 1s linear}
+.pond-season-layer,.pond-rain,.pond-snow,.pond-frog,.pond-sun,.pond-moon-auto{position:absolute;pointer-events:none}
+.pond-season-layer{inset:0;z-index:7;overflow:hidden}.pond-rain,.pond-snow{inset:-25% 0 0;z-index:8;display:none}
+.pond-sun,.pond-moon-auto{z-index:8;width:64px;height:64px;border-radius:50%;left:8%;top:66%;opacity:0;transition:opacity 2s,transform 2s}
+.pond-sun{background:#ffe181;box-shadow:0 0 35px 12px rgba(255,211,92,.55)}.pond-moon-auto{background:#f8f1cf;box-shadow:0 0 28px 9px rgba(240,236,198,.38)}
+.pond-garden.time-morning .pond-sun{opacity:.8;transform:translate(55%,-560%)}.pond-garden.time-day .pond-sun{opacity:1;transform:translate(580%,-760%)}.pond-garden.time-night .pond-moon-auto{opacity:.95;transform:translate(690%,-620%)}
+.pond-garden.time-morning{filter:brightness(.9) saturate(.9)}.pond-garden.time-day{filter:brightness(1.07) saturate(1.05)}.pond-garden.time-night{filter:brightness(.45) saturate(.72) hue-rotate(12deg)}
+.pond-garden.season-spring::before{background:radial-gradient(circle at 12% 8%,rgba(255,190,216,.45),transparent 28%),radial-gradient(circle at 88% 9%,rgba(255,205,224,.38),transparent 26%)}
+.pond-garden.season-spring .pond-season-layer{background-image:radial-gradient(ellipse,rgba(255,211,227,.96) 0 2px,transparent 3px);background-size:53px 71px;animation:seasonFall 9s linear infinite}
+.pond-garden.season-rainy::before{background:linear-gradient(rgba(74,100,119,.3),rgba(24,57,70,.28))}.pond-garden.season-rainy .pond-rain{display:block;background:repeating-linear-gradient(104deg,transparent 0 13px,rgba(215,239,248,.55) 14px 15px,transparent 16px 29px);animation:rainFall .65s linear infinite}.pond-garden.season-rainy .pond-frog{display:block}
+.pond-frog{display:none;z-index:12;right:7%;bottom:12%;font-size:42px;filter:drop-shadow(0 5px 4px rgba(0,0,0,.45));animation:frogBob 2.5s ease-in-out infinite}
+.pond-garden.season-summer::before{background:radial-gradient(circle at 15% 8%,rgba(91,190,75,.34),transparent 31%),linear-gradient(rgba(24,105,40,.08),transparent)}
+.pond-garden.season-autumn::before{background:radial-gradient(circle at 12% 8%,rgba(216,73,27,.44),transparent 29%),radial-gradient(circle at 87% 9%,rgba(239,151,38,.38),transparent 27%)}
+.pond-garden.season-autumn .pond-season-layer{background-image:radial-gradient(ellipse,rgba(211,86,29,.94) 0 4px,transparent 5px);background-size:76px 89px;animation:seasonFall 12s linear infinite}
+.pond-garden.season-winter::before{background:linear-gradient(rgba(228,238,241,.52),rgba(143,163,168,.3))}.pond-garden.season-winter .pond-snow{display:block;background-image:radial-gradient(circle,white 0 2px,transparent 3px),radial-gradient(circle,rgba(255,255,255,.78) 0 3px,transparent 4px);background-size:47px 61px,83px 97px;animation:snowFall 10s linear infinite}
+@keyframes rainFall{to{transform:translate(-28px,120px)}}@keyframes snowFall{to{transform:translate(25px,140px)}}@keyframes seasonFall{to{background-position:30px 120px}}@keyframes frogBob{50%{transform:translateY(-6px) rotate(-3deg)}}
+
 @media(max-width:900px){
   header{align-items:flex-start}.header-actions{flex-direction:column-reverse;align-items:flex-end}
   .pond-layout{grid-template-columns:1fr}.pond-side{grid-template-columns:1fr 1fr}.pond-picker{max-height:340px}
@@ -768,8 +788,10 @@ body.pond-mode #pondView{display:block!important}
     <div><h2>越鯉 日本庭園の池</h2></div>
     <div class="pond-page-actions"><a href="#" class="pond-back-link">← 図鑑へ戻る</a><button type="button" id="pondClearBtn" class="pond-clear-btn">池を空にする</button></div>
   </div>
+  <div class="pond-cycle-status"><span id="pondSeasonText">春・桜</span><span class="pond-cycle-sep">｜</span><span id="pondTimeText">朝</span><div class="pond-cycle-bar"><div class="pond-cycle-fill" id="pondCycleFill"></div></div></div>
   <div class="pond-layout">
-    <div class="pond-garden" id="pondGarden">
+    <div class="pond-garden season-spring time-morning" id="pondGarden">
+      <div class="pond-season-layer"></div><div class="pond-rain"></div><div class="pond-snow"></div><div class="pond-frog" aria-label="カエル">🐸</div><div class="pond-sun"></div><div class="pond-moon-auto"></div>
       <div class="pond-bridge"></div><div class="pond-lantern"></div>
       <div class="pond-stone s1"></div><div class="pond-stone s2"></div><div class="pond-stone s3"></div><div class="pond-stone s4"></div>
       <div class="pond-reed r1"></div><div class="pond-reed r2"></div><div class="pond-reed r3"></div>
@@ -2161,6 +2183,11 @@ body.cert-lock{
 (function(){
   const POND_KEY="koshiKoiPondSelectionV1";
   const MAX_POND_KOI=10;
+  const POND_SEASONS=[
+    {key:"spring",label:"春・桜"},{key:"rainy",label:"梅雨・雨とカエル"},{key:"summer",label:"夏・新緑"},{key:"autumn",label:"秋・紅葉"},{key:"winter",label:"冬・雪"}
+  ];
+  const POND_TIMES=[{key:"morning",label:"朝"},{key:"day",label:"昼"},{key:"night",label:"夜"}];
+  const DAY_CYCLE_MS=60000,SEASON_MS=DAY_CYCLE_MS*2,pondClockStarted=performance.now();
   let pondSelection=[];
   let pondFish=[];
   let pondAnimStarted=false;
@@ -2184,6 +2211,18 @@ body.cert-lock{
   function savePondSelection(){
     try{localStorage.setItem(POND_KEY,JSON.stringify(pondSelection))}catch(e){}
   }
+  function updatePondClock(){
+    const garden=document.getElementById("pondGarden");if(!garden)return;
+    const elapsed=performance.now()-pondClockStarted;
+    const season=POND_SEASONS[Math.floor(elapsed/SEASON_MS)%POND_SEASONS.length];
+    const time=POND_TIMES[Math.min(2,Math.floor((elapsed%DAY_CYCLE_MS)/(DAY_CYCLE_MS/3)))];
+    garden.classList.remove("season-spring","season-rainy","season-summer","season-autumn","season-winter","time-morning","time-day","time-night");
+    garden.classList.add("season-"+season.key,"time-"+time.key);
+    const se=document.getElementById("pondSeasonText");if(se)se.textContent=season.label;
+    const ti=document.getElementById("pondTimeText");if(ti)ti.textContent=time.label;
+    const bar=document.getElementById("pondCycleFill");if(bar)bar.style.width=((elapsed%SEASON_MS)/SEASON_MS*100).toFixed(1)+"%";
+  }
+  function runPondClock(){updatePondClock();setTimeout(runPondClock,1000)}
   function allAtlasRecords(){
     const out=[];
     const normal=loadCollectionRecords();
@@ -2395,6 +2434,7 @@ body.cert-lock{
 
   document.addEventListener("DOMContentLoaded",()=>{
     loadPondSelection();updatePondUI();applyMode();
+    runPondClock();
     const clear=document.getElementById("pondClearBtn");if(clear)clear.onclick=()=>{if(!pondSelection.length)return;clearPond()};
     const water=document.getElementById("pondWater");if(water)water.addEventListener("click",e=>{
       const r=water.getBoundingClientRect();attractPoint={x:Math.max(.08,Math.min(.92,(e.clientX-r.left)/r.width)),y:Math.max(.08,Math.min(.92,(e.clientY-r.top)/r.height))};attractUntil=performance.now()+5000;setStatus("鯉たちがタップした場所へゆっくり寄っていきます。");
