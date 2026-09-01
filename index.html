@@ -708,6 +708,7 @@ body.pond-mode #pondView{display:block!important}
 .certificate-premium-koi{width:106%!important;height:340px!important;margin:-10px -3%!important;object-fit:contain!important;background:transparent!important;transform:scaleX(.88) scaleY(1.06)!important;transform-origin:center!important;filter:drop-shadow(0 9px 8px rgba(0,0,0,.42)) saturate(1.10) contrast(1.05)!important}
 .premium-pond-koi{transform:scaleX(.88) scaleY(1.08)!important;transform-origin:center!important;filter:drop-shadow(0 7px 6px rgba(0,0,0,.38)) saturate(1.12) contrast(1.06)!important}
 .pond-fish.rare,.pond-fish.legend{z-index:12}
+.overlay .zoom-premium-koi{display:block;max-width:82vw;max-height:86vh;width:auto;height:auto;object-fit:contain;transform:scaleX(.90);filter:drop-shadow(0 14px 18px rgba(0,0,0,.58)) saturate(1.10) contrast(1.05)}
 </style>
 </head>
 <body>
@@ -938,8 +939,15 @@ function deriveFromId(id,name=""){
 	}
 	function setPremiumScale(img,s,withTranslate=false){
 	 if(!img)return;
-	 const z=koiVisualScale(s),prefix=withTranslate?"translate(-50%,-50%) ":"";
-	 img.style.setProperty("transform",`${prefix}scale(${z}) scaleX(.88) scaleY(1.06)`,"important");
+	 const z=koiVisualScale(s),ratio=(z-.92)/.30;
+	 if(withTranslate){
+	   const pct=Math.round(80+Math.max(0,Math.min(1,ratio))*16);
+	   img.style.setProperty("width",pct+"%","important");
+	   img.style.setProperty("height",pct+"%","important");
+	   img.style.setProperty("transform","translate(-50%,-50%) scaleX(.90)","important");
+	 }else{
+	   img.style.setProperty("transform","scaleX(.90)","important");
+	 }
 	}
 function normalizeNameForSeed(name){
  return String(name||"").normalize("NFKC").replace(/\s+/g,"");
@@ -1438,7 +1446,19 @@ nameInput.addEventListener("keydown",e=>{
  generateFromName();
 });
 nameInput.addEventListener("input",()=>result.style.display="none");
-zoomBtn.onclick=()=>{overlay.innerHTML=beautifulNormalSVG(state);overlay.classList.add("open")};
+zoomBtn.onclick=async()=>{
+ overlay.innerHTML="";
+ if(isRealRare(state)||isIllustrationRare(state)){
+   const img=document.createElement("img");
+   img.className="zoom-premium-koi";
+   img.alt=(isRealRare(state)?"伝説級":"希少級")+"の越鯉";
+   img.src=isRealRare(state)?rareImageFor(state):await smartRareImageFor(state);
+   overlay.appendChild(img);
+ }else{
+   overlay.innerHTML=beautifulNormalSVG(state);
+ }
+ overlay.classList.add("open");
+};
 overlay.onclick=()=>overlay.classList.remove("open");
 
 
@@ -1708,18 +1728,18 @@ function openCertificate(){
 	   const certImg=document.createElement("img");
 	   certImg.src=rareImageFor(state);
 	   certImg.className="certificate-premium-koi smart-legend-koi";
-	   setPremiumScale(certImg,state,false);
 	   certImg.alt="伝説級の越鯉";
-   certImg.style.cssText="width:100%;height:320px;object-fit:contain;background:#071a24;display:block";
+	   certImg.style.cssText="width:100%;height:320px;object-fit:contain;background:#071a24;display:block";
+	   setPremiumScale(certImg,state,false);
    certWrap.appendChild(certImg);
  }else if(isIllustrationRare(state)){
 	   certWrap.innerHTML="";
 	   const certImg=document.createElement("img");
 	   certImg.className="certificate-premium-koi smart-rare-koi";
-	   setPremiumScale(certImg,state,false);
 	   smartRareImageFor(state).then(src=>certImg.src=src);
 	   certImg.alt="希少級の越鯉";
-   certImg.style.cssText="width:100%;height:320px;object-fit:contain;background:#061a25;display:block";
+	   certImg.style.cssText="width:100%;height:320px;object-fit:contain;background:#061a25;display:block";
+	   setPremiumScale(certImg,state,false);
    certWrap.appendChild(certImg);
 	 }else{
 	   certWrap.innerHTML=legendFullBodySVG(state);
@@ -2512,8 +2532,8 @@ body.cert-lock{
 		const limg=node.querySelector(".pond-legend-img");
 		if(limg){
 		  limg.classList.add("premium-pond-koi","smart-legend-koi");
-		  setPremiumScale(limg,s,false);
 		  limg.style.cssText="width:100%;height:100%;object-fit:contain;display:block;pointer-events:none";
+		  setPremiumScale(limg,s,false);
           limg.src=legendPondImage(s);
           limg.onerror=()=>{
             // 池専用PNGがまだ配置されていない場合は、魚を不正な背景付き画像へ戻さない。
