@@ -1391,17 +1391,20 @@ function render(){
  priceOut.textContent="金 "+price.toLocaleString("ja-JP")+"円";
  const comment=appraisalText(state,price);
  appraisalComment.textContent=comment;
- const isNew=(isRealRare(state)||isIllustrationRare(state))?false:registerVariety(state.variety);
- registerSpecimen(state.id,price);
- if(isRealRare(state)){
-   saveLegendRecord(state,price);
-   renderLegendCollection();
-renderIllustrationRareCollection();
- }else if(isIllustrationRare(state)){
-   saveIllustrationRareRecord(state,price);
-   renderIllustrationRareCollection();
- }else{
-   saveCollectionRecord(state.variety,state,price);
+ let isNew=false;
+ if(!suppressCatalogRegistration){
+   isNew=(isRealRare(state)||isIllustrationRare(state))?false:registerVariety(state.variety);
+   registerSpecimen(state.id,price);
+   if(isRealRare(state)){
+     saveLegendRecord(state,price);
+     renderLegendCollection();
+     renderIllustrationRareCollection();
+   }else if(isIllustrationRare(state)){
+     saveIllustrationRareRecord(state,price);
+     renderIllustrationRareCollection();
+   }else{
+     saveCollectionRecord(state.variety,state,price);
+   }
  }
  renderCollection();
  renderIllustrationRareCollection();
@@ -1464,6 +1467,7 @@ let memoryLegendRecords={};
 let collectionPriceOverride=null;
 let currentCertificateParents=null;
 let currentCertificateBornAt=null;
+let suppressCatalogRegistration=false;
 let currentHighlight=null;
 
 function currentCertificateLengthCm(){
@@ -2697,9 +2701,41 @@ body.cert-lock{
       box.appendChild(d);
     });
   }
+  function purgeNewbornsFromUpperCollections(records){
+    const newbornIds=new Set((records||[]).map(rec=>Number(rec&&rec.state&&rec.state.id)).filter(Boolean));
+    if(!newbornIds.size)return;
+    let changed=false;
+
+    const normal={...loadCollectionRecords()};
+    Object.keys(normal).forEach(key=>{
+      if(newbornIds.has(Number(normal[key]?.state?.id))){delete normal[key];changed=true}
+    });
+    if(changed){
+      memoryCollectionRecords=normal;
+      try{localStorage.setItem("koshiKoiCollectionRecords",JSON.stringify(normal))}catch(e){}
+      saveCollection(loadCollection().filter(variety=>normal[String(variety)]||normal[variety]));
+    }
+
+    const rare={...loadIllustrationRareRecords()};
+    let rareChanged=false;
+    Object.keys(rare).forEach(key=>{if(newbornIds.has(Number(rare[key]?.state?.id))){delete rare[key];rareChanged=true}});
+    if(rareChanged){memoryIllustrationRareRecords=rare;try{localStorage.setItem("koshiKoiIllustrationRareRecords",JSON.stringify(rare))}catch(e){}}
+
+    const legend={...loadLegendRecords()};
+    let legendChanged=false;
+    Object.keys(legend).forEach(key=>{if(newbornIds.has(Number(legend[key]?.state?.id))){delete legend[key];legendChanged=true}});
+    if(legendChanged){memoryLegendRecords=legend;try{localStorage.setItem("koshiKoiLegendRecords",JSON.stringify(legend))}catch(e){}}
+
+    if(changed||rareChanged||legendChanged){
+      const remaining=[...Object.values(normal),...Object.values(rare),...Object.values(legend)].filter(rec=>rec&&rec.state);
+      const stats={ids:[...new Set(remaining.map(rec=>rec.state.id))],highest:remaining.reduce((m,rec)=>Math.max(m,Number(rec.price)||0),0),legends:Object.keys(legend).length};
+      saveSpecimenStats(stats);
+      renderCollection();renderIllustrationRareCollection();renderLegendCollection();renderSpecimenStats();
+    }
+  }
   function renderNewbornCollection(){
     const section=document.getElementById("newbornCollection"),box=document.getElementById("newbornGrid");if(!section||!box)return;
-    const records=loadNewbornRecords();section.style.display=records.length?"block":"none";box.innerHTML="";
+    const records=loadNewbornRecords();purgeNewbornsFromUpperCollections(records);section.style.display=records.length?"block":"none";box.innerHTML="";
     records.slice().reverse().forEach((rec,i)=>{
       const s=rec.state,d=document.createElement("div"),selected=isSelected("newborn",s);
       d.className="newborn-item";
@@ -2716,7 +2752,9 @@ body.cert-lock{
     currentCertificateBornAt=Number(rec.bornAt)||null;
     state={...rec.state};collectionPriceOverride=rec.price||null;
     document.getElementById("result").style.display="block";
-    render();setTimeout(()=>openCertificate(),0);
+    suppressCatalogRegistration=true;
+    try{render()}finally{suppressCatalogRegistration=false}
+    setTimeout(()=>openCertificate(),0);
   }
   function releaseNewborn(rec){
     if(!rec||!rec.state)return;const name=makeKoiName(rec.state);
