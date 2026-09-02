@@ -719,12 +719,12 @@ body.pond-mode #pondView{display:block!important}
 </div>
 <div class="app">
 <header>
- <div class="brand"><div><h1>越　鯉</h1><small>— KOSHI NO KOI —</small></div><div>名前から生まれる、世界に一つの錦鯉</div></div>
+<div class="brand"><div><h1>越　鯉</h1><small>— KOSHI NO KOI —</small></div><div>名前から生まれる、錦鯉との出会い</div></div>
  <div class="header-actions"><a class="pond-link" id="pondNavLink" href="#pond">日本庭園の池 <span class="pond-count-badge" id="pondNavCount">0</span></a><div class="stamp">越後之國<br>長岡</div></div>
 </header>
 
 <section class="generator">
- <label>名前を入力</label>
+ <label>鯉につけたい名前を入力してください。</label>
  <input id="nameInput" placeholder="例：鯉太郎、雪月丸、月龍丸">
  <button class="generate" id="generateBtn">✦ 錦鯉を生成する</button>
 </section>
@@ -1463,7 +1463,17 @@ let memoryCollectionRecords={};
 let memoryLegendRecords={};
 let collectionPriceOverride=null;
 let currentCertificateParents=null;
+let currentCertificateBornAt=null;
 let currentHighlight=null;
+
+function currentCertificateLengthCm(){
+ const fullLength=SIZES[state.size];
+ const bornAt=Number(currentCertificateBornAt)||0;
+ if(!bornAt)return fullLength;
+ const age=Math.max(0,Date.now()-bornAt);
+ const growthScale=age<3*60*1000?.45:(age<10*60*1000?.70:1);
+ return Math.max(1,Math.round(fullLength*growthScale));
+}
 
 function loadSpecimenStats(){
  try{
@@ -1517,6 +1527,7 @@ function saveIllustrationRareRecord(s,price){
 function openIllustrationRareCertificate(key){
  currentHighlight=null;
  currentCertificateParents=null;
+ currentCertificateBornAt=null;
  const rec=loadIllustrationRareRecords()[key];
  if(!rec||!rec.state)return;
  state={...rec.state};collectionPriceOverride=rec.price||null;
@@ -1559,6 +1570,7 @@ function saveLegendRecord(s,price){
 function openLegendCertificate(key){
  currentHighlight=null;
  currentCertificateParents=null;
+ currentCertificateBornAt=null;
  const rec=loadLegendRecords()[key];
  if(!rec||!rec.state)return;
  state={...rec.state};
@@ -1607,6 +1619,7 @@ function saveCollectionRecord(varietyIndex,s,price){
 function openCollectionCertificate(varietyIndex){
  currentHighlight=null;
  currentCertificateParents=null;
+ currentCertificateBornAt=null;
  const rec=loadCollectionRecords()[varietyIndex];
  if(!rec || !rec.state){
    alert("この品種は、もう一度生成すると鑑定書から開けるようになります。");
@@ -1660,9 +1673,9 @@ function registerVariety(index){
  return isNew;
 }
 
-function appraisalText(s,price){
+function appraisalText(s,price,displaySize=SIZES[s.size]){
  const body=BODY_TYPES[s.body][0];
- const size=SIZES[s.size];
+ const size=displaySize;
  const big=PATTERN_NAMES[s.big];
  const fine=FINE_NAMES[s.fine];
  const v=VARIETIES[s.variety];
@@ -1699,12 +1712,13 @@ function currentPriceText(){
  return priceOut.textContent || "";
 }
 function openCertificate(){
+ const certificateLength=currentCertificateLengthCm();
  document.getElementById("certId").textContent="第 "+String(state.id).padStart(6,"0")+" 号";
  document.getElementById("certKoiName").textContent=makeKoiName(state);
  document.getElementById("certOwner").textContent=state.name||"";
  document.getElementById("certVariety").textContent=VARIETIES[state.variety];
  document.getElementById("certBody").textContent=BODY_TYPES[state.body][0];
- document.getElementById("certLength").textContent=SIZES[state.size]+"cm";
+ document.getElementById("certLength").textContent=certificateLength+"cm";
  document.getElementById("certPattern").textContent=PATTERN_NAMES[state.big];
  document.getElementById("certFine").textContent=FINE_NAMES[state.fine];
  const parentsRow=document.getElementById("certParentsRow");
@@ -1713,7 +1727,7 @@ function openCertificate(){
    :"";
  if(parentsRow)parentsRow.style.display=parentsText?"table-row":"none";
  const parentsCell=document.getElementById("certParents");if(parentsCell)parentsCell.textContent=parentsText;
- document.getElementById("certPersonality").textContent=PERSONALITIES[(state.id+state.big)%PERSONALITIES.length]; document.getElementById("certComment").textContent=appraisalText(state,currentPriceValue());
+ document.getElementById("certPersonality").textContent=PERSONALITIES[(state.id+state.big)%PERSONALITIES.length]; document.getElementById("certComment").textContent=appraisalText(state,currentPriceValue(),certificateLength);
  document.getElementById("certPrice").textContent=currentPriceText();
  const certWrap=document.getElementById("certKoiWrap");
  if(isRealRare(state)){
@@ -1745,7 +1759,7 @@ function openCertificate(){
  __certificateShareFile=null; __certificateDataUrl=null; __certificatePreparedId=null;
  setTimeout(()=>{ saveCertificateAsPng(true).catch(()=>{}); },0);
 }
-certificateBtn.onclick=()=>{currentCertificateParents=null;openCertificate()};
+certificateBtn.onclick=()=>{currentCertificateParents=null;currentCertificateBornAt=null;openCertificate()};
 certCloseBtn.onclick=()=>certificateOverlay.classList.remove("open");
 certificateOverlay.addEventListener("click",e=>{if(e.target===certificateOverlay)certificateOverlay.classList.remove("open")});
 
@@ -1866,7 +1880,7 @@ async function saveCertificateAsPng(prepareOnly=false){
  const rows=[
    ["品種",VARIETIES[state.variety]],
    ["体型",BODY_TYPES[state.body][0]],
-   ["体長",SIZES[state.size]+"cm"],
+   ["体長",currentCertificateLengthCm()+"cm"],
    ["大模様",PATTERN_NAMES[state.big]],
    ["細模様",FINE_NAMES[state.fine]]
  ];
@@ -1893,7 +1907,7 @@ async function saveCertificateAsPng(prepareOnly=false){
 
  setFont(22);ctx.fillStyle="#765b36";ctx.fillText("鑑定コメント",80,1025+lowerOffset);
  setFont(21);ctx.fillStyle="#211b15";
- const cm=appraisalText(state,currentPriceValue());
+ const cm=appraisalText(state,currentPriceValue(),currentCertificateLengthCm());
  drawWrapped(cm,80,1065+lowerOffset,1040,32,certificateParentsText?3:4);
 
  // 鑑定額はコメント領域から十分離す
@@ -2330,23 +2344,37 @@ body.cert-lock{
     return {stage:3,label:"成魚",scale:1};
   }
 
+  function currentAtlasRecordsByKey(){
+    const records=new Map();
+    const add=(tier,source)=>{
+      Object.values(source||{}).forEach(rec=>{
+        if(rec&&rec.state)records.set(itemKey(tier,rec.state),rec);
+      });
+    };
+    add("normal",loadCollectionRecords());
+    add("rare",loadIllustrationRareRecords());
+    add("legend",loadLegendRecords());
+    loadNewbornRecords().forEach(rec=>{
+      if(rec&&rec.state)records.set(itemKey("newborn",rec.state),rec);
+    });
+    return records;
+  }
+
   function loadPondSelection(){
     try{
       const raw=localStorage.getItem(POND_KEY);
       pondSelection=raw?JSON.parse(raw):[];
       if(!Array.isArray(pondSelection))pondSelection=[];
     }catch(e){pondSelection=[]}
-    const newbornRecords=loadNewbornRecords().filter(x=>x&&x.state);
-    const newbornByKey=new Map(newbornRecords.map(x=>[itemKey("newborn",x.state),x]));
-    const newbornKeys=new Set(newbornByKey.keys());
+    const atlasRecords=currentAtlasRecordsByKey();
     const seen=new Set();
     pondSelection=pondSelection.filter(x=>{
       if(!x||!x.state||!x.tier)return false;
       const key=itemKey(x.tier,x.state);
       if(seen.has(key))return false;
-      if(x.tier==="newborn"&&!newbornKeys.has(key))return false;
+      const source=atlasRecords.get(key);
+      if(!source)return false;
       if(x.tier==="newborn"){
-        const source=newbornByKey.get(key);
         x.bornAt=Number(x.bornAt)||Number(source&&source.bornAt)||(Date.now()-NEWBORN_STAGE_3_MS);
         if(!x.parents&&source&&Array.isArray(source.parents))x.parents=source.parents.map(p=>({...p}));
       }
@@ -2685,6 +2713,7 @@ body.cert-lock{
   function openNewbornCertificate(rec){
     if(!rec||!rec.state)return;
     currentHighlight=null;currentCertificateParents=Array.isArray(rec.parents)?rec.parents.map(p=>({...p})):null;
+    currentCertificateBornAt=Number(rec.bornAt)||null;
     state={...rec.state};collectionPriceOverride=rec.price||null;
     document.getElementById("result").style.display="block";
     render();setTimeout(()=>openCertificate(),0);
