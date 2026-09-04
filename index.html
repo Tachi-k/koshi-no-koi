@@ -11,12 +11,29 @@
 }
 *{box-sizing:border-box}
 body{margin:0;background:#f5f8fc;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}
-.app-loading{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;background:linear-gradient(145deg,#f8fbff,#e8f1f8);color:#174887;transition:opacity .4s ease,visibility .4s ease}
+.app-loading{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at 50% 38%,#17465f 0,#0b2c40 35%,#061823 72%,#030c12 100%);color:#e6cf92;transition:opacity .55s ease,visibility .55s ease}
+.app-loading::before{content:"";position:absolute;inset:-20%;opacity:.32;background:repeating-radial-gradient(ellipse at 50% 42%,transparent 0 42px,rgba(129,203,221,.12) 43px,transparent 45px 82px);animation:appLoadingWater 5.5s ease-in-out infinite}
+.app-loading::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 20%,rgba(255,255,255,.055) 46%,transparent 62%);transform:translateX(-100%);animation:appLoadingShine 3.8s ease-in-out infinite}
 .app-loading.hide{opacity:0;visibility:hidden;pointer-events:none}
-.app-loading-inner{text-align:center;font-weight:800;letter-spacing:.08em}
-.app-loading-spinner{width:54px;height:54px;margin:0 auto 16px;border:5px solid rgba(23,72,135,.18);border-top-color:#1d5bb8;border-radius:50%;animation:appLoadingSpin .85s linear infinite}
-.app-loading-title{font-family:"Yu Mincho",serif;font-size:25px}.app-loading-note{margin-top:7px;font-size:12px;color:#687b94;font-weight:600}
+.app-loading-inner{position:relative;z-index:2;text-align:center;font-weight:800;letter-spacing:.10em}
+.app-loading-emblem{position:relative;width:190px;height:280px;margin:0 auto 5px;display:grid;place-items:center}
+.app-loading-emblem::before,.app-loading-emblem::after{content:"";position:absolute;left:50%;top:50%;width:118px;height:210px;border:1px solid rgba(228,198,119,.34);border-radius:50%;transform:translate(-50%,-50%) scale(.65);opacity:0;animation:appLoadingRipple 2.8s ease-out infinite}
+.app-loading-emblem::after{animation-delay:1.15s}
+.app-loading-koi{position:relative;z-index:2;display:block;width:184px;height:276px;object-fit:contain;opacity:0;filter:blur(10px) drop-shadow(0 12px 12px rgba(0,0,0,.55)) drop-shadow(0 0 14px rgba(222,180,77,.38));transform:translateY(18px) scaleX(.78) scaleY(.92);animation:appLoadingKoi 2.8s ease-in-out infinite;will-change:opacity,filter,transform}
+.app-loading-spinner{width:38px;height:2px;margin:2px auto 17px;overflow:hidden;background:rgba(228,198,119,.18);border-radius:999px;position:relative}
+.app-loading-spinner::after{content:"";position:absolute;inset:0;width:45%;border-radius:inherit;background:linear-gradient(90deg,transparent,#efd991,transparent);animation:appLoadingLine 1.25s ease-in-out infinite}
+.app-loading-title{font-family:"Yu Mincho",serif;font-size:26px;color:#f1dfa9;text-shadow:0 2px 16px rgba(237,199,102,.22)}.app-loading-note{margin-top:8px;font-size:11px;color:#8eacb9;font-weight:600;letter-spacing:.18em}
 @keyframes appLoadingSpin{to{transform:rotate(360deg)}}
+@keyframes appLoadingKoi{
+ 0%{opacity:0;filter:blur(11px) drop-shadow(0 12px 12px rgba(0,0,0,.55));transform:translateY(20px) scaleX(.73) scaleY(.88)}
+ 38%,72%{opacity:.62;filter:blur(0) drop-shadow(0 14px 13px rgba(0,0,0,.62)) drop-shadow(0 0 16px rgba(230,187,77,.45));transform:translateY(0) scaleX(.78) scaleY(1)}
+ 100%{opacity:0;filter:blur(7px) drop-shadow(0 10px 10px rgba(0,0,0,.45));transform:translateY(-18px) scaleX(.78) scaleY(1.04)}
+}
+@keyframes appLoadingRipple{0%{opacity:0;transform:translate(-50%,-50%) scale(.58)}25%{opacity:.55}100%{opacity:0;transform:translate(-50%,-50%) scale(1.55)}}
+@keyframes appLoadingLine{0%{transform:translateX(-120%)}100%{transform:translateX(310%)}}
+@keyframes appLoadingWater{50%{transform:scale(1.04);opacity:.44}}
+@keyframes appLoadingShine{0%,30%{transform:translateX(-100%)}75%,100%{transform:translateX(100%)}}
+@media (prefers-reduced-motion:reduce){.app-loading::before,.app-loading::after,.app-loading-emblem::before,.app-loading-emblem::after{animation:none}.app-loading-koi{opacity:.58;filter:drop-shadow(0 12px 12px rgba(0,0,0,.55));transform:scaleX(.78);animation:none}.app-loading-spinner::after{animation-duration:2.2s}}
 .app{max-width:1500px;margin:auto;padding:18px}
 header{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:12px}
 .brand{display:flex;align-items:center;gap:18px}
@@ -716,7 +733,10 @@ body.pond-mode #pondView{display:block!important}
 </head>
 <body>
 <div id="appLoading" class="app-loading" role="status" aria-live="polite" aria-label="読み込み中">
-  <div class="app-loading-inner"><div class="app-loading-spinner"></div><div class="app-loading-title">越鯉　読み込み中…</div><div class="app-loading-note">しばらくお待ちください</div></div>
+  <div class="app-loading-inner">
+    <div class="app-loading-emblem"><img class="app-loading-koi" src="pond_legend/20.png" alt=""></div>
+    <div class="app-loading-spinner"></div><div class="app-loading-title">越鯉</div><div class="app-loading-note">読み込み中…</div>
+  </div>
 </div>
 <div class="app">
 <header>
@@ -748,14 +768,10 @@ body.pond-mode #pondView{display:block!important}
     </div>
     <div class="vertical-badge" id="badge">昭和三色</div><div class="new-badge" id="newBadge">NEW!</div><div class="rare-overlay" id="rareOverlay"></div><div class="legend-card" id="legendCard"><strong>伝説級</strong><span>極めて稀少な越鯉</span></div>
     <svg id="koiSvg" viewBox="0 0 500 900" aria-label="生成した錦鯉"></svg>
-    <div class="stage-tools">
-      <button id="zoomBtn">⊕<br>拡大</button>
-      <button id="saveBtn">↓<br>保存</button>
-    </div>
    </div>
   </section>
 
-  <div class="actions"><button id="certificateBtn">鑑定書を作成</button><button class="save" id="downloadBtn">画像をダウンロード</button></div>
+  <div class="actions"><button id="certificateBtn">鑑定書を作成</button></div>
 </main>
 
  <aside class="panel info">
@@ -891,8 +907,8 @@ const COLORS=[
  ["#222222","#e3b75b","#a3a3a3"],["#6f471f","#136a69","#b8b6d9"],["#e2392d","#d9a51c","#efe8d6"]
 ].flat();
 const PERSONALITIES=["力強く堂々としている","穏やかで落ち着いている","好奇心旺盛で活発","気品があり存在感がある","自由奔放で個性的","順応性が高く成長力がある"];
-const PATTERN_NAMES=["丸斑","島模様","帯模様","背中一本","左右分割","頭だけ","尾だけ","大斑3個","小斑多数","ジグザグ","縦縞","横縞","水玉","市松","稲妻","散らし","中央大丸","前半集中","後半集中","片側大斑","二本帯","三本帯","背割れ","V字","X字","波形","矢羽根","半月","リング","市松大","斜め帯","空白多め"];
-const FINE_NAMES=["なし","胡麻","鹿子","網目","飛び墨","細波","星斑","散紅","霜降","頭部印","肩印","尾筒印","縁取り","小水玉","鱗点","左右アクセント","黒点","紅点","白抜き","二重丸","小三角","小菱形","小帯","背中点列","左右点列","頭部二点","尾部二点","中央点群","細縦線","細横線","輪郭斑","ランダム点"];
+const PATTERN_NAMES=["段模様","島模様","帯模様","背通り","片寄り模様","丹頂模様","尾筒模様","大斑三段","小斑散らし","流れ模様","縦流れ","横流れ","飛び石模様","網目模様","稲妻模様","散らし模様","中央大斑","前半模様","後半模様","片側大斑","二段模様","三段模様","背割れ模様","V字模様","X字模様","波形模様","矢羽根模様","半月模様","輪模様","大割り模様","斜め帯","白地多め"];
+const FINE_NAMES=["なし","胡麻","鹿子","網目","飛び墨","細波","星斑","散紅","霜降","頭部印","肩印","尾筒印","縁取り","小斑","鱗点","左右アクセント","黒点","紅点","白抜き","二重輪","小三角","小菱形","小帯","背中点列","左右点列","頭部二点","尾部二点","中央点群","細縦線","細横線","輪郭斑","細かな斑"];
 let state={id:1,name:"",variety:2,body:2,size:4,color:0,big:0,fine:0,balance:0};
 
 
@@ -1120,49 +1136,147 @@ const BEAUTIFUL_PATTERN_COUNT=100;
 function beautifulPatternIndex(s){
   return hash32(canonicalSeed(s.id,"beautifulPattern")) % BEAUTIFUL_PATTERN_COUNT;
 }
-function beautifulNormalSVG(s){
-  const idx=beautifulPatternIndex(s);
-  const h=hash32("beautiful:"+idx);
-  const palettes=[
-    ["#f7f2e7","#df2f24","#1b1e22"],["#fff8e9","#c81f27","#252a30"],
-    ["#f4ead6","#e35e18","#1c2025"],["#fffdf5","#d12b23","#11161d"],
-    ["#f6efdf","#d83d2d","#30251f"],["#fff9eb","#df2e25","#343943"],
-    ["#f3f6f4","#d5a51f","#2b2b27"],["#eef4f5","#7797a5","#ca6637"]
+
+function normalVarietyProfile(s){
+  const v=Number(s.variety)||0;
+  const profiles=[
+    ["#fffaf0","#d82920",null,"段模様","艶のある緋盤"],
+    ["#fffaf0","#d82920","#17191b","飛び石模様","小墨の差し色"],
+    ["#fffaf0","#d82920","#17191b","昭和三色模様","白地に緋盤と力強い墨"],
+    ["#17191b","#f7f4ea",null,"巻き模様","白地と墨の境界"],
+    ["#17191b","#d94225",null,"巻き模様","緋地と墨の境界"],
+    ["#fffaf0","#17191b",null,"飛び石模様","白地に小墨"],
+    ["#d8a817",null,null,"無地","山吹色の金属光沢"],
+    ["#f4f5ed",null,null,"無地","白金色の金属光沢"],
+    ["#f7f5e9","#d4a51d",null,"張り分け模様","金色の光沢斑"],
+    ["#e87518",null,null,"無地","橙色の金属光沢"],
+    ["#f8f5e9","#e64522",null,"流れ模様","白地に光沢のある緋"],
+    ["#18191b","#c99218","#d83a20","巻き模様","金色を帯びた緋と墨"],
+    ["#eceee8","#151719",null,"巻き模様","銀地と墨の輝き"],
+    ["#eef0e8","#dc6a20","#2e3332","松葉模様","橙の斑と網目"],
+    ["#8ba9b3","#bd492e",null,"浅黄地","藍青の網目と緋の腹"],
+    ["#dbe5e4","#b8422d","#405d6b","秋翠模様","背の藍鱗と緋の腹"],
+    ["#65737a","#c93627","#252b2f","五色模様","灰青の網目と緋盤"],
+    ["#fff8eb","#c93428","#354d62","衣模様","緋盤を縁取る藍"],
+    ["#fff8eb","#893f55","#323747","衣模様","葡萄色の鱗縁"],
+    ["#82949a","#9b6335",null,"落ち葉模様","茶褐色の葉斑"],
+    ["#fffaf0","#d82920",null,"段模様","銀鱗に輝く緋盤"],
+    ["#fffaf0","#d82920","#17191b","飛び石模様","銀鱗と小墨"],
+    ["#fffaf0","#d82920","#17191b","銀鱗昭和三色模様","銀鱗の白地に緋と墨"],
+    ["#17191b","#f7f4ea",null,"巻き模様","銀鱗の白地と墨"],
+    ["#65737a","#c93627","#252b2f","五色模様","銀鱗と灰青の網目"],
+    ["#82949a","#9b6335",null,"落ち葉模様","銀鱗と茶褐色の葉斑"],
+    ["#fffaf0","#d82920",null,"丹頂模様","銀鱗と頭部の緋"],
+    ["#fffaf0","#d82920","#17191b","丹頂模様","銀鱗と小墨"],
+    ["#17191b","#f7f4ea",null,"九紋竜模様","白地がうねる墨模様"],
+    ["#17191b","#f7f4ea","#d43a26","紅九紋竜模様","白・緋・墨のうねり"],
+    ["#daddd8","#181a1c",null,"輝黒竜模様","銀地を巻く墨"],
+    ["#daddd8","#181a1c","#d43a26","紅輝黒竜模様","銀地の緋と墨"],
+    ["#fffaf0","#d82920",null,"丹頂模様","頭部の丸い緋"],
+    ["#fffaf0","#d82920","#17191b","丹頂模様","頭部の緋と小墨"],
+    ["#fffaf0","#d82920","#17191b","丹頂昭和三色模様","頭部の緋と墨"],
+    ["#eef0e8","#d82920","#303635","丹頂松葉模様","頭部の緋と網目"],
+    ["#fffaf0","#d82920",null,"ドイツ段模様","背沿いの鏡鱗"],
+    ["#fffaf0","#d82920","#17191b","ドイツ三色模様","背沿いの鏡鱗と小墨"],
+    ["#fffaf0","#d82920","#17191b","ドイツ昭和三色模様","背沿いの鏡鱗と緋・墨"],
+    ["#17191b","#f7f4ea",null,"ドイツ写り模様","背沿いの鏡鱗と墨"],
+    ["#eef0e8","#dc6a20","#303635","ドイツ松葉模様","光沢斑と背の鏡鱗"],
+    ["#eef0e8","#d83a20","#1c2022","ドイツ大和錦模様","金属光沢の緋と墨"]
   ];
-  const p=palettes[idx%palettes.length];
+  const a=profiles[v]||profiles[0];
+  return {base:a[0],accent:a[1],third:a[2],pattern:a[3],fine:a[4],
+    ginrin:v>=20&&v<=27,tancho:v>=26&&v<=27||v>=32&&v<=35,
+    doitsu:v===10||v===15||v>=28&&v<=31||v>=36,
+    metallic:[6,7,8,9,10,11,12,13,30,31,35,40,41].includes(v),
+    net:[13,14,16,17,18,24,35,40].includes(v)};
+}
 
-  let spots="";
-  const count=5+(h%6);
-  for(let i=0;i<count;i++){
-    const hh=hash32(idx+":"+i);
-    const y=150+(hh%470);
-    const x=250+((hh>>>8)%110)-55;
-    const rx=30+((hh>>>16)%50);
-    const ry=42+((hh>>>23)%68);
-    const rot=((hh>>>5)%70)-35;
-    const fill=(i%3===0?p[2]:p[1]);
-    spots+=`
-      <ellipse cx="${x+3}" cy="${y+4}" rx="${rx}" ry="${ry}" transform="rotate(${rot} ${x+3} ${y+4})" fill="#000" opacity=".10"/>
-      <ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" transform="rotate(${rot} ${x} ${y})" fill="${fill}" opacity=".96"/>
-    `;
-  }
+function normalPatternInfo(s){
+  const p=normalVarietyProfile(s);
+  return {big:p.pattern,fine:p.fine};
+}
+function normalPatternLabel(s){return normalPatternInfo(s).big}
+function normalFineLabel(s){return normalPatternInfo(s).fine}
 
-  const stripe=(idx%5===0)?`
-    <path d="M215 270 Q250 238 285 270 M205 365 Q250 330 295 365 M210 465 Q250 430 290 465"
-      fill="none" stroke="${p[2]}" stroke-width="16" stroke-linecap="round" opacity=".82"/>`:"";
+function beautifulNormalSVG(s){
+  const idx=beautifulPatternIndex(s),v=Number(s.variety)||0;
+  const p=normalVarietyProfile(s),seed=hash32(canonicalSeed(s.id,"realistic-normal"));
+  const r=seeded(seed);
+  const organic=(key,cx,cy,rx,ry,fill,opacity=.98)=>{
+    const rr=seeded(seed+key*1009),pts=[];
+    for(let i=0;i<10;i++){
+      const a=i*Math.PI*2/10,w=.82+rr()*.26;
+      pts.push([cx+Math.cos(a)*rx*w,cy+Math.sin(a)*ry*w]);
+    }
+    const mid=(a,b)=>[(a[0]+b[0])/2,(a[1]+b[1])/2];
+    let m=mid(pts[9],pts[0]),d=`M${m[0].toFixed(1)} ${m[1].toFixed(1)}`;
+    for(let i=0;i<10;i++){const n=mid(pts[i],pts[(i+1)%10]);d+=` Q${pts[i][0].toFixed(1)} ${pts[i][1].toFixed(1)} ${n[0].toFixed(1)} ${n[1].toFixed(1)}`}
+    return `<path d="${d}Z" fill="${fill}" opacity="${opacity}"/>`;
+  };
+  const chain=(fill,start=185,count=4,wide=70)=>{
+    let out="";
+    for(let i=0;i<count;i++){
+      const y=start+i*(410/Math.max(1,count-1))+(r()-.5)*28;
+      out+=organic(10+i,250+(r()-.5)*54,y,wide+r()*22,55+r()*34,fill);
+    }
+    return out;
+  };
+  const sideRed=()=>`<path d="M178 350 C192 400 188 535 210 616 C190 600 176 545 170 470Z" fill="#b8422d" opacity=".92"/><path d="M322 350 C308 400 312 535 290 616 C310 600 324 545 330 470Z" fill="#b8422d" opacity=".92"/>`;
+  const dorsalScales=(color="#596f79")=>{let out="";for(let y=145;y<610;y+=34)out+=`<ellipse cx="250" cy="${y}" rx="17" ry="22" fill="${color}" stroke="#f7f1df" stroke-width="2" opacity=".9"/>`;return out};
 
-  const headMark=(idx%4===0)?
-    `<circle cx="250" cy="610" r="${40+(idx%20)}" fill="${p[1]}" opacity=".95"/>`:"";
+  let markings="";
+  if([0,20,36].includes(v)) markings=chain(p.accent,185,3+(seed%2),76);
+  else if([1,21,37].includes(v)) markings=chain(p.accent,175,3+(seed%2),70)+chain(p.third,245,3,28);
+  else if([2,22,38].includes(v)) markings=chain("#d82920",185,3,68)+chain("#17191b",230,3,32);
+  else if([3,23,39].includes(v)) markings=chain("#f7f4ea",175,4,82);
+  else if(v===4) markings=chain("#d94225",175,4,82);
+  else if(v===5) markings=chain("#17191b",220,4,30);
+  else if([6,7,9].includes(v)) markings="";
+  else if(v===8) markings=chain(p.accent,190,4,75);
+  else if(v===10) markings=chain(p.accent,190,3,68);
+  else if(v===11) markings=chain("#c99218",180,3,65)+chain("#d83a20",245,2,48);
+  else if(v===12) markings=chain("#151719",180,4,76);
+  else if([13,40].includes(v)) markings=chain(p.accent,190,3,62);
+  else if(v===14) markings=sideRed();
+  else if(v===15) markings=sideRed()+dorsalScales("#405d6b");
+  else if([16,24].includes(v)) markings=chain(p.accent,190,3,70);
+  else if(v===17) markings=chain(p.accent,185,3,72);
+  else if(v===18) markings=chain(p.accent,185,3,72);
+  else if([19,25].includes(v)) markings=chain(p.accent,185,4,70);
+  else if(v===26) markings=`<circle cx="250" cy="590" r="49" fill="#d82920"/>`;
+  else if(v===27) markings=`<circle cx="250" cy="590" r="49" fill="#d82920"/>`+chain("#17191b",220,3,27);
+  else if(v===28) markings=chain("#f7f4ea",180,4,82);
+  else if(v===29) markings=chain("#f7f4ea",180,3,76)+chain("#d43a26",245,2,52);
+  else if(v===30) markings=chain("#181a1c",180,4,76);
+  else if(v===31) markings=chain("#181a1c",180,3,72)+chain("#d43a26",245,2,48);
+  else if(v===32) markings=`<circle cx="250" cy="590" r="49" fill="#d82920"/>`;
+  else if(v===33) markings=`<circle cx="250" cy="590" r="49" fill="#d82920"/>`+chain("#17191b",220,3,27);
+  else if(v===34) markings=`<circle cx="250" cy="590" r="48" fill="#d82920"/>`+chain("#17191b",230,3,30);
+  else if(v===35) markings=`<circle cx="250" cy="590" r="49" fill="#d82920"/>`;
+  else if(v===41) markings=chain("#d83a20",180,3,65)+chain("#1c2022",240,3,30);
 
-  let scales="";
-  for(let y=205,row=0;y<610;y+=26,row++){
-    const half=76+Math.sin((y-190)/430*Math.PI)*28;
-    for(let x=250-half+(row%2?12:0);x<=250+half;x+=24){
-      scales+=`<path d="M${x-11} ${y} Q${x} ${y-9} ${x+11} ${y}" fill="none" stroke="#8f887b" stroke-width="1.2" opacity=".28"/>`;
+  let net="";
+  if(p.net){
+    const netColor=v===17?"#354d62":v===18?"#49394e":"#3d4b50";
+    for(let y=170,row=0;y<610;y+=29,row++){
+      const half=60+Math.sin((y-145)/500*Math.PI)*34;
+      for(let x=250-half+(row%2?12:0);x<=250+half;x+=24)net+=`<path d="M${x-11} ${y} Q${x} ${y-10} ${x+11} ${y}" fill="none" stroke="${netColor}" stroke-width="2" opacity=".48"/>`;
     }
   }
+  let regularScales="";
+  if(!p.doitsu&&!p.net){
+    for(let y=185,row=0;y<610;y+=28,row++){
+      const half=64+Math.sin((y-165)/480*Math.PI)*30;
+      for(let x=250-half+(row%2?12:0);x<=250+half;x+=24)regularScales+=`<path d="M${x-11} ${y} Q${x} ${y-9} ${x+11} ${y}" fill="none" stroke="#756f64" stroke-width="1.15" opacity=".22"/>`;
+    }
+  }
+  const doitsu=p.doitsu&&v!==15?dorsalScales(v===28||v===29||v===39?"#34383a":"#b5aa91"):"";
+  let ginrin="";
+  if(p.ginrin){for(let i=0;i<30;i++){const x=195+r()*110,y=170+r()*430;ginrin+=`<path d="M${x-6} ${y}H${x+6}M${x} ${y-6}V${y+6}" stroke="#fff" stroke-width="2.5" opacity=".78"/>`}}
+  const metal=p.metallic?`<ellipse cx="235" cy="330" rx="48" ry="245" fill="url(#metal${idx})" opacity=".58"/>`:"";
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 760">
+  const finBase=v===2||v===3||v===4||v===22||v===23||v===28||v===29||v===34||v===38||v===39?"#d7d5cc":p.base;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 760" data-variety="${v}">
    <defs>
     <linearGradient id="bg${idx}" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#dff3fb"/>
@@ -1172,9 +1286,9 @@ function beautifulNormalSVG(s){
 
     <linearGradient id="bodyShade${idx}" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0" stop-color="#b8b2a6"/>
-      <stop offset=".16" stop-color="${p[0]}"/>
+      <stop offset=".16" stop-color="${p.base}"/>
       <stop offset=".50" stop-color="#fffdf6"/>
-      <stop offset=".84" stop-color="${p[0]}"/>
+      <stop offset=".84" stop-color="${p.base}"/>
       <stop offset="1" stop-color="#b8b2a6"/>
     </linearGradient>
 
@@ -1188,6 +1302,10 @@ function beautifulNormalSVG(s){
       <stop offset=".55" stop-color="#fff" stop-opacity=".08"/>
       <stop offset="1" stop-color="#fff" stop-opacity="0"/>
     </radialGradient>
+
+    <linearGradient id="metal${idx}" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".45" stop-color="#fff8c9" stop-opacity=".72"/><stop offset=".7" stop-color="#fff" stop-opacity=".18"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
 
     <clipPath id="body${idx}">
       <path d="M250 80 C180 145 165 300 178 440 C188 560 205 665 250 700 C295 665 312 560 322 440 C335 300 320 145 250 80Z"/>
@@ -1211,19 +1329,18 @@ function beautifulNormalSVG(s){
 
    <g filter="url(#shadow${idx})">
     <path d="M250 94 C215 58 190 30 180 8 C225 18 250 38 250 68 C250 38 275 18 320 8 C310 30 285 58 250 94Z"
-      fill="url(#finShade${idx})" stroke="#8a8172" stroke-width="3"/>
+      fill="${finBase}" stroke="#8a8172" stroke-width="3"/>
 
     <path d="M180 370 C120 340 78 350 55 390 C100 420 145 425 184 405Z"
-      fill="url(#finShade${idx})" stroke="#8a8172" stroke-width="3"/>
+      fill="${finBase}" stroke="#8a8172" stroke-width="3"/>
     <path d="M320 370 C380 340 422 350 445 390 C400 420 355 425 316 405Z"
-      fill="url(#finShade${idx})" stroke="#8a8172" stroke-width="3"/>
+      fill="${finBase}" stroke="#8a8172" stroke-width="3"/>
 
     <path d="M250 80 C180 145 165 300 178 440 C188 560 205 665 250 700 C295 665 312 560 322 440 C335 300 320 145 250 80Z"
-      fill="url(#bodyShade${idx})" stroke="#71695e" stroke-width="4"/>
+      fill="${p.base}" stroke="#71695e" stroke-width="4"/>
 
     <g clip-path="url(#body${idx})">
-      ${spots}${stripe}${headMark}
-      <g>${scales}</g>
+      ${markings}${regularScales}${net}${doitsu}${ginrin}${metal}
 
       <ellipse cx="250" cy="330" rx="92" ry="230" fill="url(#highlight${idx})"/>
       <path d="M250 110 C242 245 244 500 250 675" stroke="#b9aa90" stroke-width="3" opacity=".38"/>
@@ -1346,7 +1463,7 @@ function render(){
  varietyOut.textContent=VARIETIES[state.variety];
  lengthOut.textContent=SIZES[state.size]+"cm";
  bodyOut.textContent=BODY_TYPES[state.body][0];
- patternText.textContent=`${PATTERN_NAMES[state.big]}を基調に、${FINE_NAMES[state.fine]}を加えた配置。`;
+ patternText.textContent=`${normalPatternLabel(state)}を基調に、${normalFineLabel(state)}を加えた配置。`;
  personality.textContent=PERSONALITIES[(state.id+state.big)%PERSONALITIES.length];
  const p1=30+(state.color*7)%35,p2=20+(state.big*5)%32,p3=100-p1-p2;
  bar1.style.width=p1+"%";bar1.style.background=COLORS[state.color%COLORS.length];pct1.textContent=p1+"%";
@@ -1417,7 +1534,7 @@ function render(){
 
 function updateActive(){}
 
-function miniSVG(i){const s={...state,variety:i,color:i%16,big:i%16,fine:(i*3)%16,body:2};return koiSVG(s)}
+function miniSVG(i){const s={...state,variety:i,color:i%16,big:i%16,fine:(i*3)%16,body:2};return beautifulNormalSVG(s)}
 
 
 function generateFromName(){
@@ -1443,19 +1560,6 @@ nameInput.addEventListener("keydown",e=>{
  generateFromName();
 });
 nameInput.addEventListener("input",()=>result.style.display="none");
-zoomBtn.onclick=async()=>{
- overlay.innerHTML="";
- if(isRealRare(state)||isIllustrationRare(state)){
-   const img=document.createElement("img");
-   img.className="zoom-premium-koi";
-   img.alt=(isRealRare(state)?"伝説級":"希少級")+"の越鯉";
-   img.src=isRealRare(state)?rareImageFor(state):await smartRareImageFor(state);
-   overlay.appendChild(img);
- }else{
-   overlay.innerHTML=beautifulNormalSVG(state);
- }
- overlay.classList.add("open");
-};
 overlay.onclick=()=>overlay.classList.remove("open");
 
 
@@ -1681,8 +1785,8 @@ function registerVariety(index){
 function appraisalText(s,price,displaySize=SIZES[s.size]){
  const body=BODY_TYPES[s.body][0];
  const size=displaySize;
- const big=PATTERN_NAMES[s.big];
- const fine=FINE_NAMES[s.fine];
+ const big=normalPatternLabel(s);
+ const fine=normalFineLabel(s);
  const v=VARIETIES[s.variety];
  let lines=[];
  if(size>=80) lines.push(`体長${size}cmの大型個体で、${body}らしい迫力があります。`);
@@ -1724,8 +1828,8 @@ function openCertificate(){
  document.getElementById("certVariety").textContent=VARIETIES[state.variety];
  document.getElementById("certBody").textContent=BODY_TYPES[state.body][0];
  document.getElementById("certLength").textContent=certificateLength+"cm";
- document.getElementById("certPattern").textContent=PATTERN_NAMES[state.big];
- document.getElementById("certFine").textContent=FINE_NAMES[state.fine];
+ document.getElementById("certPattern").textContent=normalPatternLabel(state);
+ document.getElementById("certFine").textContent=normalFineLabel(state);
  const parentsRow=document.getElementById("certParentsRow");
  const parentsText=currentCertificateParents?.length===2
    ?currentCertificateParents.map(p=>`${p.name}（第${String(p.id).padStart(6,"0")}号）`).join(" × ")
@@ -1886,8 +1990,8 @@ async function saveCertificateAsPng(prepareOnly=false){
    ["品種",VARIETIES[state.variety]],
    ["体型",BODY_TYPES[state.body][0]],
    ["体長",currentCertificateLengthCm()+"cm"],
-   ["大模様",PATTERN_NAMES[state.big]],
-   ["細模様",FINE_NAMES[state.fine]]
+   ["大模様",normalPatternLabel(state)],
+   ["細模様",normalFineLabel(state)]
  ];
  const certificateParentsText=currentCertificateParents?.length===2
    ?currentCertificateParents.map(p=>`${p.name}（第${String(p.id).padStart(6,"0")}号）`).join(" × ")
@@ -1963,64 +2067,51 @@ async function saveCertificateAsPng(prepareOnly=false){
  document.body.appendChild(a);a.click();a.remove();
  setTimeout(()=>URL.revokeObjectURL(url),10000);
 }
-
-
-certSaveBtn.onclick=async()=>{
- // PCは即時PNGダウンロード。
- // スマホは長押しを使わず、OSの共有画面を開く。
- // iPhoneでは「ファイルに保存」を選べばFilesアプリへ保存できる。
- const isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
-   (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
-
- try{
-   // 共有はユーザー操作中に呼ぶ必要があるため、
-   // 鑑定書表示時に作っておいたキャッシュ済みFileを最優先で使用する。
-   if(isMobile && __certificateShareFile && navigator.share){
-     const shareData={files:[__certificateShareFile],title:"越鯉 鑑定書"};
-     if(!navigator.canShare || navigator.canShare(shareData)){
-       await navigator.share(shareData);
-       return;
-     }
-   }
-
-   // キャッシュがまだ無い場合は作成
-   if(!__certificateShareFile || __certificatePreparedId!==state.id){
-     await saveCertificateAsPng(true);
-   }
-
-   // Android等で作成後も共有できる場合
-   if(isMobile && __certificateShareFile && navigator.share){
-     const shareData={files:[__certificateShareFile],title:"越鯉 鑑定書"};
-     if(!navigator.canShare || navigator.canShare(shareData)){
-       try{
+const certSaveButton=document.getElementById("certSaveBtn");
+if(certSaveButton){
+ certSaveButton.onclick=async()=>{
+   const isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
+     (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+   try{
+     if(isMobile && __certificateShareFile && navigator.share){
+       const shareData={files:[__certificateShareFile],title:"越鯉 鑑定書"};
+       if(!navigator.canShare || navigator.canShare(shareData)){
          await navigator.share(shareData);
          return;
-       }catch(e){
-         if(e && e.name==="AbortError") return;
        }
      }
+     if(!__certificateShareFile || __certificatePreparedId!==state.id){
+       await saveCertificateAsPng(true);
+     }
+     if(isMobile && __certificateShareFile && navigator.share){
+       const shareData={files:[__certificateShareFile],title:"越鯉 鑑定書"};
+       if(!navigator.canShare || navigator.canShare(shareData)){
+         try{
+           await navigator.share(shareData);
+           return;
+         }catch(e){
+           if(e && e.name==="AbortError") return;
+         }
+       }
+     }
+     if(__certificateShareFile){
+       const url=URL.createObjectURL(__certificateShareFile);
+       const a=document.createElement("a");
+       a.href=url;
+       a.download=__certificateShareFile.name;
+       document.body.appendChild(a);
+       a.click();
+       a.remove();
+       setTimeout(()=>URL.revokeObjectURL(url),2000);
+       return;
+     }
+     await saveCertificateAsPng(false);
+   }catch(e){
+     if(e && e.name==="AbortError") return;
+     alert("鑑定書を保存できませんでした。もう一度お試しください。");
    }
-
-   // 共有が使えないスマホ、またはPCは通常ダウンロード
-   if(__certificateShareFile){
-     const url=URL.createObjectURL(__certificateShareFile);
-     const a=document.createElement("a");
-     a.href=url;
-     a.download=__certificateShareFile.name;
-     document.body.appendChild(a);
-     a.click();
-     a.remove();
-     setTimeout(()=>URL.revokeObjectURL(url),2000);
-     return;
-   }
-
-   await saveCertificateAsPng(false);
- }catch(e){
-   if(e && e.name==="AbortError") return;
-   alert("鑑定書を保存できませんでした。もう一度お試しください。");
- }
-};
-
+ };
+}
 function downloadSVG(){
  if(isRealRare(state)){
    const svg=legendFullBodySVG(state);
@@ -2040,8 +2131,6 @@ function downloadSVG(){
  const blob=new Blob([svg],{type:"image/svg+xml"});
  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="koshi-koi-"+String(state.id).padStart(6,"0")+".svg";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 }
-saveBtn.onclick=downloadSVG;downloadBtn.onclick=downloadSVG;
-
 document.addEventListener("DOMContentLoaded",()=>{
   try{
     localStorage.setItem("__koi_test__","1");
