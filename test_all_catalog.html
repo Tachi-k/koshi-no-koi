@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>越鯉 図鑑テストデータ投入</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(145deg,#eef7fb,#f8fbff);color:#14324a;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}
+.panel{width:min(680px,calc(100vw - 28px));padding:26px;border:1px solid #c9d9e8;border-radius:14px;background:rgba(255,255,255,.92);box-shadow:0 18px 45px rgba(30,70,110,.16)}
+h1{margin:0 0 10px;font-size:24px;letter-spacing:.04em}
+p{margin:8px 0;line-height:1.75}
+.status{margin:18px 0;padding:13px 14px;border-radius:10px;background:#e9f6ff;border:1px solid #b9ddf4;font-weight:700}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+button,a{appearance:none;border:0;border-radius:10px;padding:12px 16px;font-weight:800;font-size:15px;text-decoration:none;cursor:pointer}
+button{background:#1867b7;color:#fff}
+a{background:#f2f6fa;color:#17486f;border:1px solid #c7d9e8}
+small{display:block;margin-top:16px;color:#64798b;line-height:1.6}
+</style>
+</head>
+<body>
+<main class="panel">
+  <h1>越鯉 図鑑テストデータ投入</h1>
+  <p>このページは表示確認用です。通常図鑑42種、希少級図鑑42種、伝説級図鑑42種をブラウザ内のテストデータとして登録します。</p>
+  <div class="status" id="status">準備中...</div>
+  <div class="actions">
+    <button type="button" id="fillBtn">もう一度入れる</button>
+    <a href="index.html?v=test-all-catalog-20260904">本体を開く</a>
+  </div>
+  <small>池の選択データは空にします。図鑑にない鯉が池に残る問題の確認をしやすくするためです。</small>
+</main>
+<script>
+const VARIETIES=["紅白","大正三色","昭和三色","白写り","緋写り","白べっ甲","山吹黄金","プラチナ黄金","張り分け黄金","オレンジ黄金","菊水","金昭和","銀白写り","孔雀","浅黄","秋翠","五色","藍衣","葡萄衣","落ち葉しぐれ","銀鱗紅白","銀鱗大正三色","銀鱗昭和三色","銀鱗白写り","銀鱗五色","銀鱗落ち葉しぐれ","銀鱗丹頂","銀鱗丹頂大正三色","九紋竜","紅九紋竜","輝黒竜","紅輝黒竜","丹頂紅白","丹頂大正三色","丹頂昭和三色","丹頂孔雀","ドイツ紅白","ドイツ大正三色","ドイツ昭和三色","ドイツ白写り","ドイツ孔雀","ドイツ大和錦"];
+const NORMAL_IDS=[31,16,2,49,35,27,88,7,24,1,17,18,123,76,19,34,39,3,40,9,51,5,62,21,42,74,6,56,97,47,80,12,33,25,4,32,20,65,13,175,68,111];
+const RARE_IDS=[347,131,145,1961,521,1101,631,1251,26,1644,138,23,743,1280,240,69,1054,1682,619,357,1544,317,264,744,549,588,215,757,532,515,2637,265,729,649,219,1701,2194,85,569,180,505,1691];
+const LEGEND_IDS=[2817,3088,446,2487,873,3994,1951,13827,11585,3028,8031,4214,7937,8070,18597,793,10546,2971,75,227,303,23567,2569,8425,994,971,824,14123,1681,2885,4822,2953,5795,11388,3296,3710,2442,5282,2644,2393,1735,10596];
+const KOSHI_DATA_VERSION=2;
+
+function hash32(s){
+  let h=2166136261>>>0;
+  s=String(s).normalize("NFKC").trim().toLowerCase();
+  for(const ch of s){h^=ch.codePointAt(0);h=Math.imul(h,16777619)}
+  return h>>>0;
+}
+function canonicalSeed(id,tag=""){
+  return "koshi-no-koi:v"+KOSHI_DATA_VERSION+":"+String(id).padStart(6,"0")+":"+tag;
+}
+function deriveFromId(id,name=""){
+  id=Math.max(1,Math.min(1000000,Math.trunc(Number(id)||1)));
+  const h=hash32(canonicalSeed(id,"base"));
+  const h2=hash32(canonicalSeed(id,"pattern"));
+  const h3=hash32(canonicalSeed(id,"detail"));
+  const s={id,name,variety:h%42,body:(h>>>6)%8,size:(h>>>10)%7,color:(h>>>13)%16,big:h2%32,fine:(h2>>>8)%32,balance:h3%32};
+  if(s.body===7)s.size=6;
+  else if(s.body===6)s.size=Math.max(5,Number(s.size)||0);
+  return s;
+}
+function recordMap(ids,prefix,basePrice){
+  const now=Date.now();
+  return ids.reduce((out,id,i)=>{
+    const state=deriveFromId(id,`${prefix}${String(i+1).padStart(2,"0")}`);
+    out[String(i)]={state,price:basePrice+i*123456,savedAt:now-i*1000};
+    return out;
+  },{});
+}
+function fillAllCatalogs(){
+  const normalRecords=recordMap(NORMAL_IDS,"テスト通常",980000);
+  const rareRecords=recordMap(RARE_IDS,"テスト希少",18000000);
+  const legendRecords=recordMap(LEGEND_IDS,"テスト伝説",360000000);
+  const allIds=[...NORMAL_IDS,...RARE_IDS,...LEGEND_IDS];
+  localStorage.setItem("koshiKoiCollection",JSON.stringify(VARIETIES.map((_,i)=>i)));
+  localStorage.setItem("koshiKoiCollectionRecords",JSON.stringify(normalRecords));
+  localStorage.setItem("koshiKoiIllustrationRareRecords",JSON.stringify(rareRecords));
+  localStorage.setItem("koshiKoiLegendRecords",JSON.stringify(legendRecords));
+  localStorage.setItem("koshiKoiSpecimenStats",JSON.stringify({ids:allIds,highest:365061728,legends:42}));
+  localStorage.removeItem("koshiKoiPondSelectionV1");
+  document.getElementById("status").textContent=`投入完了：通常 ${Object.keys(normalRecords).length} 種、希少級 ${Object.keys(rareRecords).length} 種、伝説級 ${Object.keys(legendRecords).length} 種`;
+}
+document.getElementById("fillBtn").addEventListener("click",fillAllCatalogs);
+fillAllCatalogs();
+</script>
+</body>
+</html>
