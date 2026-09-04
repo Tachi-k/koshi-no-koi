@@ -873,7 +873,7 @@ body.pond-mode #pondView{display:block!important}
       <div class="pond-water" id="pondWater"></div>
     </div>
     <aside class="pond-side">
-      <div class="pond-card"><h3>泳いでいる越鯉</h3><div class="pond-status" id="pondStatus">図鑑から泳がせる鯉を選んでください。</div><div class="pond-breeding-guide">池に2匹以上の鯉がいると、しばらくして新しい命が生まれることがあります。</div><div class="pond-roster" id="pondRoster"></div></div>
+      <div class="pond-card"><h3>泳いでいる越鯉</h3><div class="pond-status" id="pondStatus">図鑑から泳がせる鯉を選んでください。</div><div class="pond-breeding-guide">池に2匹以上の成魚がいると、しばらくして新しい命が生まれることがあります。幼魚・若魚は親になりません。</div><div class="pond-roster" id="pondRoster"></div></div>
       <div class="pond-card"><h3>図鑑から選ぶ <span id="pondPickerCount" style="font-size:12px;color:#71818c"></span></h3><div class="pond-picker" id="pondPicker"></div></div>
     </aside>
   </div>
@@ -2625,11 +2625,17 @@ body.cert-lock{
     const r=seeded(seed);if(r()<.42)return a;if(r()<.84)return b;
     return Math.max(0,Math.min(max,Math.round((Number(a)+Number(b))/2)+(r()<.18?(r()<.5?-1:1):0)));
   }
+  function canBreed(item,now=Date.now()){
+    if(!item||!item.state)return false;
+    return item.tier!=="newborn"||newbornGrowth(item,now).stage>=3;
+  }
   function selectBreedingPair(){
-    if(pondSelection.length<2||loadNewbornRecords().length>=MAX_NEWBORN_KOI)return null;
-    const first=Math.floor(Math.random()*pondSelection.length);
-    let second=Math.floor(Math.random()*(pondSelection.length-1));if(second>=first)second++;
-    return [pondSelection[first],pondSelection[second]];
+    if(loadNewbornRecords().length>=MAX_NEWBORN_KOI)return null;
+    const adults=pondSelection.filter(item=>canBreed(item));
+    if(adults.length<2)return null;
+    const first=Math.floor(Math.random()*adults.length);
+    let second=Math.floor(Math.random()*(adults.length-1));if(second>=first)second++;
+    return [adults[first],adults[second]];
   }
   function clearBreedingPair(){
     pondFish.forEach(f=>f.node.classList.remove("breeding-parent"));
@@ -2643,13 +2649,13 @@ body.cert-lock{
     setStatus(`${makeKoiName(breedingPair[0].state)}と${makeKoiName(breedingPair[1].state)}が寄り添って泳いでいます。`);
   }
   function breedNewborn(parentPair=breedingPair){
-    if(pondSelection.length<2)return;
     const records=loadNewbornRecords();
     if(records.length>=MAX_NEWBORN_KOI){setStatus("新生鯉は5尾います。新しい子を迎えるには、新生鯉図鑑から1尾を放流してください。");return}
     if(!parentPair||parentPair.length!==2)return;
     const keys=parentPair.map(x=>itemKey(x.tier,x.state));
     const currentParents=keys.map(k=>pondSelection.find(x=>itemKey(x.tier,x.state)===k));
     if(currentParents.some(x=>!x))return;
+    if(currentParents.some(x=>!canBreed(x)))return;
     const [pa,pb]=currentParents,a=pa.state,b=pb.state;
     const bornAt=Date.now();
     let id=(hash32([a.id,b.id].sort((x,y)=>x-y).join(":")+":"+(records.length+1)+":"+bornAt)%1000000)+1;
