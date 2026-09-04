@@ -626,6 +626,16 @@ body.pond-mode #pondView{display:block!important}
   content:"";position:absolute;inset:0;pointer-events:none;opacity:.46;
   background:repeating-radial-gradient(circle at 20% 30%,transparent 0 16px,rgba(255,255,255,.035) 17px 19px)
 }
+.pond-rain-layer{position:absolute;inset:0;z-index:24;pointer-events:none;opacity:0;transition:opacity 1.8s ease;background:linear-gradient(105deg,transparent 0 28%,rgba(210,236,255,.30) 29%,transparent 30% 57%,rgba(210,236,255,.22) 58%,transparent 59% 100%);background-size:120px 180px;animation:pondRainFall .62s linear infinite}
+.pond-rain-layer::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 70%,rgba(180,220,235,.22),transparent 58%),linear-gradient(180deg,rgba(8,22,32,.18),rgba(6,18,28,.34));opacity:.72}
+.pond-rain-ripples{position:absolute;inset:12% 5% 8%;z-index:25;pointer-events:none;opacity:0;transition:opacity 1.6s ease;background:radial-gradient(circle at 22% 38%,transparent 0 5px,rgba(220,247,255,.36) 6px,transparent 8px),radial-gradient(circle at 62% 58%,transparent 0 4px,rgba(220,247,255,.30) 5px,transparent 7px),radial-gradient(circle at 78% 34%,transparent 0 3px,rgba(220,247,255,.28) 4px,transparent 6px),radial-gradient(circle at 40% 72%,transparent 0 5px,rgba(220,247,255,.24) 6px,transparent 8px);background-size:170px 120px;animation:pondRainRipples 1.8s linear infinite}
+.pond-lightning-flash{position:absolute;inset:0;z-index:26;pointer-events:none;opacity:0;background:linear-gradient(115deg,transparent 0 38%,rgba(255,255,235,.94) 39%,rgba(190,220,255,.50) 42%,transparent 44% 100%);mix-blend-mode:screen}
+.pond-garden.raining .pond-rain-layer,.pond-garden.raining .pond-rain-ripples{opacity:1}
+.pond-garden.raining .pond-water{filter:saturate(.86) brightness(.86)}
+.pond-garden.thunder .pond-lightning-flash{animation:pondLightning .72s ease-out}
+@keyframes pondRainFall{to{background-position:-120px 180px}}
+@keyframes pondRainRipples{0%{background-position:0 0;opacity:.36}50%{opacity:.86}100%{background-position:70px 60px;opacity:.36}}
+@keyframes pondLightning{0%,100%{opacity:0}8%{opacity:.94}14%{opacity:.10}24%{opacity:.78}42%{opacity:0}}
 .pond-water{
   position:absolute;left:5%;right:5%;top:12%;bottom:8%;overflow:hidden;
   border-radius:45% 55% 48% 52% / 38% 45% 55% 62%;
@@ -856,6 +866,7 @@ body.pond-mode #pondView{display:block!important}
   <div class="pond-layout">
     <div class="pond-garden" id="pondGarden">
       <div class="pond-birth-notice" id="pondBirthNotice"><div>新しい命が生まれました<small id="pondBirthDetail"></small></div></div>
+      <div class="pond-rain-layer" id="pondRainLayer" aria-hidden="true"></div><div class="pond-rain-ripples" aria-hidden="true"></div><div class="pond-lightning-flash" aria-hidden="true"></div>
       <div class="pond-bridge"></div><div class="pond-lantern"></div>
       <div class="pond-stone s1"></div><div class="pond-stone s2"></div><div class="pond-stone s3"></div><div class="pond-stone s4"></div>
       <div class="pond-reed r1"></div><div class="pond-reed r2"></div><div class="pond-reed r3"></div>
@@ -2437,6 +2448,9 @@ body.cert-lock{
   const COURTSHIP_MS=30*1000;
   const NEWBORN_STAGE_2_MS=3*60*1000;
   const NEWBORN_STAGE_3_MS=10*60*1000;
+  const RAIN_DURATION_MS=2*60*1000;
+  const RAIN_MIN_INTERVAL_MS=4*60*1000;
+  const RAIN_MAX_INTERVAL_MS=8*60*1000;
   let pondSelection=[];
   let pondFish=[];
   let pondAnimStarted=false;
@@ -2447,6 +2461,8 @@ body.cert-lock{
   let nextKoiJump=performance.now()+15000+Math.random()*18000;
   let nextGrowthCheck=0;
   let breedingPair=null,breedingPairTarget=null,nextBreedingPairTarget=0;
+  let pondRaining=false,rainStartTimer=0,rainStopTimer=0,thunderTimer=0;
+  let pondAudioContext=null,rainSource=null,rainGain=null,rainFilter=null;
 
   function esc(s){return String(s??"").replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'\"':"&quot;","'":"&#39;"}[c]))}
   function tierLabel(t){return t==="legend"?"LEGEND":(t==="rare"?"RARE":(t==="newborn"?"新生鯉":"通常"))}
@@ -2514,11 +2530,86 @@ body.cert-lock{
     if(audio.dataset.src!==src){fadeAudio(audio,0,400);setTimeout(()=>{audio.src=src;audio.dataset.src=src;audio.volume=0;audio.play().then(()=>fadeAudio(audio,target)).catch(()=>setStatus("環境音ファイルがまだ配置されていません。"))},430)}
     else{audio.play().then(()=>fadeAudio(audio,target)).catch(()=>setStatus("環境音ファイルがまだ配置されていません。"))}
   }
+  function pondAudio(){
+    const Ctx=window.AudioContext||window.webkitAudioContext;
+    if(!Ctx)return null;
+    if(!pondAudioContext)pondAudioContext=new Ctx();
+    if(pondAudioContext.state==="suspended")pondAudioContext.resume().catch(()=>{});
+    return pondAudioContext;
+  }
+  function startRainSound(){
+    if(rainSource||!pondSoundOn||!pondRaining)return;
+    const ctx=pondAudio();if(!ctx)return;
+    const len=Math.max(1,Math.floor(ctx.sampleRate*2));
+    const buffer=ctx.createBuffer(1,len,ctx.sampleRate);
+    const data=buffer.getChannelData(0);
+    for(let i=0;i<len;i++)data[i]=(Math.random()*2-1)*(.55+Math.random()*.45);
+    rainSource=ctx.createBufferSource();rainSource.buffer=buffer;rainSource.loop=true;
+    rainFilter=ctx.createBiquadFilter();rainFilter.type="bandpass";rainFilter.frequency.value=1800;rainFilter.Q.value=.7;
+    rainGain=ctx.createGain();rainGain.gain.value=0;
+    rainSource.connect(rainFilter);rainFilter.connect(rainGain);rainGain.connect(ctx.destination);
+    rainSource.start();
+    rainGain.gain.cancelScheduledValues(ctx.currentTime);
+    rainGain.gain.linearRampToValueAtTime(POND_VOLUME*.42,ctx.currentTime+1.4);
+  }
+  function stopRainSound(){
+    if(!rainSource)return;
+    const ctx=pondAudioContext;
+    if(ctx&&rainGain){
+      rainGain.gain.cancelScheduledValues(ctx.currentTime);
+      rainGain.gain.linearRampToValueAtTime(0,ctx.currentTime+.8);
+    }
+    const src=rainSource;
+    setTimeout(()=>{try{src.stop()}catch(e){}},900);
+    rainSource=null;rainGain=null;rainFilter=null;
+  }
+  function triggerThunder(){
+    const garden=document.getElementById("pondGarden");if(!garden||!pondRaining)return;
+    garden.classList.remove("thunder");void garden.offsetWidth;garden.classList.add("thunder");
+    setTimeout(()=>garden.classList.remove("thunder"),820);
+    if(!pondSoundOn)return;
+    const ctx=pondAudio();if(!ctx)return;
+    const osc=ctx.createOscillator(),gain=ctx.createGain(),rumble=ctx.createBiquadFilter();
+    osc.type="sawtooth";osc.frequency.setValueAtTime(62,ctx.currentTime);osc.frequency.exponentialRampToValueAtTime(28,ctx.currentTime+1.1);
+    rumble.type="lowpass";rumble.frequency.value=120;
+    gain.gain.setValueAtTime(0,ctx.currentTime);gain.gain.linearRampToValueAtTime(POND_VOLUME*.78,ctx.currentTime+.05);gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+1.4);
+    osc.connect(rumble);rumble.connect(gain);gain.connect(ctx.destination);osc.start();osc.stop(ctx.currentTime+1.45);
+  }
+  function scheduleThunderDuringRain(){
+    clearTimeout(thunderTimer);
+    if(!pondRaining)return;
+    thunderTimer=setTimeout(()=>{
+      if(pondRaining&&Math.random()<.12)triggerThunder();
+      scheduleThunderDuringRain();
+    },18000+Math.random()*30000);
+  }
+  function startPondRain(){
+    if(pondRaining)return;
+    pondRaining=true;
+    const garden=document.getElementById("pondGarden");if(garden)garden.classList.add("raining");
+    setStatus("雨が静かに降りはじめました。池の水面に波紋が広がっています。");
+    lastPondSoundKey="";syncPondSound(true);scheduleThunderDuringRain();
+    clearTimeout(rainStopTimer);
+    rainStopTimer=setTimeout(stopPondRain,RAIN_DURATION_MS);
+  }
+  function stopPondRain(){
+    if(!pondRaining)return;
+    pondRaining=false;clearTimeout(thunderTimer);
+    const garden=document.getElementById("pondGarden");if(garden)garden.classList.remove("raining","thunder");
+    setStatus("雨が上がり、池が静かになりました。");
+    lastPondSoundKey="";syncPondSound(true);scheduleNextRain();
+  }
+  function scheduleNextRain(first=false){
+    clearTimeout(rainStartTimer);
+    const delay=first?90000+Math.random()*90000:RAIN_MIN_INTERVAL_MS+Math.random()*(RAIN_MAX_INTERVAL_MS-RAIN_MIN_INTERVAL_MS);
+    rainStartTimer=setTimeout(startPondRain,delay);
+  }
   function syncPondSound(force=false){
-    const key=String(pondSoundOn);if(!force&&key===lastPondSoundKey)return;lastPondSoundKey=key;
+    const key=String(pondSoundOn)+":"+String(pondRaining);if(!force&&key===lastPondSoundKey)return;lastPondSoundKey=key;
     const main=document.getElementById("pondAmbientAudio"),accent=document.getElementById("pondAccentAudio");
-    if(!pondSoundOn){[main,accent].forEach(a=>{if(a){a.pause();a.volume=0}});return}
-    switchAudio(main,POND_AMBIENT_SOUND,POND_VOLUME);
+    if(!pondSoundOn){[main,accent].forEach(a=>{if(a){a.pause();a.volume=0}});stopRainSound();return}
+    if(pondRaining){switchAudio(main,"",0);switchAudio(accent,"",0);startRainSound();return}
+    stopRainSound();switchAudio(main,POND_AMBIENT_SOUND,POND_VOLUME);
     switchAudio(accent,"",0);
   }
   function triggerKoiJump(){
@@ -2957,6 +3048,7 @@ body.cert-lock{
     loadPondSelection();updatePondUI();applyMode();
     renderNewbornCollection();
     scheduleNextBirth();
+    scheduleNextRain(true);
     const soundBtn=document.getElementById("pondSoundBtn");
     if(soundBtn)soundBtn.onclick=()=>{pondSoundOn=!pondSoundOn;soundBtn.classList.toggle("on",pondSoundOn);soundBtn.setAttribute("aria-pressed",pondSoundOn?"true":"false");soundBtn.textContent=pondSoundOn?"🔊 環境音を停止":"🔇 環境音を再生";lastPondSoundKey="";syncPondSound(true)};
     const clear=document.getElementById("pondClearBtn");if(clear)clear.onclick=()=>{if(!pondSelection.length)return;clearPond()};
