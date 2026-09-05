@@ -3208,6 +3208,12 @@ document.addEventListener("DOMContentLoaded",()=>{
         #koiSeedGuideScreen .kg-chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:20px auto}
         #koiSeedGuideScreen .kg-chip{padding:9px 11px;border-radius:12px;background:#edf4f3;border:1px solid #bdcfcc;font-weight:700}
         #koiSeedGuideScreen .kg-note{margin:17px auto 0;padding:13px;border-radius:14px;background:#fff3d9;line-height:1.7;max-width:580px}
+        #koiSeedGuideScreen .kg-help-link{color:#7a4d11;text-decoration:underline;text-underline-offset:3px;font-weight:800;cursor:pointer}
+        #koiSeedGuideScreen .kg-help-box{scroll-margin-top:18px;margin:18px auto 0;padding:16px;border:2px solid #c8a567;border-radius:16px;background:#fffaf0;max-width:650px;line-height:1.8}
+        #koiSeedGuideScreen .kg-help-box h3{margin:0 0 8px;color:#754711;font-size:19px}
+        #koiSeedGuideScreen .kg-mini-formula{display:block;margin:9px 0;padding:9px 11px;border-radius:9px;background:#263d44;color:#fff;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere}
+        #koiSeedGuideScreen .kg-back-link{display:inline-block;margin-top:8px;color:#7a4d11;text-decoration:underline;text-underline-offset:3px;font-weight:800}
+
         #koiSeedGuideScreen .kg-example{text-align:left}
         #koiSeedGuideScreen .kg-controls{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:14px}
         #koiSeedGuideScreen .kg-controls button{min-height:46px;border-radius:999px;border:1px solid #9e8a64;background:#fff;color:#4d473d;font-size:15px;font-weight:800;padding:9px 14px;cursor:pointer}
@@ -3351,23 +3357,52 @@ document.addEventListener("DOMContentLoaded",()=>{
           <div class="kg-calc-step"><strong>③ 個体番号から「基本ハッシュ」を作る</strong><br>番号354317にアプリ専用の文字を組み合わせて、もう一度ハッシュ計算するよ。
             <span class="kg-formula">hash32(&quot;koshi-no-koi:v2:354317:base&quot;) = 2,132,237,711</span>
             この数字の「桁」をそのまま読んでいるわけではないよ。<br>
-            同じ基本ハッシュに、割り算の余りやビットをずらす計算をして、それぞれの番号を作るんだ。
-            <div class="kg-result">
+            同じ基本ハッシュに、<a class="kg-help-link" href="#kgModuloHelp">「%」で余りを求める計算</a>や
+            <a class="kg-help-link" href="#kgShiftHelp">「&gt;&gt;&gt;」でビットを右にずらす計算</a>をして、それぞれの番号を作るんだ。
+            <div class="kg-result" id="kgCalcResult">
               <strong>品種</strong><br>
-              2,132,237,711 % 42 = <strong>23</strong><br>
+              2,132,237,711 % 42 = <strong>23</strong>
+              <a class="kg-help-link" href="#kgModuloHelp">（%とは？）</a><br>
               → 0番から数えて23番、つまり24番目の<strong>銀鱗白写り</strong><br><br>
               <strong>体型</strong><br>
-              (2,132,237,711 &gt;&gt; 6) % 8 = <strong>6</strong><br>
+              (2,132,237,711 &gt;&gt;&gt; 6) % 8 = <strong>6</strong>
+              <a class="kg-help-link" href="#kgShiftHelp">（&gt;&gt;&gt;とは？）</a><br>
               → <strong>ジャンボ</strong><br><br>
               <strong>体長</strong><br>
-              (2,132,237,711 &gt;&gt; 10) % 7 = <strong>1</strong><br>
+              (2,132,237,711 &gt;&gt;&gt; 10) % 7 = <strong>1</strong><br>
               → <strong>40cm</strong><br><br>
               <strong>色</strong><br>
-              (2,132,237,711 &gt;&gt; 13) % 16 = <strong>10</strong><br>
+              (2,132,237,711 &gt;&gt;&gt; 13) % 16 = <strong>10</strong><br>
               → 金系の色
             </div>
-            <div class="kg-note"><strong>「&gt;&gt;」は、数字を2進数として右にずらす計算。</strong><br>
-            ひとつのハッシュ値から、同じ部分ばかりを使わずに別々の特徴を取り出すために使っているよ。</div>
+
+            <div class="kg-help-box" id="kgModuloHelp">
+              <h3>「%」は何をしているの？</h3>
+              <strong>% は「割り算をした余り」を出す記号</strong>だよ。
+              <span class="kg-mini-formula">10 % 3 = 1</span>
+              10を3で割ると、3×3=9で<strong>1余る</strong>。だから答えは1。
+              <br><br>
+              越鯉では、たとえば品種が42種類あるので、
+              <span class="kg-mini-formula">2,132,237,711 % 42 = 23</span>
+              とする。42で割った余りは必ず<strong>0〜41</strong>のどれかになるから、
+              そのまま42品種の番号として使えるんだ。
+              <br><strong>つまり「大きなハッシュ値を、必要な数の箱に振り分ける」ための計算</strong>なんだよ。
+              <br><a class="kg-back-link" href="#kgCalcResult">↑ 計算例へ戻る</a>
+            </div>
+
+            <div class="kg-help-box" id="kgShiftHelp">
+              <h3>「&gt;&gt;&gt;」は何をしているの？</h3>
+              コンピューターの数字は、内部では<strong>0と1の並び（2進数）</strong>で表されているよ。
+              「&gt;&gt;&gt; 6」は、その0と1の並びを<strong>右へ6個ずらす</strong>という意味。
+              <span class="kg-mini-formula">44 = 101100（2進数）<br>44 &gt;&gt;&gt; 2 = 001011 = 11</span>
+              右へ1つずらすと、おおよそ2で割ったのと同じ。2つなら4で割ったのと同じような動きになる。
+              <br><br>
+              では、なぜ越鯉でずらすのか。<strong>同じハッシュ値の同じ場所ばかりを使わず、別の部分を使って体型・体長・色を決めるため</strong>なんだ。
+              <br>たとえば体型は6個ずらしてから % 8、体長は10個、色は13個ずらしてから余りを求めているよ。
+              <br><br>
+              このアプリで使っている「&gt;&gt;&gt;」は<strong>符号なし右シフト</strong>といって、左側には0を入れながら右へずらす計算だよ。
+              <br><a class="kg-back-link" href="#kgCalcResult">↑ 計算例へ戻る</a>
+            </div>
           </div>
           <div class="kg-calc-step"><strong>④ 模様用の数字も別に作る</strong>
             <span class="kg-formula">hash32(&quot;koshi-no-koi:v2:354317:pattern&quot;) = 1,929,311,288</span>
