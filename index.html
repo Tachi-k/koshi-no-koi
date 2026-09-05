@@ -1723,15 +1723,15 @@ function haikuFor(s){
  const shimo=HAIKU_SHIMO[h3%HAIKU_SHIMO.length];
  return {kami,naka,shimo};
 }
-const KOI_MOTTOS_NORMAL=[
- "静水深きに魚集う。","鱗一枚に、歳月が宿る。","泳ぎは静か、心は自由。","水を離れず、されど水に染まらず。",
- "小さき波にも、大きな意志あり。","名は水面に、姿は池の底に。","急がず、されど止まらず。","一匹の鯉、百年の夢を泳ぐ。"
+// 42品種×3種類＝126種類。品種名を含め、同じ鯉には常に同じ格言を表示する。
+const KOI_MOTTO_FORMS=[
+ "{v}、水面に己の道を映す。",
+ "{v}の一泳ぎ、歳月を静かに語る。",
+ "{v}、流れに学び、流れを越える。"
 ];
-const KOI_MOTTOS_RARE=["千の凡魚より、一の希少。","光を纏う者、稀にしか現れず。"];
-const KOI_MOTTOS_LEGEND=["龍門を越えし者、鯉にあらず、竜となる。","百万に一、されど確かに、ここにいる。"];
+const KOI_MOTTOS_BY_VARIETY=VARIETIES.map(v=>KOI_MOTTO_FORMS.map(form=>form.replace("{v}",v)));
 function mottoFor(s){
- const legend=isRealRare(s),rare=!legend&&isIllustrationRare(s);
- const pool=legend?KOI_MOTTOS_LEGEND:(rare?KOI_MOTTOS_RARE:KOI_MOTTOS_NORMAL);
+ const pool=KOI_MOTTOS_BY_VARIETY[Number(s.variety)]||KOI_MOTTOS_BY_VARIETY[0];
  const h=hash32(canonicalSeed(s.id,"motto"));
  return pool[h%pool.length];
 }
