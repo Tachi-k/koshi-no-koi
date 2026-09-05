@@ -2691,8 +2691,14 @@ body.cert-lock{
     child.origin="pond";
     const rec={tier:"newborn",state:child,bornAt,parents:[{id:a.id,name:makeKoiName(a)},{id:b.id,name:makeKoiName(b)}]};
     records.push(rec);saveNewbornRecords(records);
-    const addedToPond=pondSelection.length<MAX_POND_KOI;
-    if(addedToPond){pondSelection.push(rec);savePondSelection();updatePondUI()}
+    // 誕生時に池に空きがあれば必ず自動入池。以前から待機している新生鯉も空き分を自動補充する。
+    const beforeKey=itemKey("newborn",rec.state);
+    if(pondSelection.length<MAX_POND_KOI&&!pondSelection.some(x=>itemKey(x.tier,x.state)===beforeKey)){
+      pondSelection.push({...rec,state:{...rec.state,origin:"pond"}});
+      savePondSelection();
+    }
+    updatePondUI();
+    const addedToPond=pondSelection.some(x=>itemKey(x.tier,x.state)===beforeKey);
     renderNewbornCollection();announceBirth(rec,addedToPond);
   }
   function announceBirth(rec,addedToPond){
@@ -3002,7 +3008,10 @@ body.cert-lock{
     pondSelection=pondSelection.filter(x=>itemKey(x.tier,x.state)!==key);savePondSelection();updatePondUI();renderNewbornCollection();
     setStatus(`新生鯉「${name}」を自然へ放流しました。`);
   }
-  function updatePondUI(){loadPondSelection();updateNavCount();renderPondPicker();renderRoster();rebuildPondFish()}
+  function updatePondUI(){
+    loadPondSelection();
+    updateNavCount();renderPondPicker();renderRoster();rebuildPondFish()
+  }
 
   function pondButton(tier,rec){
     if(!rec||!rec.state)return "";
