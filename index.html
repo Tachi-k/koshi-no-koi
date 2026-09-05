@@ -3193,51 +3193,87 @@ document.addEventListener("DOMContentLoaded",()=>{
         
         <div class="kg-deck">
           <section class="kg-slide active">
-            <span class="kg-badge">1 / 8</span>
+            <span class="kg-badge">1 / 10</span>
             <div class="kg-big">まず、名前を入れるよ</div>
             <span class="kg-koi">🎏</span>
             <p class="kg-say">たとえば「鯉太郎」と入力したとしよう。<br>名前の文字を、そのまま色や模様にしているわけではないんだ。</p>
           </section>
           <section class="kg-slide">
-            <span class="kg-badge">2 / 8</span>
+            <span class="kg-badge">2 / 10</span>
             <div class="kg-big">名前を「数字のたね」に変える</div>
             <div class="kg-flow"><div class="kg-box">鯉太郎</div><div class="kg-arrow">→</div><div class="kg-box">ハッシュ計算</div><div class="kg-arrow">→</div><div class="kg-box">数字</div></div>
             <p class="kg-say">コンピューターが、文字を決まったやり方で計算して数字に変えるよ。これが<strong>ハッシュ</strong>なんだ。</p>
           </section>
           <section class="kg-slide">
-            <span class="kg-badge">3 / 8</span>
+            <span class="kg-badge">3 / 10</span>
             <div class="kg-big">ハッシュって、なに？</div>
             <p class="kg-say">たとえば「鯉太郎」という名前を、数字を作る機械に入れるイメージだよ。</p>
             <div class="kg-flow"><div class="kg-box">鯉太郎</div><div class="kg-arrow">→</div><div class="kg-box">決まった計算</div><div class="kg-arrow">→</div><div class="kg-box">数字の指紋</div></div>
             <div class="kg-note">同じ文字を入れれば、同じ計算結果になる。だから同じ名前からは同じ越鯉を作れるんだ。</div>
           </section>
           <section class="kg-slide">
-            <span class="kg-badge">4 / 8</span>
+            <span class="kg-badge">4 / 10</span>
             <div class="kg-big">100万個の番号のどれかにする</div>
             <div class="kg-number">000001 ～ 1000000</div>
             <p class="kg-say">ハッシュから作った数字を使って、越鯉の<strong>個体番号</strong>を1つ決めるよ。</p>
           </section>
           <section class="kg-slide">
-            <span class="kg-badge">5 / 8</span>
+            <span class="kg-badge">5 / 10</span>
             <div class="kg-big">番号から鯉の特徴を決める</div>
             <div class="kg-chips"><span class="kg-chip">42品種</span><span class="kg-chip">体型</span><span class="kg-chip">大きさ</span><span class="kg-chip">色</span><span class="kg-chip">模様</span></div>
             <p class="kg-say">個体番号をもとに、品種や模様、体型などを順番に決めていくんだ。</p>
           </section>
           <section class="kg-slide">
-            <span class="kg-badge">6 / 8</span>
+            <span class="kg-badge">6 / 10</span>
             <div class="kg-big">くじ引きみたい。でも毎回同じ</div>
             <div class="kg-flow"><div class="kg-box">同じ名前</div><div class="kg-arrow">→</div><div class="kg-box">同じ番号</div><div class="kg-arrow">→</div><div class="kg-box">同じ鯉</div></div>
             <p class="kg-say">見た目はくじ引きみたい。でも本当のランダムではないよ。計算の道順が決まっているからなんだ。</p>
           </section>
           <section class="kg-slide">
-            <span class="kg-badge">7 / 8</span>
+            <span class="kg-badge">7 / 10</span>
             <div class="kg-big">だから「名前から生まれる」</div>
             <span class="kg-koi">🐟</span>
             <p class="kg-say">名前 → ハッシュ → 個体番号 → 品種・模様・体型。<br>この計算を一瞬でやって、越鯉が生まれるんだ。</p>
             <div class="kg-note">名前に「赤」と書いたから赤い鯉になる、という意味ではないよ。名前から作られた数字が鯉の特徴につながっているんだ。</div>
           </section>
           <section class="kg-slide">
-            <span class="kg-badge">8 / 8</span>
+            <span class="kg-badge">8 / 10</span>
+            <div class="kg-big">レアと激レアはどう決まるの？</div>
+            <p class="kg-say">ここも、名前から作ったハッシュを使って決めているよ。</p>
+            <div class="kg-flow">
+              <div class="kg-box">名前</div>
+              <div class="kg-arrow">→</div>
+              <div class="kg-box">個体番号</div>
+              <div class="kg-arrow">→</div>
+              <div class="kg-box">別のハッシュ計算</div>
+            </div>
+            <div class="kg-note">まず<strong>激レア（LEGEND）かどうか</strong>を判定するよ。<br>
+            1,000個の数字のうち、0〜7の<strong>8個</strong>に入ったらLEGEND。<br>
+            つまり確率は<strong>0.8％（約125匹に1匹）</strong>だよ。</div>
+            <div class="kg-note">LEGENDでなかった鯉だけ、次に<strong>レア（RARE）かどうか</strong>を判定するよ。<br>
+            別の1,000個の数字のうち、0〜59の<strong>60個</strong>に入ったらRARE。<br>
+            判定自体は<strong>6％</strong>。LEGENDを先に除くので、全体では約<strong>5.95％</strong>だよ。</div>
+          </section>
+
+          <section class="kg-slide">
+            <span class="kg-badge">9 / 10</span>
+            <div class="kg-big">くじ引きに見えるけれど、運まかせじゃない</div>
+            <p class="kg-say">たとえば1,000個の箱が並んでいると考えてみよう。</p>
+            <div class="kg-chips">
+              <span class="kg-chip">LEGEND：8箱</span>
+              <span class="kg-chip">RARE：約60箱</span>
+              <span class="kg-chip">通常：残り</span>
+            </div>
+            <div class="kg-note">毎回その場でサイコロを振っているわけではないよ。<br>
+            名前から作った数字が、どの箱に入るかを決めるんだ。</div>
+            <div class="kg-note"><strong>だから同じ名前なら、いつ調べても同じ結果。</strong><br>
+            LEGENDだった名前は、もう一度入れてもLEGEND。RAREだった名前も同じだよ。</div>
+            <div class="kg-note">全体の目安は、<strong>LEGEND 0.8％、RARE 約5.95％、通常 約93.25％</strong>。<br>
+            新生鯉（池で生まれた鯉）は、このRARE・LEGEND判定の対象外だよ。</div>
+          </section>
+
+          <section class="kg-slide">
+            <span class="kg-badge">10 / 10</span>
             <div class="kg-big">ハッシュは身の回りにもあるよ</div>
             <div class="kg-note kg-example"><strong>① パスワード</strong><br>Webサイトでは、入力したパスワードをハッシュに変えて、登録したときのものと同じか確かめる方法が使われているよ。</div>
             <div class="kg-note kg-example"><strong>② アプリやファイルのダウンロード</strong><br>配る側のハッシュと、ダウンロードしたファイルのハッシュを比べれば「同じファイルか」を確かめられるよ。</div>
