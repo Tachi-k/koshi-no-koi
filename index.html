@@ -3150,41 +3150,64 @@ button:disabled{opacity:.4;cursor:default}
   <div class="note"><strong>大事なところ：</strong>同じ名前なら同じ数字になるよ。でも、数字を見ただけでは元の名前を簡単には戻せないように作られているんだ。インターネットでは、パスワードの確認などにも使われる考え方だよ。</div>
 </section>
 
-<section class="slide">
-  <span class="badge">4 / 8</span>
-  <div class="big">ハッシュは身の回りにもあるよ</div>
-  <div class="chips"><span class="chip">ログイン</span><span class="chip">ファイル確認</span><span class="chip">デジタル署名</span><span class="chip">データ管理</span></div>
-  <p class="say">たとえば、Webサイトにログインするとき。サービスによっては、パスワードそのものではなく、パスワードから作ったハッシュを使って確認するよ。</p>
-  <div class="note"><strong>ほかにも：</strong>ダウンロードしたファイルが途中で壊れていないか確かめたり、電子データが書きかえられていないか確かめたりするときにも、ハッシュが活躍しているよ。<br><br>つまりハッシュは、<strong>「これ、本当に同じもの？」を確かめる指紋</strong>みたいなものなんだ。</div>
-</section>
+
 
 <section class="slide">
-  <span class="badge">5 / 8</span>
+  <span class="badge">4 / 8</span>
   <div class="big">100万個の番号のどれかにする</div>
   <div class="number">000001 ～ 1000000</div>
   <p class="say">計算した数字から、越鯉の<strong>個体番号</strong>を1つ決めるよ。<br>名前は、まずこの番号を決めるために使われているんだ。</p>
 </section>
 
 <section class="slide">
-  <span class="badge">6 / 8</span>
+  <span class="badge">5 / 8</span>
   <div class="big">番号から鯉の特徴を決める</div>
   <div class="chips"><span class="chip">42品種</span><span class="chip">体型</span><span class="chip">大きさ</span><span class="chip">色</span><span class="chip">模様</span><span class="chip">細かな特徴</span></div>
   <p class="say">今度は、その個体番号をもとに別の決まった計算をするよ。<br>すると「どの品種？」「どんな模様？」などが順番に決まっていくんだ。</p>
 </section>
 
 <section class="slide">
-  <span class="badge">7 / 8</span>
+  <span class="badge">6 / 8</span>
   <div class="big">くじ引きみたい。でも毎回同じ</div>
   <div class="flow"><div class="box">同じ名前</div><div class="arrow">→</div><div class="box">同じ番号</div><div class="arrow">→</div><div class="box">同じ鯉</div></div>
   <p class="say">見た目はくじ引きみたいだけれど、本当のランダムではないよ。<br>計算の道順が決まっているから、同じ名前なら同じ鯉にたどり着くんだ。</p>
 </section>
 
 <section class="slide">
-  <span class="badge">8 / 8</span>
+  <span class="badge">7 / 8</span>
   <div class="big">だから「名前から生まれる」</div>
   <span class="koi">🐟</span>
   <p class="say">名前 → 個体番号 → 品種・模様・体型……。<br>この長い計算を一瞬でやって、越鯉が生まれるんだ。</p>
   <div class="note"><strong>ポイント：</strong>名前に「赤」と書いたから赤い鯉になる、という仕組みではないよ。名前から作られた数字が、鯉のすべての特徴につながっているんだ。</div>
+</section>
+
+<section class="slide">
+  <span class="badge">8 / 8</span>
+  <div class="big">ハッシュは身の回りにもあるよ</div>
+  <p class="say">最後に、身近な例で見てみよう。</p>
+
+  <div class="note" style="text-align:left">
+    <strong>① パスワードを確認するとき</strong><br>
+    たとえば、きみがWebサイトで「ひみつ123」というパスワードを決めたとするね。<br>
+    サイトは「ひみつ123」という文字をそのまま覚えるのではなく、ハッシュで別の数字や文字の並びに変えて保存することがあるよ。<br>
+    次にログインしたときも、入力したパスワードを同じようにハッシュにして、保存してあるものと同じか比べるんだ。
+  </div>
+
+  <div class="note" style="text-align:left">
+    <strong>② ダウンロードしたファイルが壊れていないか確かめるとき</strong><br>
+    たとえば、ゲームやアプリをダウンロードしたとするね。<br>
+    配る側が「このファイルのハッシュは ABC123」と知らせておいて、きみのパソコンでも同じファイルのハッシュを計算する。<br>
+    同じなら「ちゃんと同じファイルだ」と確認できるよ。
+  </div>
+
+  <div class="note" style="text-align:left">
+    <strong>③ データが書きかえられていないか確かめるとき</strong><br>
+    文章やプログラムは、たった1文字変わっただけでもハッシュの結果が変わることがあるよ。<br>
+    だから「途中でこっそり変えられていないかな？」を確かめる手がかりになるんだ。
+  </div>
+
+  <div class="note"><strong>つまりハッシュは、データにつける「指紋」みたいなもの。</strong><br>
+  同じものなら同じ指紋、少しでも違えば別の指紋になりやすい。越鯉では、この考え方を使って名前から鯉を決めているよ。</div>
 </section>
 
 </div>
