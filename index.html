@@ -1833,7 +1833,35 @@ function haikuTagsFor(s){
  if(name.includes("落ち葉"))tags.push("leaf");
  return tags;
 }
+const LEGEND_HAIKU=[
+ {kami:"天高し",naka:"王者の鯉は",shimo:"水を行く"},
+ {kami:"雲を呼び",naka:"金鱗ひかる",shimo:"秋の水"},
+ {kami:"龍のごと",naka:"静かに進む",shimo:"池の主"},
+ {kami:"月冴えて",naka:"一尾の影に",shimo:"水鎮まる"},
+ {kami:"暁や",naka:"錦をまとい",shimo:"波を統ぶ"},
+ {kami:"風止みて",naka:"威容を映す",shimo:"深き池"},
+ {kami:"雪の庭",naka:"孤高の鯉は",shimo:"なお紅し"},
+ {kami:"春の水",naka:"王の一尾が",shimo:"道を開く"},
+ {kami:"夕映えに",naka:"伝説の鯉",shimo:"波を引く"},
+ {kami:"水鏡",naka:"王者の姿",shimo:"揺るぎなし"}
+];
+const LEGEND_MOTTOS=[
+ "真の威厳は、誇らずとも水面に現れる。",
+ "頂に立つ者ほど、静かに歩みを進める。",
+ "王者は競わず、その姿で道を示す。",
+ "揺るがぬ心は、深き水ほど静かなり。",
+ "時を重ねた輝きは、一瞬の華やかさに勝る。",
+ "大器は騒がず、ただ悠然と流れを進む。",
+ "孤高とは離れることにあらず、己の道を貫くこと。",
+ "風格は飾るものではなく、歩みの中に宿る。",
+ "強き者は波を立てず、流れそのものを変える。",
+ "伝説は名乗るものではなく、後に語られるもの。"
+];
 function haikuFor(s){
+ if(isRealRare(s)){
+  const h=hash32(canonicalSeed(s.id,"legend-haiku"));
+  return LEGEND_HAIKU[h%LEGEND_HAIKU.length];
+ }
  const tags=haikuTagsFor(s);
  const kamiPool=HAIKU_KAMI.filter(x=>tags.includes(x.g));
  const h1=hash32(canonicalSeed(s.id,"haiku1"));
@@ -1851,6 +1879,10 @@ const KOI_MOTTO_FORMS=[
 ];
 const KOI_MOTTOS_BY_VARIETY=VARIETIES.map(v=>KOI_MOTTO_FORMS.map(form=>form.replace("{v}",v)));
 function mottoFor(s){
+ if(isRealRare(s)){
+  const h=hash32(canonicalSeed(s.id,"legend-motto"));
+  return LEGEND_MOTTOS[h%LEGEND_MOTTOS.length];
+ }
  const pool=KOI_MOTTOS_BY_VARIETY[Number(s.variety)]||KOI_MOTTOS_BY_VARIETY[0];
  const h=hash32(canonicalSeed(s.id,"motto"));
  return pool[h%pool.length];
