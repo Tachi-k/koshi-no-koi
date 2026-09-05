@@ -126,6 +126,11 @@ button{font:inherit;cursor:pointer}
   color:#463a28;line-height:1.75;font-size:14px
 }
 .appraisal-comment b{display:block;color:#8c4e00;margin-bottom:5px}
+.haiku-card{margin-top:14px;padding:16px;border:1px solid #d9c89a;border-radius:10px;background:linear-gradient(135deg,#fffdf6,#fbf3dd);text-align:center}
+.haiku-card b{display:block;font-size:12px;color:#9a6a13;letter-spacing:.15em;margin-bottom:9px;font-weight:700}
+.haiku-lines{font-family:"Yu Mincho",serif;font-size:17px;line-height:1.95;color:#3d2f18;letter-spacing:.04em}
+.haiku-line{white-space:nowrap}
+.haiku-motto{margin-top:10px;padding-top:9px;border-top:1px dashed #d9c89a;font-size:12.5px;color:#6e5a34;line-height:1.6;font-family:"Yu Mincho",serif}
 
 
 .rare-real-card{position:absolute;inset:0;display:none;z-index:3;background:#071a24;overflow:hidden}
@@ -803,6 +808,7 @@ body.pond-mode #pondView{display:block!important}
     <div class="brow"><span>地色</span><div class="bar"><i id="bar3"></i></div><b id="pct3"></b></div>
    </div>
    <h4>性格傾向</h4><div class="desc" id="personality"></div><div class="appraisal-comment"><b>鑑定コメント</b><span id="appraisalComment"></span></div>
+   <div class="haiku-card" id="haikuCard"><b>越鯉に一句</b><div class="haiku-lines" id="haikuLines"></div><div class="haiku-motto" id="haikuMotto"></div></div>
    <div class="price" id="priceOut"></div>
  </aside>
 </div>
@@ -893,6 +899,7 @@ body.pond-mode #pondView{display:block!important}
     <div style="margin-top:18px;border-top:2px solid #8c7654;padding-top:14px">
       <div style="font-size:13px;color:#765b36">性格と特徴</div>
       <div id="certPersonality" style="line-height:1.7;margin-top:4px"></div><div style="font-size:13px;color:#765b36;margin-top:10px">鑑定コメント</div><div id="certComment" style="line-height:1.7;margin-top:4px"></div>
+      <div style="font-size:13px;color:#765b36;margin-top:10px">越鯉に一句</div><div id="certHaiku" style="line-height:1.8;margin-top:4px;text-align:center"></div><div id="certMotto" style="margin-top:6px;font-size:13px;color:#6e5a34;text-align:center"></div>
     </div>
     <div style="margin-top:16px;text-align:center;border:2px solid #8c7654;padding:12px">
       <div style="font-size:13px;color:#765b36">見立て鑑定額</div>
@@ -1375,6 +1382,11 @@ function render(){
  priceOut.textContent="金 "+price.toLocaleString("ja-JP")+"円";
  const comment=appraisalText(state,price);
  appraisalComment.textContent=comment;
+ const haiku=haikuFor(state);
+ const haikuLinesEl=document.getElementById("haikuLines");
+ if(haikuLinesEl)haikuLinesEl.innerHTML=`<div class="haiku-line">${haiku.kami}</div><div class="haiku-line">${haiku.naka}</div><div class="haiku-line">${haiku.shimo}</div>`;
+ const haikuMottoEl=document.getElementById("haikuMotto");
+ if(haikuMottoEl)haikuMottoEl.textContent=mottoFor(state);
  let isNew=false;
  if(!suppressCatalogRegistration){
    isNew=(isRealRare(state)||isIllustrationRare(state))?false:registerVariety(state.variety);
@@ -1665,6 +1677,65 @@ function appraisalText(s,price,displaySize=SIZES[s.size]){
 
  return lines.join(" ");
 }
+
+// ===== 俳句・格言 自動生成 =====
+// 上五(5)・下五(5)はモーラ数を確認済みの語群から、中七(7)は性格傾向と同じ添字で選ぶため
+// 「性格傾向」欄の文言と俳句の中七が必ず一致する。すべて state.id 由来で決定論的。
+const HAIKU_KAMI=[
+ {t:"春の池",g:"general"},{t:"秋の風",g:"general"},{t:"夏の空",g:"general"},{t:"冬の水",g:"general"},
+ {t:"朝霧に",g:"general"},{t:"夕焼けや",g:"general"},{t:"雪解けて",g:"general"},{t:"花吹雪",g:"general"},
+ {t:"満月に",g:"general"},{t:"水面照る",g:"general"},{t:"錦鯉",g:"general"},{t:"越の里",g:"general"},
+ {t:"紅さして",g:"general"},{t:"波静か",g:"general"},{t:"池の主",g:"general"},{t:"泳ぐ影",g:"general"},
+ {t:"藍の色",g:"general"},{t:"墨模様",g:"general"},
+ {t:"白銀の",g:"ginrin"},{t:"銀鱗の",g:"ginrin"},
+ {t:"山吹や",g:"metallic"},
+ {t:"丹頂の",g:"tancho"},
+ {t:"ドイツ産",g:"doitsu"},
+ {t:"竜となる",g:"dragon"},
+ {t:"孔雀舞う",g:"peacock"},
+ {t:"落葉舞い",g:"leaf"}
+];
+const HAIKU_NAKA=["堂々と立つ","穏やかに澄む","好奇心満ち","気品漂う","気ままに泳ぐ","すこやかに伸ぶ"];
+const HAIKU_SHIMO=[
+ "空に映ゆ","名を刻む","時を待つ","春を待つ","池深し","風渡る","月澄みぬ","花は舞う",
+ "夢を見る","恋を知る","音もなし","影は濃し","水澄みぬ","錦なす","名は残る","世は巡る","夕暮れぬ"
+];
+function haikuTagsFor(s){
+ const p=normalVarietyProfile(s);
+ const name=VARIETIES[s.variety]||"";
+ const tags=["general"];
+ if(p.ginrin)tags.push("ginrin");
+ if(p.metallic)tags.push("metallic");
+ if(p.tancho)tags.push("tancho");
+ if(p.doitsu)tags.push("doitsu");
+ if(name.includes("竜"))tags.push("dragon");
+ if(name.includes("孔雀"))tags.push("peacock");
+ if(name.includes("落ち葉"))tags.push("leaf");
+ return tags;
+}
+function haikuFor(s){
+ const tags=haikuTagsFor(s);
+ const kamiPool=HAIKU_KAMI.filter(x=>tags.includes(x.g));
+ const h1=hash32(canonicalSeed(s.id,"haiku1"));
+ const kami=(kamiPool.length?kamiPool:HAIKU_KAMI)[h1%(kamiPool.length||HAIKU_KAMI.length)].t;
+ const naka=HAIKU_NAKA[((Number(s.id)||0)+(Number(s.big)||0))%HAIKU_NAKA.length];
+ const h3=hash32(canonicalSeed(s.id,"haiku3"));
+ const shimo=HAIKU_SHIMO[h3%HAIKU_SHIMO.length];
+ return {kami,naka,shimo};
+}
+const KOI_MOTTOS_NORMAL=[
+ "静水深きに魚集う。","鱗一枚に、歳月が宿る。","泳ぎは静か、心は自由。","水を離れず、されど水に染まらず。",
+ "小さき波にも、大きな意志あり。","名は水面に、姿は池の底に。","急がず、されど止まらず。","一匹の鯉、百年の夢を泳ぐ。"
+];
+const KOI_MOTTOS_RARE=["千の凡魚より、一の希少。","光を纏う者、稀にしか現れず。"];
+const KOI_MOTTOS_LEGEND=["龍門を越えし者、鯉にあらず、竜となる。","百万に一、されど確かに、ここにいる。"];
+function mottoFor(s){
+ const legend=isRealRare(s),rare=!legend&&isIllustrationRare(s);
+ const pool=legend?KOI_MOTTOS_LEGEND:(rare?KOI_MOTTOS_RARE:KOI_MOTTOS_NORMAL);
+ const h=hash32(canonicalSeed(s.id,"motto"));
+ return pool[h%pool.length];
+}
+
 function currentPriceValue(){
  const txt=(priceOut.textContent||"").replace(/[^\d]/g,"");
  return Number(txt||0);
@@ -1700,6 +1771,11 @@ function openCertificate(){
  if(parentsRow)parentsRow.style.display=parentsText?"table-row":"none";
  const parentsCell=document.getElementById("certParents");if(parentsCell)parentsCell.textContent=parentsText;
  document.getElementById("certPersonality").textContent=PERSONALITIES[(state.id+state.big)%PERSONALITIES.length]; document.getElementById("certComment").textContent=appraisalText(state,currentPriceValue(),certificateLength);
+ const certHaiku=haikuFor(state);
+ const certHaikuEl=document.getElementById("certHaiku");
+ if(certHaikuEl)certHaikuEl.innerHTML=`${certHaiku.kami}<br>${certHaiku.naka}<br>${certHaiku.shimo}`;
+ const certMottoEl=document.getElementById("certMotto");
+ if(certMottoEl)certMottoEl.textContent=mottoFor(state);
  document.getElementById("certPrice").textContent=currentPriceText();
  const certWrap=document.getElementById("certKoiWrap");
  if(isRealRare(state)){
