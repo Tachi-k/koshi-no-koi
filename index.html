@@ -721,6 +721,10 @@ body.pond-mode #pondView{display:block!important}
   .pond-bridge{width:35%;height:52px}.pond-lantern{transform:scale(.78);transform-origin:top left}
   .pond-fish{width:66px;height:104px}.pond-water::after{font-size:10px;bottom:10px}
 }
+.howto-btn{border:1px solid #b38a42;border-radius:999px;background:#fff8e8;color:#704b13;padding:8px 14px;font-weight:800;cursor:pointer;box-shadow:0 2px 7px rgba(80,50,10,.12)}
+.howto-btn:hover{background:#f7e5bd}.howto-overlay{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;padding:18px;background:rgba(8,24,34,.66)}.howto-overlay[hidden]{display:none}
+.howto-card{position:relative;width:min(620px,94vw);max-height:min(82vh,720px);overflow:auto;padding:28px 30px 22px;border:3px solid #b58b43;border-radius:18px;background:#fffaf0;color:#29343b;box-shadow:0 20px 60px rgba(0,0,0,.4)}.howto-card h2{margin:0 0 18px;color:#7b5416;font-family:"Yu Mincho",serif;font-size:28px;border-bottom:2px solid #d8bd86;padding-bottom:10px}.howto-card ol{margin:0;padding-left:1.45em;line-height:1.75}.howto-card li{margin:8px 0}.howto-close{position:absolute;top:14px;right:14px;border:1px solid #a33c32;border-radius:9px;background:#a33c32;color:#fff;padding:7px 11px;font-weight:800;cursor:pointer}.howto-credit{margin:18px 0 0;padding-top:12px;border-top:1px solid #ddceb0;font-size:12px;color:#75654d}.howto-credit a{color:#8b5e13}
+@media(max-width:600px){.header-actions{gap:6px}.howto-btn{padding:7px 11px;font-size:12px}.howto-card{padding:24px 20px 18px}.howto-card h2{font-size:24px}.howto-card ol{font-size:13px}}
 </style>
 <style>
 /* RARE / LEGEND 42種：希少級は青銀、伝説級は黒金で差別化 */
@@ -758,7 +762,7 @@ body.pond-mode #pondView{display:block!important}
 <div class="app">
 <header>
 <div class="brand"><div><h1>越　鯉</h1><small>— KOSHI NO KOI —</small></div><div>名前から生まれる、錦鯉との出会い</div></div>
- <div class="header-actions"><a class="pond-link" id="pondNavLink" href="#pond">日本庭園の池 <span class="pond-count-badge" id="pondNavCount">0</span></a><div class="stamp">越後之國<br>長岡</div></div>
+ <div class="header-actions"><button type="button" class="howto-btn" id="howtoBtn">遊び方</button><a class="pond-link" id="pondNavLink" href="#pond">日本庭園の池 <span class="pond-count-badge" id="pondNavCount">0</span></a><div class="stamp">越後之國<br>長岡</div></div>
 </header>
 
 <section class="generator">
@@ -871,6 +875,24 @@ body.pond-mode #pondView{display:block!important}
 <audio id="pondAmbientAudio" loop preload="none"></audio><audio id="pondAccentAudio" loop preload="none"></audio><audio id="pondSplashAudio" src="sounds/pond-splash.mp3" preload="auto"></audio><audio id="pondSplashAudioLarge" src="sounds/pond-splash_2.mp3" preload="auto"></audio>
 
 <div class="footer"><span></span></div>
+</div>
+
+<div class="howto-overlay" id="howtoOverlay" role="dialog" aria-modal="true" aria-labelledby="howtoTitle" hidden>
+  <div class="howto-card">
+    <button type="button" class="howto-close" id="howtoClose" aria-label="遊び方を閉じる">閉じる</button>
+    <h2 id="howtoTitle">遊び方</h2>
+    <ol>
+      <li>鯉につけたい名前を入力し、「錦鯉を生成する」を押します。</li>
+      <li>名前から、世界に一匹だけの越鯉が生まれます。品種・模様・体型・体長・鑑定額を確認できます。</li>
+      <li>生まれた鯉は越鯉図鑑に記録されます。図鑑から選ぶと、日本庭園の池で泳がせられます。</li>
+      <li>池に成魚が2匹以上いると、2〜5分ほどで新生鯉が生まれることがあります。</li>
+      <li>新生鯉は幼魚・若魚・成魚の3段階で成長し、図鑑に戻っても現在の成長段階が保たれます。</li>
+      <li>「鑑定書を作成」から鑑定書を表示し、画像としてダウンロードできます。</li>
+      <li>「環境音を再生」ボタンで池の環境音を再生できます。雨や雨音が発生し、ごくまれに雷が鳴ることもあります。</li>
+      <li>図鑑を最初からやり直すときは「図鑑をリセット」を押します。登録した鯉と池の鯉がすべて消去され、この操作は元に戻せません。</li>
+    </ol>
+    <p class="howto-credit">雨音・雷音などの効果音：<a href="https://soundeffect-lab.info/" target="_blank" rel="noopener noreferrer">効果音ラボ</a></p>
+  </div>
 </div>
 
 
@@ -2958,6 +2980,17 @@ body.cert-lock{
   });
   window.addEventListener("hashchange",applyMode);
 })();
+</script>
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
+  const overlay=document.getElementById("howtoOverlay"),open=document.getElementById("howtoBtn"),close=document.getElementById("howtoClose");
+  if(!overlay||!open||!close)return;
+  const hide=()=>{overlay.hidden=true;document.body.style.overflow=""};
+  open.onclick=()=>{overlay.hidden=false;document.body.style.overflow="hidden";close.focus()};
+  close.onclick=hide;
+  overlay.addEventListener("click",e=>{if(e.target===overlay)hide()});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!overlay.hidden)hide()});
+});
 </script>
 <script>
 (function(){
