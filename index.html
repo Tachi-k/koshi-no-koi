@@ -722,6 +722,34 @@ body.pond-mode #pondView{display:block!important}
   .pond-fish{width:66px;height:104px}.pond-water::after{font-size:10px;bottom:10px}
 }
 .howto-btn{border:1px solid #b38a42;border-radius:999px;background:#fff8e8;color:#704b13;padding:8px 14px;font-weight:800;cursor:pointer;box-shadow:0 2px 7px rgba(80,50,10,.12)}
+.koi-question-btn{
+  width:32px;height:32px;margin-left:7px;border:2px solid #b38a42;border-radius:50%;
+  background:#fff8e8;color:#704b13;font-weight:900;font-size:18px;line-height:1;
+  cursor:pointer;vertical-align:middle;box-shadow:0 2px 7px rgba(80,50,10,.12)
+}
+.koi-question-btn:hover{background:#f7e5bd}
+.seed-help-overlay{
+  position:fixed;inset:0;z-index:100010;display:grid;place-items:center;padding:18px;
+  background:rgba(8,24,34,.66)
+}
+.seed-help-overlay[hidden]{display:none}
+.seed-help-card{
+  position:relative;width:min(460px,92vw);padding:28px 24px 22px;border:3px solid #b58b43;
+  border-radius:18px;background:#fffaf0;color:#29343b;text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.4)
+}
+.seed-help-card h2{margin:2px 0 10px;font-family:"Yu Mincho",serif;color:#7b5416;font-size:23px}
+.seed-help-card p{margin:0 0 18px;line-height:1.75}
+.seed-help-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.seed-help-open{
+  border:0;border-radius:999px;background:#8b5e13;color:#fff;padding:11px 18px;
+  font-weight:800;cursor:pointer
+}
+.seed-help-close{
+  border:1px solid #8d8070;border-radius:999px;background:#fff;color:#51483e;padding:10px 17px;
+  font-weight:700;cursor:pointer
+}
+
 .howto-btn:hover{background:#f7e5bd}.howto-overlay{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;padding:18px;background:rgba(8,24,34,.66)}.howto-overlay[hidden]{display:none}
 .howto-card{position:relative;width:min(620px,94vw);max-height:min(82vh,720px);overflow:auto;padding:28px 30px 22px;border:3px solid #b58b43;border-radius:18px;background:#fffaf0;color:#29343b;box-shadow:0 20px 60px rgba(0,0,0,.4)}.howto-card h2{margin:0 0 18px;color:#7b5416;font-family:"Yu Mincho",serif;font-size:28px;border-bottom:2px solid #d8bd86;padding-bottom:10px}.howto-card ol{margin:0;padding-left:1.45em;line-height:1.75}.howto-card li{margin:8px 0}.howto-close{position:absolute;top:14px;right:14px;border:1px solid #a33c32;border-radius:9px;background:#a33c32;color:#fff;padding:7px 11px;font-weight:800;cursor:pointer}.howto-credit{margin:18px 0 0;padding-top:12px;border-top:1px solid #ddceb0;font-size:12px;color:#75654d}.howto-credit a{color:#8b5e13}
 @media(max-width:600px){.header-actions{gap:6px}.howto-btn{padding:7px 11px;font-size:12px}.howto-card{padding:24px 20px 18px}.howto-card h2{font-size:24px}.howto-card ol{font-size:13px}}
@@ -766,7 +794,7 @@ body.pond-mode #pondView{display:block!important}
 </header>
 
 <section class="generator">
- <label>鯉につけたい名前を入力してください。</label>
+ <label>鯉につけたい名前を入力してください。<button type="button" class="koi-question-btn" id="seedHelpBtn" aria-label="名前から鯉が決まる仕組みを見る">？</button></label>
  <input id="nameInput" placeholder="例：鯉太郎、雪月丸、月龍丸">
  <button class="generate" id="generateBtn">✦ 錦鯉を生成する</button>
 </section>
@@ -854,7 +882,7 @@ body.pond-mode #pondView{display:block!important}
 <section id="pondView" aria-label="越鯉 日本庭園の池">
   <div class="pond-page-head">
     <div><h2>越鯉 日本庭園の池</h2></div>
-    <div class="pond-page-actions"><a href="#" class="pond-back-link">← 図鑑へ戻る</a><button type="button" id="pondClearBtn" class="pond-clear-btn">池を空にする</button></div>
+    <div class="pond-page-actions"><a href="#" class="pond-back-link">← 図鑑へ戻る</a><button type="button" class="howto-btn" id="pondHowtoBtn">遊び方</button><button type="button" id="pondClearBtn" class="pond-clear-btn">池を空にする</button></div>
   </div>
   <div class="pond-cycle-status"><div class="pond-sound-controls"><button type="button" id="pondSoundBtn" class="pond-sound-btn" aria-pressed="false">🔇 環境音を再生</button></div><span class="pond-sound-credit">環境音・効果音：<a href="https://soundeffect-lab.info/" target="_blank" rel="noopener noreferrer">効果音ラボ</a></span></div>
   <div class="pond-layout">
@@ -875,6 +903,18 @@ body.pond-mode #pondView{display:block!important}
 <audio id="pondAmbientAudio" loop preload="none"></audio><audio id="pondAccentAudio" loop preload="none"></audio><audio id="pondSplashAudio" src="sounds/pond-splash.mp3" preload="auto"></audio><audio id="pondSplashAudioLarge" src="sounds/pond-splash_2.mp3" preload="auto"></audio>
 
 <div class="footer"><span></span></div>
+</div>
+
+
+<div class="seed-help-overlay" id="seedHelpOverlay" role="dialog" aria-modal="true" aria-labelledby="seedHelpTitle" hidden>
+  <div class="seed-help-card">
+    <h2 id="seedHelpTitle">名前から鯉が決まるってどういうこと？</h2>
+    <p>名前が、どうやって世界に一匹だけの越鯉につながるのか、やさしく見てみよう。</p>
+    <div class="seed-help-actions">
+      <button type="button" class="seed-help-open" id="seedHelpOpen">解説を見る</button>
+      <button type="button" class="seed-help-close" id="seedHelpClose">閉じる</button>
+    </div>
+  </div>
 </div>
 
 <div class="howto-overlay" id="howtoOverlay" role="dialog" aria-modal="true" aria-labelledby="howtoTitle" hidden>
@@ -2998,13 +3038,157 @@ body.cert-lock{
 </script>
 <script>
 document.addEventListener("DOMContentLoaded",()=>{
-  const overlay=document.getElementById("howtoOverlay"),open=document.getElementById("howtoBtn"),close=document.getElementById("howtoClose");
-  if(!overlay||!open||!close)return;
+  const overlay=document.getElementById("howtoOverlay"),open=document.getElementById("howtoBtn"),pondOpen=document.getElementById("pondHowtoBtn"),close=document.getElementById("howtoClose");
+  if(!overlay||!close)return;
   const hide=()=>{overlay.hidden=true;document.body.style.overflow=""};
-  open.onclick=()=>{overlay.hidden=false;document.body.style.overflow="hidden";close.focus()};
+  const show=()=>{overlay.hidden=false;document.body.style.overflow="hidden";close.focus()};
+  if(open)open.onclick=show;
+  if(pondOpen)pondOpen.onclick=show;
   close.onclick=hide;
   overlay.addEventListener("click",e=>{if(e.target===overlay)hide()});
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!overlay.hidden)hide()});
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
+  const btn=document.getElementById("seedHelpBtn");
+  const overlay=document.getElementById("seedHelpOverlay");
+  const openBtn=document.getElementById("seedHelpOpen");
+  const closeBtn=document.getElementById("seedHelpClose");
+  if(!btn||!overlay||!openBtn||!closeBtn)return;
+
+  const hide=()=>{overlay.hidden=true;document.body.style.overflow=""};
+  const show=()=>{overlay.hidden=false;document.body.style.overflow="hidden";openBtn.focus()};
+
+  btn.addEventListener("click",show);
+  closeBtn.addEventListener("click",hide);
+  overlay.addEventListener("click",e=>{if(e.target===overlay)hide()});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!overlay.hidden)hide()});
+
+  openBtn.addEventListener("click",()=>{
+    const w=window.open("","koshiKoiSeedGuide","width=720,height=760,resizable=yes,scrollbars=yes");
+    if(!w){
+      alert("解説画面を開けませんでした。ブラウザのポップアップ設定をご確認ください。");
+      return;
+    }
+    const doc=`<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>名前から鯉が決まるしくみ</title>
+<style>
+:root{color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:#eef6f5;color:#26363a;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}
+.wrap{max-width:720px;margin:0 auto;padding:22px 16px 30px}
+h1{margin:0 0 6px;text-align:center;font-size:clamp(24px,6vw,34px);color:#725019}
+.lead{text-align:center;margin:0 0 18px;color:#586a6d;line-height:1.7}
+.deck{position:relative;overflow:hidden;border:3px solid #c5a76d;border-radius:22px;background:#fffdf6;min-height:430px;box-shadow:0 12px 30px rgba(29,60,65,.13)}
+.slide{display:none;padding:30px 24px 24px;text-align:center;animation:come .45s ease both}
+.slide.active{display:block}
+@keyframes come{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+.badge{display:inline-block;padding:5px 12px;border-radius:999px;background:#f4ead2;color:#765018;font-weight:800;font-size:13px}
+.big{font-size:clamp(26px,7vw,40px);font-weight:900;margin:22px 0 10px;color:#283f43}
+.say{font-size:17px;line-height:1.9;max-width:570px;margin:0 auto}
+.flow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:24px auto}
+.box{min-width:120px;padding:14px 12px;border:2px solid #7d9c98;border-radius:15px;background:#f6fbfa;font-weight:800}
+.arrow{font-size:28px;color:#8b6a2d}
+.number{font-variant-numeric:tabular-nums;font-size:34px;letter-spacing:.08em;color:#925d16;font-weight:900;margin:20px 0}
+.koi{font-size:74px;display:block;animation:swim 2.2s ease-in-out infinite}
+@keyframes swim{0%,100%{transform:translateX(-18px) rotate(-2deg)}50%{transform:translateX(18px) rotate(2deg)}}
+.chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:22px auto}
+.chip{padding:9px 12px;border-radius:12px;background:#edf4f3;border:1px solid #bdcfcc;font-weight:700}
+.note{margin:20px auto 0;padding:14px;border-radius:14px;background:#fff3d9;line-height:1.7;max-width:560px}
+.controls{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px}
+button{min-height:46px;border-radius:999px;border:1px solid #9e8a64;background:#fff;color:#4d473d;font-size:15px;font-weight:800;padding:10px 17px;cursor:pointer}
+button.primary{background:#805719;color:#fff;border-color:#805719}
+button:disabled{opacity:.4;cursor:default}
+.dots{display:flex;justify-content:center;gap:7px;flex:1}
+.dot{width:9px;height:9px;border-radius:50%;background:#c9d3d1}
+.dot.on{background:#805719}
+.small{font-size:13px;color:#657579;margin-top:14px;text-align:center;line-height:1.6}
+@media(max-width:480px){.slide{padding:25px 16px 20px}.deck{min-height:470px}.box{min-width:100px}.controls{gap:7px}button{padding:9px 13px}}
+@media(prefers-reduced-motion:reduce){.slide,.koi{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>名前から鯉が決まるしくみ</h1>
+<p class="lead">むずかしい計算を、むかし小学生だったきみに話すように説明するね。</p>
+<div class="deck">
+
+<section class="slide active">
+  <span class="badge">1 / 6</span>
+  <div class="big">まず、名前を入れるよ</div>
+  <span class="koi">🎏</span>
+  <p class="say">たとえば「鯉太郎」と入力したとしよう。<br>この名前そのものが、鯉の色を直接決めるわけではないんだ。</p>
+</section>
+
+<section class="slide">
+  <span class="badge">2 / 6</span>
+  <div class="big">名前を「数字のたね」に変える</div>
+  <div class="flow"><div class="box">鯉太郎</div><div class="arrow">→</div><div class="box">ハッシュ計算</div><div class="arrow">→</div><div class="box">大きな数字</div></div>
+  <p class="say">コンピューターは、文字をまぜまぜする決まった計算をするよ。<br>これを<strong>ハッシュ</strong>というんだ。</p>
+  <div class="note">同じ名前を入れると、同じ計算になる。だから結果も同じになるよ。</div>
+</section>
+
+<section class="slide">
+  <span class="badge">3 / 6</span>
+  <div class="big">100万個の番号のどれかにする</div>
+  <div class="number">000001 ～ 1000000</div>
+  <p class="say">計算した数字から、越鯉の<strong>個体番号</strong>を1つ決めるよ。<br>名前は、まずこの番号を決めるために使われているんだ。</p>
+</section>
+
+<section class="slide">
+  <span class="badge">4 / 6</span>
+  <div class="big">番号から鯉の特徴を決める</div>
+  <div class="chips"><span class="chip">42品種</span><span class="chip">体型</span><span class="chip">大きさ</span><span class="chip">色</span><span class="chip">模様</span><span class="chip">細かな特徴</span></div>
+  <p class="say">今度は、その個体番号をもとに別の決まった計算をするよ。<br>すると「どの品種？」「どんな模様？」などが順番に決まっていくんだ。</p>
+</section>
+
+<section class="slide">
+  <span class="badge">5 / 6</span>
+  <div class="big">くじ引きみたい。でも毎回同じ</div>
+  <div class="flow"><div class="box">同じ名前</div><div class="arrow">→</div><div class="box">同じ番号</div><div class="arrow">→</div><div class="box">同じ鯉</div></div>
+  <p class="say">見た目はくじ引きみたいだけれど、本当のランダムではないよ。<br>計算の道順が決まっているから、同じ名前なら同じ鯉にたどり着くんだ。</p>
+</section>
+
+<section class="slide">
+  <span class="badge">6 / 6</span>
+  <div class="big">だから「名前から生まれる」</div>
+  <span class="koi">🐟</span>
+  <p class="say">名前 → 個体番号 → 品種・模様・体型……。<br>この長い計算を一瞬でやって、越鯉が生まれるんだ。</p>
+  <div class="note"><strong>ポイント：</strong>名前に「赤」と書いたから赤い鯉になる、という仕組みではないよ。名前から作られた数字が、鯉のすべての特徴につながっているんだ。</div>
+</section>
+
+</div>
+<div class="controls">
+  <button type="button" id="prev">← まえへ</button>
+  <div class="dots" id="dots" aria-label="スライド位置"></div>
+  <button type="button" class="primary" id="next">つぎへ →</button>
+</div>
+<p class="small">実際の越鯉では、名前の空白を除いてから計算し、個体番号を1〜1,000,000の範囲で決めています。</p>
+</div>
+<script>
+(()=>{
+ const slides=[...document.querySelectorAll(".slide")],prev=document.getElementById("prev"),next=document.getElementById("next"),dots=document.getElementById("dots");
+ let i=0;
+ slides.forEach((_,n)=>{const d=document.createElement("span");d.className="dot"+(n===0?" on":"");dots.appendChild(d)});
+ const ds=[...dots.children];
+ function show(n){i=Math.max(0,Math.min(slides.length-1,n));slides.forEach((s,k)=>s.classList.toggle("active",k===i));ds.forEach((d,k)=>d.classList.toggle("on",k===i));prev.disabled=i===0;next.textContent=i===slides.length-1?"もう一度見る ↺":"つぎへ →";}
+ prev.addEventListener("click",()=>show(i-1));
+ next.addEventListener("click",()=>{if(i===slides.length-1)show(0);else show(i+1)});
+ show(0);
+})();
+<\/script>
+</body>
+</html>`;
+    w.document.open();
+    w.document.write(doc);
+    w.document.close();
+    hide();
+  });
 });
 </script>
 <script>
