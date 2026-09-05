@@ -3125,167 +3125,166 @@ document.addEventListener("DOMContentLoaded",()=>{
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!overlay.hidden)hide()});
 
   openBtn.addEventListener("click",()=>{
-    const w=window.open("","koshiKoiSeedGuide","width=720,height=760,resizable=yes,scrollbars=yes");
-    if(!w){
-      alert("解説画面を開けませんでした。ブラウザのポップアップ設定をご確認ください。");
-      return;
-    }
-    const doc=`<!doctype html>
-<html lang="ja">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>名前から鯉が決まるしくみ</title>
-<style>
-:root{color-scheme:light}
-*{box-sizing:border-box}
-body{margin:0;background:#eef6f5;color:#26363a;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}
-.wrap{max-width:720px;margin:0 auto;padding:22px 16px 30px}
-h1{margin:0 0 6px;text-align:center;font-size:clamp(24px,6vw,34px);color:#725019}
-.lead{text-align:center;margin:0 0 18px;color:#586a6d;line-height:1.7}
-.deck{position:relative;overflow:hidden;border:3px solid #c5a76d;border-radius:22px;background:#fffdf6;min-height:455px;box-shadow:0 12px 30px rgba(29,60,65,.13)}
-.slide{display:none;padding:30px 24px 24px;text-align:center;animation:come .45s ease both}
-.slide.active{display:block}
-@keyframes come{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
-.badge{display:inline-block;padding:5px 12px;border-radius:999px;background:#f4ead2;color:#765018;font-weight:800;font-size:13px}
-.big{font-size:clamp(26px,7vw,40px);font-weight:900;margin:22px 0 10px;color:#283f43}
-.say{font-size:17px;line-height:1.9;max-width:570px;margin:0 auto}
-.flow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:24px auto}
-.box{min-width:120px;padding:14px 12px;border:2px solid #7d9c98;border-radius:15px;background:#f6fbfa;font-weight:800}
-.arrow{font-size:28px;color:#8b6a2d}
-.number{font-variant-numeric:tabular-nums;font-size:34px;letter-spacing:.08em;color:#925d16;font-weight:900;margin:20px 0}
-.koi{font-size:74px;display:block;animation:swim 2.2s ease-in-out infinite}
-@keyframes swim{0%,100%{transform:translateX(-18px) rotate(-2deg)}50%{transform:translateX(18px) rotate(2deg)}}
-.chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:22px auto}
-.chip{padding:9px 12px;border-radius:12px;background:#edf4f3;border:1px solid #bdcfcc;font-weight:700}
-.note{margin:20px auto 0;padding:14px;border-radius:14px;background:#fff3d9;line-height:1.7;max-width:560px}
-.controls{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px}
-button{min-height:46px;border-radius:999px;border:1px solid #9e8a64;background:#fff;color:#4d473d;font-size:15px;font-weight:800;padding:10px 17px;cursor:pointer}
-button.primary{background:#805719;color:#fff;border-color:#805719}
-button:disabled{opacity:.4;cursor:default}
-.dots{display:flex;justify-content:center;gap:7px;flex:1}
-.dot{width:9px;height:9px;border-radius:50%;background:#c9d3d1}
-.dot.on{background:#805719}
-.small{font-size:13px;color:#657579;margin-top:14px;text-align:center;line-height:1.6}
-@media(max-width:480px){.slide{padding:25px 16px 20px}.deck{min-height:470px}.box{min-width:100px}.controls{gap:7px}button{padding:9px 13px}}
-@media(prefers-reduced-motion:reduce){.slide,.koi{animation:none}}
-</style>
-</head>
-<body>
-<div class="wrap">
-<h1>名前から鯉が決まるしくみ</h1>
-<p class="lead">むずかしい計算を、むかし小学生だったきみに話すように説明するね。</p>
-<div class="deck">
-
-<section class="slide active">
-  <span class="badge">1 / 8</span>
-  <div class="big">まず、名前を入れるよ</div>
-  <span class="koi">🎏</span>
-  <p class="say">たとえば「鯉太郎」と入力したとしよう。<br>この名前そのものが、鯉の色を直接決めるわけではないんだ。</p>
-</section>
-
-<section class="slide">
-  <span class="badge">2 / 8</span>
-  <div class="big">名前を「数字のたね」に変える</div>
-  <div class="flow"><div class="box">鯉太郎</div><div class="arrow">→</div><div class="box">ハッシュ計算</div><div class="arrow">→</div><div class="box">大きな数字</div></div>
-  <p class="say">コンピューターは、文字をまぜまぜする決まった計算をするよ。<br>これを<strong>ハッシュ</strong>というんだ。</p>
-  <div class="note">同じ名前を入れると、同じ計算になる。だから結果も同じになるよ。</div>
-</section>
-
-<section class="slide">
-  <span class="badge">3 / 8</span>
-  <div class="big">ハッシュって、なに？</div>
-  <div class="flow"><div class="box">名前</div><div class="arrow">→</div><div class="box">決まった計算</div><div class="arrow">→</div><div class="box">数字</div></div>
-  <p class="say">ハッシュは、<strong>文字を決まった数字に変える計算</strong>のことだよ。<br>たとえば、名前を小さなミキサーに入れて、数字のジュースにするようなイメージ。</p>
-  <div class="note"><strong>大事なところ：</strong>同じ名前なら同じ数字になるよ。でも、数字を見ただけでは元の名前を簡単には戻せないように作られているんだ。インターネットでは、パスワードの確認などにも使われる考え方だよ。</div>
-</section>
-
-
-
-<section class="slide">
-  <span class="badge">4 / 8</span>
-  <div class="big">100万個の番号のどれかにする</div>
-  <div class="number">000001 ～ 1000000</div>
-  <p class="say">計算した数字から、越鯉の<strong>個体番号</strong>を1つ決めるよ。<br>名前は、まずこの番号を決めるために使われているんだ。</p>
-</section>
-
-<section class="slide">
-  <span class="badge">5 / 8</span>
-  <div class="big">番号から鯉の特徴を決める</div>
-  <div class="chips"><span class="chip">42品種</span><span class="chip">体型</span><span class="chip">大きさ</span><span class="chip">色</span><span class="chip">模様</span><span class="chip">細かな特徴</span></div>
-  <p class="say">今度は、その個体番号をもとに別の決まった計算をするよ。<br>すると「どの品種？」「どんな模様？」などが順番に決まっていくんだ。</p>
-</section>
-
-<section class="slide">
-  <span class="badge">6 / 8</span>
-  <div class="big">くじ引きみたい。でも毎回同じ</div>
-  <div class="flow"><div class="box">同じ名前</div><div class="arrow">→</div><div class="box">同じ番号</div><div class="arrow">→</div><div class="box">同じ鯉</div></div>
-  <p class="say">見た目はくじ引きみたいだけれど、本当のランダムではないよ。<br>計算の道順が決まっているから、同じ名前なら同じ鯉にたどり着くんだ。</p>
-</section>
-
-<section class="slide">
-  <span class="badge">7 / 8</span>
-  <div class="big">だから「名前から生まれる」</div>
-  <span class="koi">🐟</span>
-  <p class="say">名前 → 個体番号 → 品種・模様・体型……。<br>この長い計算を一瞬でやって、越鯉が生まれるんだ。</p>
-  <div class="note"><strong>ポイント：</strong>名前に「赤」と書いたから赤い鯉になる、という仕組みではないよ。名前から作られた数字が、鯉のすべての特徴につながっているんだ。</div>
-</section>
-
-<section class="slide">
-  <span class="badge">8 / 8</span>
-  <div class="big">ハッシュは身の回りにもあるよ</div>
-  <p class="say">最後に、身近な例で見てみよう。</p>
-
-  <div class="note" style="text-align:left">
-    <strong>① パスワードを確認するとき</strong><br>
-    たとえば、きみがWebサイトで「ひみつ123」というパスワードを決めたとするね。<br>
-    サイトは「ひみつ123」という文字をそのまま覚えるのではなく、ハッシュで別の数字や文字の並びに変えて保存することがあるよ。<br>
-    次にログインしたときも、入力したパスワードを同じようにハッシュにして、保存してあるものと同じか比べるんだ。
-  </div>
-
-  <div class="note" style="text-align:left">
-    <strong>② ダウンロードしたファイルが壊れていないか確かめるとき</strong><br>
-    たとえば、ゲームやアプリをダウンロードしたとするね。<br>
-    配る側が「このファイルのハッシュは ABC123」と知らせておいて、きみのパソコンでも同じファイルのハッシュを計算する。<br>
-    同じなら「ちゃんと同じファイルだ」と確認できるよ。
-  </div>
-
-  <div class="note" style="text-align:left">
-    <strong>③ データが書きかえられていないか確かめるとき</strong><br>
-    文章やプログラムは、たった1文字変わっただけでもハッシュの結果が変わることがあるよ。<br>
-    だから「途中でこっそり変えられていないかな？」を確かめる手がかりになるんだ。
-  </div>
-
-  <div class="note"><strong>つまりハッシュは、データにつける「指紋」みたいなもの。</strong><br>
-  同じものなら同じ指紋、少しでも違えば別の指紋になりやすい。越鯉では、この考え方を使って名前から鯉を決めているよ。</div>
-</section>
-
-</div>
-<div class="controls">
-  <button type="button" id="prev">← まえへ</button>
-  <div class="dots" id="dots" aria-label="スライド位置"></div>
-  <button type="button" class="primary" id="next">つぎへ →</button>
-</div>
-<p class="small">実際の越鯉では、名前の空白を除いてから計算し、個体番号を1〜1,000,000の範囲で決めています。</p>
-</div>
-<script>
-(()=>{
- const slides=[...document.querySelectorAll(".slide")],prev=document.getElementById("prev"),next=document.getElementById("next"),dots=document.getElementById("dots");
- let i=0;
- slides.forEach((_,n)=>{const d=document.createElement("span");d.className="dot"+(n===0?" on":"");dots.appendChild(d)});
- const ds=[...dots.children];
- function show(n){i=Math.max(0,Math.min(slides.length-1,n));slides.forEach((s,k)=>s.classList.toggle("active",k===i));ds.forEach((d,k)=>d.classList.toggle("on",k===i));prev.disabled=i===0;next.textContent=i===slides.length-1?"もう一度見る ↺":"つぎへ →";}
- prev.addEventListener("click",()=>show(i-1));
- next.addEventListener("click",()=>{if(i===slides.length-1)show(0);else show(i+1)});
- show(0);
-})();
-<\/script>
-</body>
-</html>`;
-    w.document.open();
-    w.document.write(doc);
-    w.document.close();
     hide();
+
+    const old=document.getElementById("koiSeedGuideScreen");
+    if(old)old.remove();
+
+    const guide=document.createElement("div");
+    guide.id="koiSeedGuideScreen";
+    guide.setAttribute("role","dialog");
+    guide.setAttribute("aria-modal","true");
+    guide.setAttribute("aria-label","名前から鯉が決まるしくみ");
+    guide.innerHTML=`
+      <style>
+        #koiSeedGuideScreen{
+          position:fixed;inset:0;z-index:100050;overflow:auto;
+          -webkit-overflow-scrolling:touch;background:#eef6f5;color:#26363a;
+          font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif
+        }
+        #koiSeedGuideScreen *{box-sizing:border-box}
+        #koiSeedGuideScreen .kg-wrap{max-width:720px;margin:0 auto;padding:18px 16px 34px}
+        #koiSeedGuideScreen .kg-top{display:flex;justify-content:flex-end;margin-bottom:4px}
+        #koiSeedGuideScreen .kg-close{
+          min-width:82px;min-height:44px;border:0;border-radius:999px;background:#7d241d;color:#fff;
+          font-size:16px;font-weight:800;padding:9px 16px;cursor:pointer
+        }
+        #koiSeedGuideScreen h1{margin:2px 0 6px;text-align:center;font-size:clamp(24px,6vw,34px);color:#725019}
+        #koiSeedGuideScreen .kg-lead{text-align:center;margin:0 0 16px;color:#586a6d;line-height:1.7}
+        #koiSeedGuideScreen .kg-deck{position:relative;overflow:hidden;border:3px solid #c5a76d;border-radius:22px;background:#fffdf6;min-height:455px;box-shadow:0 12px 30px rgba(29,60,65,.13)}
+        #koiSeedGuideScreen .kg-slide{display:none;padding:28px 22px 24px;text-align:center;animation:kgCome .4s ease both}
+        #koiSeedGuideScreen .kg-slide.active{display:block}
+        @keyframes kgCome{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+        #koiSeedGuideScreen .kg-badge{display:inline-block;padding:5px 12px;border-radius:999px;background:#f4ead2;color:#765018;font-weight:800;font-size:13px}
+        #koiSeedGuideScreen .kg-big{font-size:clamp(25px,7vw,38px);font-weight:900;margin:20px 0 10px;color:#283f43}
+        #koiSeedGuideScreen .kg-say{font-size:17px;line-height:1.9;max-width:570px;margin:0 auto}
+        #koiSeedGuideScreen .kg-flow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:22px auto}
+        #koiSeedGuideScreen .kg-box{min-width:105px;padding:13px 10px;border:2px solid #7d9c98;border-radius:15px;background:#f6fbfa;font-weight:800}
+        #koiSeedGuideScreen .kg-arrow{font-size:26px;color:#8b6a2d}
+        #koiSeedGuideScreen .kg-number{font-variant-numeric:tabular-nums;font-size:clamp(26px,7vw,34px);letter-spacing:.04em;color:#925d16;font-weight:900;margin:20px 0}
+        #koiSeedGuideScreen .kg-koi{font-size:68px;display:block;animation:kgSwim 2.2s ease-in-out infinite}
+        @keyframes kgSwim{0%,100%{transform:translateX(-15px)}50%{transform:translateX(15px)}}
+        #koiSeedGuideScreen .kg-chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:20px auto}
+        #koiSeedGuideScreen .kg-chip{padding:9px 11px;border-radius:12px;background:#edf4f3;border:1px solid #bdcfcc;font-weight:700}
+        #koiSeedGuideScreen .kg-note{margin:17px auto 0;padding:13px;border-radius:14px;background:#fff3d9;line-height:1.7;max-width:580px}
+        #koiSeedGuideScreen .kg-example{text-align:left}
+        #koiSeedGuideScreen .kg-controls{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:14px}
+        #koiSeedGuideScreen .kg-controls button{min-height:46px;border-radius:999px;border:1px solid #9e8a64;background:#fff;color:#4d473d;font-size:15px;font-weight:800;padding:9px 14px;cursor:pointer}
+        #koiSeedGuideScreen .kg-controls button.kg-primary{background:#805719;color:#fff;border-color:#805719}
+        #koiSeedGuideScreen .kg-controls button:disabled{opacity:.4}
+        #koiSeedGuideScreen .kg-dots{display:flex;justify-content:center;gap:6px;flex:1}
+        #koiSeedGuideScreen .kg-dot{width:8px;height:8px;border-radius:50%;background:#c9d3d1}
+        #koiSeedGuideScreen .kg-dot.on{background:#805719}
+        #koiSeedGuideScreen .kg-small{font-size:13px;color:#657579;margin-top:13px;text-align:center;line-height:1.6}
+        @media(max-width:480px){
+          #koiSeedGuideScreen .kg-wrap{padding:10px 10px 26px}
+          #koiSeedGuideScreen .kg-slide{padding:22px 13px 18px}
+          #koiSeedGuideScreen .kg-deck{min-height:490px}
+          #koiSeedGuideScreen .kg-say{font-size:16px}
+          #koiSeedGuideScreen .kg-note{font-size:14px}
+        }
+        @media(prefers-reduced-motion:reduce){
+          #koiSeedGuideScreen .kg-slide,#koiSeedGuideScreen .kg-koi{animation:none}
+        }
+      </style>
+      <div class="kg-wrap">
+        <div class="kg-top"><button type="button" class="kg-close">閉じる</button></div>
+        <h1>名前から鯉が決まるしくみ</h1>
+        <p class="kg-lead">むかし小学生だったきみに話すように、順番に見ていこう。</p>
+        <div class="kg-deck">
+          <section class="kg-slide active">
+            <span class="kg-badge">1 / 8</span>
+            <div class="kg-big">まず、名前を入れるよ</div>
+            <span class="kg-koi">🎏</span>
+            <p class="kg-say">たとえば「鯉太郎」と入力したとしよう。<br>名前の文字を、そのまま色や模様にしているわけではないんだ。</p>
+          </section>
+          <section class="kg-slide">
+            <span class="kg-badge">2 / 8</span>
+            <div class="kg-big">名前を「数字のたね」に変える</div>
+            <div class="kg-flow"><div class="kg-box">鯉太郎</div><div class="kg-arrow">→</div><div class="kg-box">ハッシュ計算</div><div class="kg-arrow">→</div><div class="kg-box">数字</div></div>
+            <p class="kg-say">コンピューターが、文字を決まったやり方で計算して数字に変えるよ。これが<strong>ハッシュ</strong>なんだ。</p>
+          </section>
+          <section class="kg-slide">
+            <span class="kg-badge">3 / 8</span>
+            <div class="kg-big">ハッシュって、なに？</div>
+            <p class="kg-say">たとえば「鯉太郎」という名前を、数字を作る機械に入れるイメージだよ。</p>
+            <div class="kg-flow"><div class="kg-box">鯉太郎</div><div class="kg-arrow">→</div><div class="kg-box">決まった計算</div><div class="kg-arrow">→</div><div class="kg-box">数字の指紋</div></div>
+            <div class="kg-note">同じ文字を入れれば、同じ計算結果になる。だから同じ名前からは同じ越鯉を作れるんだ。</div>
+          </section>
+          <section class="kg-slide">
+            <span class="kg-badge">4 / 8</span>
+            <div class="kg-big">100万個の番号のどれかにする</div>
+            <div class="kg-number">000001 ～ 1000000</div>
+            <p class="kg-say">ハッシュから作った数字を使って、越鯉の<strong>個体番号</strong>を1つ決めるよ。</p>
+          </section>
+          <section class="kg-slide">
+            <span class="kg-badge">5 / 8</span>
+            <div class="kg-big">番号から鯉の特徴を決める</div>
+            <div class="kg-chips"><span class="kg-chip">42品種</span><span class="kg-chip">体型</span><span class="kg-chip">大きさ</span><span class="kg-chip">色</span><span class="kg-chip">模様</span></div>
+            <p class="kg-say">個体番号をもとに、品種や模様、体型などを順番に決めていくんだ。</p>
+          </section>
+          <section class="kg-slide">
+            <span class="kg-badge">6 / 8</span>
+            <div class="kg-big">くじ引きみたい。でも毎回同じ</div>
+            <div class="kg-flow"><div class="kg-box">同じ名前</div><div class="kg-arrow">→</div><div class="kg-box">同じ番号</div><div class="kg-arrow">→</div><div class="kg-box">同じ鯉</div></div>
+            <p class="kg-say">見た目はくじ引きみたい。でも本当のランダムではないよ。計算の道順が決まっているからなんだ。</p>
+          </section>
+          <section class="kg-slide">
+            <span class="kg-badge">7 / 8</span>
+            <div class="kg-big">だから「名前から生まれる」</div>
+            <span class="kg-koi">🐟</span>
+            <p class="kg-say">名前 → ハッシュ → 個体番号 → 品種・模様・体型。<br>この計算を一瞬でやって、越鯉が生まれるんだ。</p>
+            <div class="kg-note">名前に「赤」と書いたから赤い鯉になる、という意味ではないよ。名前から作られた数字が鯉の特徴につながっているんだ。</div>
+          </section>
+          <section class="kg-slide">
+            <span class="kg-badge">8 / 8</span>
+            <div class="kg-big">ハッシュは身の回りにもあるよ</div>
+            <div class="kg-note kg-example"><strong>① パスワード</strong><br>Webサイトでは、入力したパスワードをハッシュに変えて、登録したときのものと同じか確かめる方法が使われているよ。</div>
+            <div class="kg-note kg-example"><strong>② アプリやファイルのダウンロード</strong><br>配る側のハッシュと、ダウンロードしたファイルのハッシュを比べれば「同じファイルか」を確かめられるよ。</div>
+            <div class="kg-note kg-example"><strong>③ 書きかえの確認</strong><br>文章やプログラムが少し変わるとハッシュも変わる。だから、途中でデータが変えられていないか調べる手がかりになるんだ。</div>
+            <div class="kg-note"><strong>ハッシュは、データにつける「指紋」みたいなもの。</strong></div>
+          </section>
+        </div>
+        <div class="kg-controls">
+          <button type="button" class="kg-prev">← まえへ</button>
+          <div class="kg-dots" aria-label="スライド位置"></div>
+          <button type="button" class="kg-next kg-primary">つぎへ →</button>
+        </div>
+        <p class="kg-small">この解説はポップアップを使わず、このページの中で開くのでiPhoneでも表示できます。</p>
+      </div>`;
+
+    document.body.appendChild(guide);
+    document.body.style.overflow="hidden";
+
+    const slides=[...guide.querySelectorAll(".kg-slide")];
+    const prev=guide.querySelector(".kg-prev");
+    const next=guide.querySelector(".kg-next");
+    const dots=guide.querySelector(".kg-dots");
+    const closeGuide=()=>{
+      guide.remove();
+      document.body.style.overflow="";
+    };
+    guide.querySelector(".kg-close").addEventListener("click",closeGuide);
+
+    let i=0;
+    slides.forEach((_,n)=>{
+      const d=document.createElement("span");
+      d.className="kg-dot"+(n===0?" on":"");
+      dots.appendChild(d);
+    });
+    const ds=[...dots.children];
+    const showSlide=n=>{
+      i=Math.max(0,Math.min(slides.length-1,n));
+      slides.forEach((s,k)=>s.classList.toggle("active",k===i));
+      ds.forEach((d,k)=>d.classList.toggle("on",k===i));
+      prev.disabled=i===0;
+      next.textContent=i===slides.length-1?"もう一度見る ↺":"つぎへ →";
+      guide.scrollTo({top:0,behavior:"smooth"});
+    };
+    prev.addEventListener("click",()=>showSlide(i-1));
+    next.addEventListener("click",()=>showSlide(i===slides.length-1?0:i+1));
+    showSlide(0);
+    guide.querySelector(".kg-close").focus();
   });
 });
 </script>
