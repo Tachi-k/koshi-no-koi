@@ -1,5 +1,12 @@
 越鯉 品種模様修正版 2026-09-05
 
+軽量化版: 未使用の ILLUSTRATION_RARE_IMAGES、RARE_REAL_IMAGES、LEGEND_REPAIRED_IMAGES を削除。
+追加整理版: 旧 koiSVG・ellipsePath・blob・miniSVG・downloadSVG と空の updateActive（呼び出し含む）、旧手動選択UIのCSSを削除。
+index.html の未使用画像と旧UIを削除済み。画像は pond_legend の外部PNGを参照します。
+新生鯉の鑑定書修正: 池生まれの個体は希少級・伝説級に判定せず、通常SVGと通常価格で表示。既存の新生鯉も読み込み時に適用します。
+前の模様修正版を導入済みの場合、今回の更新は index.html のみです。鑑定書の画像保存は維持しています。
+使われなくなった legend フォルダはこのZIPに含めていません。
+
 更新対象: index.html と pond_legend の13枚 (03,04,13,14,18,21,23,26,27,30,33,35,41)。
 GitHubにはZIPを展開し、同名のファイルを置き換えてください。
 variety-review.html で13品種の画像を確認できます。
@@ -20,4 +27,3 @@ variety-review.html で13品種の画像を確認できます。
 35: Tancho Kujaku: platinum WHITE metallic body with fine dark pinecone scale centers forming ordered mesh on back, single red head spot, NO RED on body, NO gold yellow body, no black head blotch.
 41: Doitsu Yamato Nishiki: metallic platinum WHITE base occupying at least 45 percent of visible back, separated RED patches and smaller BLACK patches, all three colors obvious; smooth scaleless skin with sparse mirror scales.
 03: Shiro Utsuri: deep black base with large wrapping milky WHITE patches only. Absolutely no red orange yellow.
-

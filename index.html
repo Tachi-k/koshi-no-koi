@@ -1233,6 +1233,7 @@ function useBeautifulNormal(s){
 }
 
 function isIllustrationRare(s){
+  if(s.origin==="pond")return false;
   // 約6%の「少しレア」。伝説級とは重複させない。
   if(isRealRare(s))return false;
   const h=hash32(canonicalSeed(s.id,"illustrationRare"));
@@ -1260,6 +1261,7 @@ function applyIllustrationRare(){
 }
 
 function isRealRare(s){
+  if(s.origin==="pond")return false;
   return (hash32(canonicalSeed(s.id,"real42"))%1000)<8;
 }
 
@@ -2328,7 +2330,11 @@ body.cert-lock{
     try{localStorage.setItem(POND_KEY,JSON.stringify(pondSelection))}catch(e){}
   }
   function loadNewbornRecords(){
-    try{const raw=localStorage.getItem(NEWBORN_KEY);const list=raw?JSON.parse(raw):[];return Array.isArray(list)?list:[]}catch(e){return []}
+    try{
+      const raw=localStorage.getItem(NEWBORN_KEY),list=raw?JSON.parse(raw):[];
+      if(!Array.isArray(list))return [];
+      return list.filter(rec=>rec&&rec.state).map(rec=>({...rec,tier:"newborn",state:{...rec.state,origin:"pond"}}));
+    }catch(e){return []}
   }
   function saveNewbornRecords(list){try{localStorage.setItem(NEWBORN_KEY,JSON.stringify(list))}catch(e){}}
   function fadeAudio(audio,target,ms=1100){
@@ -2472,6 +2478,7 @@ body.cert-lock{
     while(records.some(x=>x.state&&x.state.id===id))id=id%1000000+1;
     const seed=hash32(canonicalSeed(id,"newborn"));
     const child={id,name:"新生鯉",variety:inheritedValue(a.variety,b.variety,41,seed+1),body:inheritedValue(a.body,b.body,7,seed+2),size:inheritedValue(a.size,b.size,6,seed+3),color:inheritedValue(a.color,b.color,15,seed+4),big:inheritedValue(a.big,b.big,31,seed+5),fine:inheritedValue(a.fine,b.fine,31,seed+6),balance:inheritedValue(a.balance,b.balance,31,seed+7)};
+    child.origin="pond";
     const rec={tier:"newborn",state:child,bornAt,parents:[{id:a.id,name:makeKoiName(a)},{id:b.id,name:makeKoiName(b)}]};
     records.push(rec);saveNewbornRecords(records);
     const addedToPond=pondSelection.length<MAX_POND_KOI;
@@ -2771,7 +2778,7 @@ body.cert-lock{
     if(!rec||!rec.state)return;
     currentHighlight=null;currentCertificateParents=Array.isArray(rec.parents)?rec.parents.map(p=>({...p})):null;
     currentCertificateBornAt=Number(rec.bornAt)||null;
-    state={...rec.state};collectionPriceOverride=rec.price||null;
+    state={...rec.state,origin:"pond"};collectionPriceOverride=null;
     document.getElementById("result").style.display="block";
     suppressCatalogRegistration=true;
     try{render()}finally{suppressCatalogRegistration=false}
