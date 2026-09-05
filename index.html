@@ -808,7 +808,7 @@ body.pond-mode #pondView{display:block!important}
     <div class="brow"><span>地色</span><div class="bar"><i id="bar3"></i></div><b id="pct3"></b></div>
    </div>
    <h4>性格傾向</h4><div class="desc" id="personality"></div><div class="appraisal-comment"><b>鑑定コメント</b><span id="appraisalComment"></span></div>
-   <div class="haiku-card" id="haikuCard"><b>越鯉に一句</b><div class="haiku-lines" id="haikuLines"></div><div class="haiku-motto" id="haikuMotto"></div></div>
+   <div class="haiku-card" id="haikuCard"><b>越鯉に一句</b><div class="haiku-lines" id="haikuLines"></div><div class="motto-label">格言</div><div class="haiku-motto" id="haikuMotto"></div></div>
    <div class="price" id="priceOut"></div>
  </aside>
 </div>
@@ -863,7 +863,7 @@ body.pond-mode #pondView{display:block!important}
       <div class="pond-water" id="pondWater"></div>
     </div>
     <aside class="pond-side">
-      <div class="pond-card"><h3>泳いでいる越鯉</h3><div class="pond-status" id="pondStatus">図鑑から泳がせる鯉を選んでください。</div><div class="pond-breeding-guide">池に2匹以上の成魚がいると、しばらくして新しい命が生まれることがあります。幼魚・若魚は親になりません。</div><div class="pond-roster" id="pondRoster"></div></div>
+      <div class="pond-card"><h3>泳いでいる越鯉</h3><div class="pond-status" id="pondStatus">図鑑から泳がせる鯉を選んでください。</div><div class="pond-breeding-guide">池に2匹以上の成魚がいると、しばらくして新しい命が生まれることがあります。</div><div class="pond-roster" id="pondRoster"></div></div>
       <div class="pond-card"><h3>図鑑から選ぶ <span id="pondPickerCount" style="font-size:12px;color:#71818c"></span></h3><div class="pond-picker" id="pondPicker"></div></div>
     </aside>
   </div>
@@ -899,7 +899,7 @@ body.pond-mode #pondView{display:block!important}
     <div style="margin-top:18px;border-top:2px solid #8c7654;padding-top:14px">
       <div style="font-size:13px;color:#765b36">性格と特徴</div>
       <div id="certPersonality" style="line-height:1.7;margin-top:4px"></div><div style="font-size:13px;color:#765b36;margin-top:10px">鑑定コメント</div><div id="certComment" style="line-height:1.7;margin-top:4px"></div>
-      <div style="font-size:13px;color:#765b36;margin-top:10px">越鯉に一句</div><div id="certHaiku" style="line-height:1.8;margin-top:4px;text-align:center"></div><div id="certMotto" style="margin-top:6px;font-size:13px;color:#6e5a34;text-align:center"></div>
+      <div style="font-size:13px;color:#765b36;margin-top:10px">越鯉に一句</div><div id="certHaiku" style="line-height:1.8;margin-top:4px;text-align:center"></div><div style="font-size:13px;color:#765b36;margin-top:10px">格言</div><div id="certMotto" style="margin-top:6px;font-size:13px;color:#6e5a34;text-align:center"></div>
     </div>
     <div style="margin-top:16px;text-align:center;border:2px solid #8c7654;padding:12px">
       <div style="font-size:13px;color:#765b36">見立て鑑定額</div>
@@ -1680,7 +1680,7 @@ function appraisalText(s,price,displaySize=SIZES[s.size]){
 
 // ===== 俳句・格言 自動生成 =====
 // 上五(5)・下五(5)はモーラ数を確認済みの語群から、中七(7)は性格傾向と同じ添字で選ぶため
-// 「性格傾向」欄の文言と俳句の中七が必ず一致する。すべて state.id 由来で決定論的。
+// 中七は「性格傾向」に対応した語群から選ぶ。すべて state.id 由来で決定論的。
 const HAIKU_KAMI=[
  {t:"春の池",g:"general"},{t:"秋の風",g:"general"},{t:"夏の空",g:"general"},{t:"冬の水",g:"general"},
  {t:"朝霧に",g:"general"},{t:"夕焼けや",g:"general"},{t:"雪解けて",g:"general"},{t:"花吹雪",g:"general"},
