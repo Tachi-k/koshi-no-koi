@@ -888,8 +888,9 @@ body.pond-mode #pondView{display:block!important}
       <li>池に成魚が2匹以上いると、2〜5分ほどで新生鯉が生まれることがあります。</li>
       <li>新生鯉は幼魚・若魚・成魚の3段階で成長し、図鑑に戻っても現在の成長段階が保たれます。</li>
       <li>「鑑定書を作成」から鑑定書を表示し、画像としてダウンロードできます。</li>
-      <li>「環境音を再生」ボタンで池の環境音を再生できます。雨や雨音が発生し、ごくまれに雷が鳴ることもあります。</li>
+      <li>「環境音を再生」ボタンで池の環境音を再生できます。雨が降ることもあり、ごくまれに雷が鳴ることもあります。</li>
       <li>図鑑を最初からやり直すときは「図鑑をリセット」を押します。登録した鯉と池の鯉がすべて消去され、この操作は元に戻せません。</li>
+      <li>季節や時間に合わせた俳句や、鯉にまつわる格言が表示されます。移り変わる池の風景とともにお楽しみください。</li>
     </ol>
     <p class="howto-credit">雨音・雷音などの効果音：<a href="https://soundeffect-lab.info/" target="_blank" rel="noopener noreferrer">効果音ラボ</a></p>
   </div>
@@ -2522,8 +2523,22 @@ body.cert-lock{
     const key=String(pondSoundOn)+":"+String(pondRaining);if(!force&&key===lastPondSoundKey)return;lastPondSoundKey=key;
     const main=document.getElementById("pondAmbientAudio"),accent=document.getElementById("pondAccentAudio");
     if(!pondSoundOn){[main,accent].forEach(a=>{if(a){a.pause();a.volume=0}});stopRainSound();return}
-    if(pondRaining){switchAudio(main,"",0);switchAudio(accent,"",0);startRainSound();return}
-    stopRainSound();switchAudio(main,POND_AMBIENT_SOUND,POND_VOLUME);
+    if(pondRaining){
+      // iPhone Safari対策: 雨の間も通常環境音はpauseせず、再生状態を保ったまま無音にする。
+      // 雨上がりに新たなplay()を要求しないため、自動再開ブロックを避ける。
+      if(main){
+        if(main.dataset.src!==POND_AMBIENT_SOUND){
+          main.src=POND_AMBIENT_SOUND;main.dataset.src=POND_AMBIENT_SOUND;main.volume=0;
+          main.play().catch(()=>{});
+        }else{
+          clearInterval(main._pondFade);main.volume=0;
+        }
+      }
+      switchAudio(accent,"",0);startRainSound();return
+    }
+    stopRainSound();
+    if(main&&main.dataset.src===POND_AMBIENT_SOUND&&!main.paused){fadeAudio(main,POND_VOLUME)}
+    else switchAudio(main,POND_AMBIENT_SOUND,POND_VOLUME);
     switchAudio(accent,"",0);
   }
   function triggerKoiJump(){
