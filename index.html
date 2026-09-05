@@ -738,6 +738,12 @@ body.pond-mode #pondView{display:block!important}
   border-radius:18px;background:#fffaf0;color:#29343b;text-align:center;
   box-shadow:0 20px 60px rgba(0,0,0,.4)
 }
+.seed-help-x{
+  position:absolute;top:9px;right:11px;width:36px;height:36px;border:0;border-radius:50%;
+  background:#f0e4cd;color:#5c4a2c;font-size:24px;font-weight:800;line-height:1;cursor:pointer
+}
+.seed-help-x:hover{background:#e5d3b2}
+
 .seed-help-card h2{margin:2px 0 10px;font-family:"Yu Mincho",serif;color:#7b5416;font-size:23px}
 .seed-help-card p{margin:0 0 18px;line-height:1.75}
 .seed-help-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
@@ -908,6 +914,7 @@ body.pond-mode #pondView{display:block!important}
 
 <div class="seed-help-overlay" id="seedHelpOverlay" role="dialog" aria-modal="true" aria-labelledby="seedHelpTitle" hidden>
   <div class="seed-help-card">
+    <button type="button" class="seed-help-x" id="seedHelpX" aria-label="閉じる">×</button>
     <h2 id="seedHelpTitle">名前から鯉が決まるってどういうこと？</h2>
     <p>名前が、どうやって世界に一匹だけの越鯉につながるのか、やさしく見てみよう。</p>
     <div class="seed-help-actions">
@@ -3055,13 +3062,15 @@ document.addEventListener("DOMContentLoaded",()=>{
   const overlay=document.getElementById("seedHelpOverlay");
   const openBtn=document.getElementById("seedHelpOpen");
   const closeBtn=document.getElementById("seedHelpClose");
-  if(!btn||!overlay||!openBtn||!closeBtn)return;
+  const xBtn=document.getElementById("seedHelpX");
+  if(!btn||!overlay||!openBtn||!closeBtn||!xBtn)return;
 
   const hide=()=>{overlay.hidden=true;document.body.style.overflow=""};
   const show=()=>{overlay.hidden=false;document.body.style.overflow="hidden";openBtn.focus()};
 
   btn.addEventListener("click",show);
   closeBtn.addEventListener("click",hide);
+  xBtn.addEventListener("click",hide);
   overlay.addEventListener("click",e=>{if(e.target===overlay)hide()});
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!overlay.hidden)hide()});
 
@@ -3084,7 +3093,7 @@ body{margin:0;background:#eef6f5;color:#26363a;font-family:-apple-system,BlinkMa
 .wrap{max-width:720px;margin:0 auto;padding:22px 16px 30px}
 h1{margin:0 0 6px;text-align:center;font-size:clamp(24px,6vw,34px);color:#725019}
 .lead{text-align:center;margin:0 0 18px;color:#586a6d;line-height:1.7}
-.deck{position:relative;overflow:hidden;border:3px solid #c5a76d;border-radius:22px;background:#fffdf6;min-height:430px;box-shadow:0 12px 30px rgba(29,60,65,.13)}
+.deck{position:relative;overflow:hidden;border:3px solid #c5a76d;border-radius:22px;background:#fffdf6;min-height:455px;box-shadow:0 12px 30px rgba(29,60,65,.13)}
 .slide{display:none;padding:30px 24px 24px;text-align:center;animation:come .45s ease both}
 .slide.active{display:block}
 @keyframes come{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
@@ -3119,14 +3128,14 @@ button:disabled{opacity:.4;cursor:default}
 <div class="deck">
 
 <section class="slide active">
-  <span class="badge">1 / 6</span>
+  <span class="badge">1 / 8</span>
   <div class="big">まず、名前を入れるよ</div>
   <span class="koi">🎏</span>
   <p class="say">たとえば「鯉太郎」と入力したとしよう。<br>この名前そのものが、鯉の色を直接決めるわけではないんだ。</p>
 </section>
 
 <section class="slide">
-  <span class="badge">2 / 6</span>
+  <span class="badge">2 / 8</span>
   <div class="big">名前を「数字のたね」に変える</div>
   <div class="flow"><div class="box">鯉太郎</div><div class="arrow">→</div><div class="box">ハッシュ計算</div><div class="arrow">→</div><div class="box">大きな数字</div></div>
   <p class="say">コンピューターは、文字をまぜまぜする決まった計算をするよ。<br>これを<strong>ハッシュ</strong>というんだ。</p>
@@ -3134,28 +3143,44 @@ button:disabled{opacity:.4;cursor:default}
 </section>
 
 <section class="slide">
-  <span class="badge">3 / 6</span>
+  <span class="badge">3 / 8</span>
+  <div class="big">ハッシュって、なに？</div>
+  <div class="flow"><div class="box">名前</div><div class="arrow">→</div><div class="box">決まった計算</div><div class="arrow">→</div><div class="box">数字</div></div>
+  <p class="say">ハッシュは、<strong>文字を決まった数字に変える計算</strong>のことだよ。<br>たとえば、名前を小さなミキサーに入れて、数字のジュースにするようなイメージ。</p>
+  <div class="note"><strong>大事なところ：</strong>同じ名前なら同じ数字になるよ。でも、数字を見ただけでは元の名前を簡単には戻せないように作られているんだ。インターネットでは、パスワードの確認などにも使われる考え方だよ。</div>
+</section>
+
+<section class="slide">
+  <span class="badge">4 / 8</span>
+  <div class="big">ハッシュは身の回りにもあるよ</div>
+  <div class="chips"><span class="chip">ログイン</span><span class="chip">ファイル確認</span><span class="chip">デジタル署名</span><span class="chip">データ管理</span></div>
+  <p class="say">たとえば、Webサイトにログインするとき。サービスによっては、パスワードそのものではなく、パスワードから作ったハッシュを使って確認するよ。</p>
+  <div class="note"><strong>ほかにも：</strong>ダウンロードしたファイルが途中で壊れていないか確かめたり、電子データが書きかえられていないか確かめたりするときにも、ハッシュが活躍しているよ。<br><br>つまりハッシュは、<strong>「これ、本当に同じもの？」を確かめる指紋</strong>みたいなものなんだ。</div>
+</section>
+
+<section class="slide">
+  <span class="badge">5 / 8</span>
   <div class="big">100万個の番号のどれかにする</div>
   <div class="number">000001 ～ 1000000</div>
   <p class="say">計算した数字から、越鯉の<strong>個体番号</strong>を1つ決めるよ。<br>名前は、まずこの番号を決めるために使われているんだ。</p>
 </section>
 
 <section class="slide">
-  <span class="badge">4 / 6</span>
+  <span class="badge">6 / 8</span>
   <div class="big">番号から鯉の特徴を決める</div>
   <div class="chips"><span class="chip">42品種</span><span class="chip">体型</span><span class="chip">大きさ</span><span class="chip">色</span><span class="chip">模様</span><span class="chip">細かな特徴</span></div>
   <p class="say">今度は、その個体番号をもとに別の決まった計算をするよ。<br>すると「どの品種？」「どんな模様？」などが順番に決まっていくんだ。</p>
 </section>
 
 <section class="slide">
-  <span class="badge">5 / 6</span>
+  <span class="badge">7 / 8</span>
   <div class="big">くじ引きみたい。でも毎回同じ</div>
   <div class="flow"><div class="box">同じ名前</div><div class="arrow">→</div><div class="box">同じ番号</div><div class="arrow">→</div><div class="box">同じ鯉</div></div>
   <p class="say">見た目はくじ引きみたいだけれど、本当のランダムではないよ。<br>計算の道順が決まっているから、同じ名前なら同じ鯉にたどり着くんだ。</p>
 </section>
 
 <section class="slide">
-  <span class="badge">6 / 6</span>
+  <span class="badge">8 / 8</span>
   <div class="big">だから「名前から生まれる」</div>
   <span class="koi">🐟</span>
   <p class="say">名前 → 個体番号 → 品種・模様・体型……。<br>この長い計算を一瞬でやって、越鯉が生まれるんだ。</p>
