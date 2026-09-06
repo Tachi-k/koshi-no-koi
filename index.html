@@ -2846,8 +2846,11 @@ body.cert-lock{
         const isBlueBackground=(p)=>{
           const r=d[p],g=d[p+1],b=d[p+2],a=d[p+3];
           if(a<12)return true;
-          // 背景の水色～濃い青を対象にする。白・赤・黒の鯉本体は対象外。
-          return b>70 && b>r+20 && g>r+8 && (b-r)>32;
+          // 外周につながる水色～コバルト色まで背景扱いにする。
+          // 以前の条件では濃い青の縁だけ残り、鯉の周囲に青い輪郭が出ていた。
+          const blueDominant = b>58 && b>r+10 && b>g-18;
+          const cyanBlue    = b>72 && g>r+4 && b>r+22;
+          return blueDominant || cyanBlue;
         };
         const push=(x,y)=>{
           if(x<0||x>=w||y<0||y>=h)return;
@@ -2862,17 +2865,31 @@ body.cert-lock{
           const p=(y*w+x)*4;d[p+3]=0;
           push(x-1,y);push(x+1,y);push(x,y-1);push(x,y+1);
         }
-        // 縁に残りやすい青い1pxハローも、透明領域に接している部分だけ薄くする。
-        for(let pass=0;pass<2;pass++){
+        // 透明境界に残る濃い青のフリンジを数pxだけ除去する。
+        // 透明領域に接している青系画素だけなので、魚体内部の黒・青模様には広がらない。
+        for(let pass=0;pass<5;pass++){
           const clear=[];
           for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++){
             const i=y*w+x,p=i*4;if(d[p+3]===0)continue;
             const r=d[p],g=d[p+1],b=d[p+2];
-            if(!(b>65&&b>r+12&&g>r+4))continue;
+            const blueFringe=(b>50 && b>r+7 && b>g-25) || (b>65 && g>r+2 && b>r+16);
+            if(!blueFringe)continue;
             const up=((y-1)*w+x)*4,down=((y+1)*w+x)*4,left=(y*w+x-1)*4,right=(y*w+x+1)*4;
             if(d[up+3]===0||d[down+3]===0||d[left+3]===0||d[right+3]===0)clear.push(p);
           }
+          if(!clear.length)break;
           clear.forEach(p=>{d[p+3]=0});
+        }
+
+        // 半透明の青が残ると縮小表示で青い線に見えるため、境界画素の青かぶりも抑える。
+        for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++){
+          const p=(y*w+x)*4;if(d[p+3]===0)continue;
+          const up=((y-1)*w+x)*4,down=((y+1)*w+x)*4,left=(y*w+x-1)*4,right=(y*w+x+1)*4;
+          if(!(d[up+3]===0||d[down+3]===0||d[left+3]===0||d[right+3]===0))continue;
+          const r=d[p],g=d[p+1],b=d[p+2];
+          if(b>r+10 && b>g-20){
+            d[p+3]=Math.min(d[p+3],70);
+          }
         }
         ctx.putImageData(frame,0,0);
         target.src=canvas.toDataURL("image/png");
