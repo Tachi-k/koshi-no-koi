@@ -2825,13 +2825,71 @@ body.cert-lock{
     // 一緒に泳がせないよう、透過済みの池専用PNGを必ず使う。
     return `pond_legend/${n}.png?v=${LEGEND_IMAGE_VERSION}`;
   }
-  function setIllustrationRarePondImage(target,s){
+  // 池表示専用：PNGの四角い青背景だけをブラウザ上で透過する。
+  // 魚本体に青系の色があっても、画像の外周から連続している青背景だけを消す。
+  function setPondImageWithoutBlueBackground(target,src,onError){
+    const img=new Image();
+    img.decoding="async";
+    img.onload=()=>{
+      try{
+        const canvas=document.createElement("canvas");
+        canvas.width=img.naturalWidth||img.width;
+        canvas.height=img.naturalHeight||img.height;
+        const ctx=canvas.getContext("2d",{willReadFrequently:true});
+        if(!ctx||!canvas.width||!canvas.height){target.src=src;return}
+        ctx.drawImage(img,0,0,canvas.width,canvas.height);
+        const frame=ctx.getImageData(0,0,canvas.width,canvas.height);
+        const d=frame.data,w=canvas.width,h=canvas.height;
+        const seen=new Uint8Array(w*h);
+        const qx=new Int32Array(w*h),qy=new Int32Array(w*h);
+        let head=0,tail=0;
+        const isBlueBackground=(p)=>{
+          const r=d[p],g=d[p+1],b=d[p+2],a=d[p+3];
+          if(a<12)return true;
+          // 背景の水色～濃い青を対象にする。白・赤・黒の鯉本体は対象外。
+          return b>70 && b>r+20 && g>r+8 && (b-r)>32;
+        };
+        const push=(x,y)=>{
+          if(x<0||x>=w||y<0||y>=h)return;
+          const i=y*w+x;if(seen[i])return;
+          const p=i*4;if(!isBlueBackground(p))return;
+          seen[i]=1;qx[tail]=x;qy[tail]=y;tail++;
+        };
+        for(let x=0;x<w;x++){push(x,0);push(x,h-1)}
+        for(let y=1;y<h-1;y++){push(0,y);push(w-1,y)}
+        while(head<tail){
+          const x=qx[head],y=qy[head];head++;
+          const p=(y*w+x)*4;d[p+3]=0;
+          push(x-1,y);push(x+1,y);push(x,y-1);push(x,y+1);
+        }
+        // 縁に残りやすい青い1pxハローも、透明領域に接している部分だけ薄くする。
+        for(let pass=0;pass<2;pass++){
+          const clear=[];
+          for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++){
+            const i=y*w+x,p=i*4;if(d[p+3]===0)continue;
+            const r=d[p],g=d[p+1],b=d[p+2];
+            if(!(b>65&&b>r+12&&g>r+4))continue;
+            const up=((y-1)*w+x)*4,down=((y+1)*w+x)*4,left=(y*w+x-1)*4,right=(y*w+x+1)*4;
+            if(d[up+3]===0||d[down+3]===0||d[left+3]===0||d[right+3]===0)clear.push(p);
+          }
+          clear.forEach(p=>{d[p+3]=0});
+        }
+        ctx.putImageData(frame,0,0);
+        target.src=canvas.toDataURL("image/png");
+      }catch(e){
+        console.warn("pond background removal failed",e);
+        target.src=src;
+      }
+    };
+    img.onerror=()=>{if(typeof onError==="function")onError()};
+    img.src=src;
+  }
+
+  function setIllustrationRarePondImage(target,s,onError){
 	target.classList.add("premium-pond-koi","smart-rare-koi");
 	setPremiumScale(target,s,false);
-	// 池では背景や品種名の入ったカード画像を使わず、
-	// 同じ品種番号の透過PNGだけを泳がせる。
 	const n=String(s.variety%42).padStart(2,"0");
-	target.src=`pond_legend/${n}.png?v=${LEGEND_IMAGE_VERSION}`;
+	setPondImageWithoutBlueBackground(target,`pond_legend/${n}.png?v=${LEGEND_IMAGE_VERSION}`,onError);
   }
 
   function randomPoint(seedOffset=0){
@@ -2869,21 +2927,19 @@ body.cert-lock{
 		  limg.classList.add("premium-pond-koi","smart-legend-koi");
 		  limg.style.cssText="width:100%;height:100%;object-fit:contain;display:block;pointer-events:none";
 		  setPremiumScale(limg,s,false);
-          limg.src=legendPondImage(s);
-          limg.onerror=()=>{
-            // 池専用PNGがまだ配置されていない場合は、魚を不正な背景付き画像へ戻さない。
+          setPondImageWithoutBlueBackground(limg,legendPondImage(s),()=>{
             limg.style.display="none";
             const msg=document.createElement("div");
             msg.className="pond-png-missing";
             msg.textContent="PNG未配置";
             msg.style.cssText="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:10px;font-weight:800;color:#fff;background:rgba(90,40,20,.78);padding:3px 6px;border-radius:999px;white-space:nowrap";
             if(node.isConnected&&!node.querySelector('.pond-png-missing'))node.appendChild(msg);
-          };
+          });
         }
       }else if(item.tier==="rare"){
         node.innerHTML=`<img class="pond-rare-img" alt="${esc(VARIETIES[s.variety])} RARE"><div class="pond-fish-label">${esc(makeKoiName(s))}</div>`;
         const rimg=node.querySelector(".pond-rare-img");
-        if(rimg){rimg.style.cssText="width:100%;height:100%;object-fit:contain;display:block;pointer-events:none";setIllustrationRarePondImage(rimg,s)}
+        if(rimg){rimg.style.cssText="width:100%;height:100%;object-fit:contain;display:block;pointer-events:none";setIllustrationRarePondImage(rimg,s,()=>{rimg.style.display="none"})}
       }else{
         node.innerHTML=pondKoiSVG(s,String(s.id)+"_"+i)+`<div class="pond-fish-label">${esc(makeKoiName(s))}</div>`;
       }
