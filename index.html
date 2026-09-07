@@ -3373,7 +3373,7 @@ document.addEventListener("DOMContentLoaded",()=>{
           </section>
           <section class="kg-slide">
             <span class="kg-badge">8 / 10</span>
-            <div class="kg-big">レアと激レアはどう決まるの？</div>
+            <div class="kg-big">希少級図鑑 RARE と伝説級図鑑 LEGEND はどう決まるの？</div>
             <p class="kg-say">ここも、名前から作ったハッシュを使って決めているよ。</p>
             <div class="kg-flow">
               <div class="kg-box">名前</div>
@@ -3382,10 +3382,10 @@ document.addEventListener("DOMContentLoaded",()=>{
               <div class="kg-arrow">→</div>
               <div class="kg-box">別のハッシュ計算</div>
             </div>
-            <div class="kg-note">まず<strong>激レア（LEGEND）かどうか</strong>を判定するよ。<br>
+            <div class="kg-note">まず<strong>伝説級図鑑 LEGEND かどうか</strong>を判定するよ。<br>
             1,000個の数字のうち、0〜29の<strong>30個</strong>に入ったらLEGEND。<br>
             つまり確率は<strong>3％（約33匹に1匹）</strong>だよ。</div>
-            <div class="kg-note">LEGENDでなかった鯉だけ、次に<strong>レア（RARE）かどうか</strong>を判定するよ。<br>
+            <div class="kg-note">伝説級図鑑 LEGENDでなかった鯉だけ、次に<strong>希少級図鑑 RARE かどうか</strong>を判定するよ。<br>
             別の1,000個の数字のうち、0〜99の<strong>100個</strong>に入ったらRARE。<br>
             判定自体は<strong>10％</strong>。LEGENDを先に除くので、全体では約<strong>9.7％</strong>だよ。</div>
           </section>
@@ -3402,9 +3402,9 @@ document.addEventListener("DOMContentLoaded",()=>{
             <div class="kg-note">毎回その場でサイコロを振っているわけではないよ。<br>
             名前から作った数字が、どの箱に入るかを決めるんだ。</div>
             <div class="kg-note"><strong>だから同じ名前なら、いつ調べても同じ結果。</strong><br>
-            LEGENDだった名前は、もう一度入れてもLEGEND。RAREだった名前も同じだよ。</div>
+            伝説級図鑑 LEGENDだった名前は、もう一度入れてもLEGEND。希少級図鑑 RAREだった名前も同じだよ。</div>
             <div class="kg-note">全体の目安は、<strong>LEGEND 3％、RARE 約9.7％、通常 約87.3％</strong>。<br>
-            新生鯉（池で生まれた鯉）は、このRARE・LEGEND判定の対象外だよ。</div>
+            新生鯉（池で生まれた鯉）は、この希少級図鑑 RARE・伝説級図鑑 LEGEND判定の対象外だよ。</div>
           </section>
 
           <section class="kg-slide">
@@ -3481,15 +3481,15 @@ document.addEventListener("DOMContentLoaded",()=>{
             <span class="kg-formula">hash32(&quot;koshi-no-koi:v2:354317:pattern&quot;) = 1,929,311,288</span>
             この数字から大きな模様番号や細かな模様番号を作るよ。鯉太郎では大模様番号24、細模様番号20になる。
           </div>
-          <div class="kg-calc-step"><strong>⑤ ここでLEGEND判定</strong><br>LEGEND専用のハッシュを作って、1,000で割った余りだけを見るよ。
+          <div class="kg-calc-step"><strong>⑤ ここで伝説級図鑑 LEGEND判定</strong><br>LEGEND専用のハッシュを作って、1,000で割った余りだけを見るよ。
             <span class="kg-formula">hash32(&quot;koshi-no-koi:v2:354317:real42&quot;) = 1,242,501,648<br>1,242,501,648 % 1,000 = 648</span>
             <div class="kg-threshold"><strong>ここが0〜29ならLEGEND。</strong><br>鯉太郎は648なのでLEGENDではないよ。0〜29は1,000通り中30通りだから3％。</div>
           </div>
-          <div class="kg-calc-step"><strong>⑥ LEGENDでなければRARE判定</strong><br>今度はRARE専用の別ハッシュを使うよ。
+          <div class="kg-calc-step"><strong>⑥ 伝説級図鑑 LEGENDでなければ希少級図鑑 RARE判定</strong><br>今度は希少級図鑑 RARE専用の別ハッシュを使うよ。
             <span class="kg-formula">hash32(&quot;koshi-no-koi:v2:354317:illustrationRare&quot;) = 825,928,336<br>825,928,336 % 1,000 = 336</span>
             <div class="kg-threshold"><strong>ここが0〜99ならRARE。</strong><br>鯉太郎は336なのでRAREでもないよ。判定枠は1,000通り中100通り。</div>
           </div>
-          <div class="kg-calc-step"><strong>⑦ 鯉太郎の結果</strong><br>名前から始まった数字が、個体番号、品種、体型、模様、RARE・LEGEND判定まで順番につながっているよ。
+          <div class="kg-calc-step"><strong>⑦ 鯉太郎の結果</strong><br>名前から始まった数字が、個体番号、品種、体型、模様、希少級図鑑 RARE・伝説級図鑑 LEGEND判定まで順番につながっているよ。
             <div class="kg-result">鯉太郎 → 354317 → 銀鱗白写り・ジャンボ・40cm → 通常個体</div>
           </div>
           <button type="button" class="kg-calc-back">解説スライドに戻る</button>
