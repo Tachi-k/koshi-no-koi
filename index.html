@@ -1361,10 +1361,10 @@ function useBeautifulNormal(s){
 
 function isIllustrationRare(s){
   if(s.origin==="pond")return false;
-  // 約6%の「少しレア」。伝説級とは重複させない。
+  // 約10%の「少しレア」。伝説級とは重複させない。
   if(isRealRare(s))return false;
   const h=hash32(canonicalSeed(s.id,"illustrationRare"));
-  return (h%1000)<60;
+  return (h%1000)<100;
 }
 function illustrationRareImageFor(s){
   // 背景や文字を含まない、42品種別の透過PNGを直接使用する。
@@ -1389,7 +1389,7 @@ function applyIllustrationRare(){
 
 function isRealRare(s){
   if(s.origin==="pond")return false;
-  return (hash32(canonicalSeed(s.id,"real42"))%1000)<50;
+  return (hash32(canonicalSeed(s.id,"real42"))%1000)<8;
 }
 
 function legendFullBodySVG(s){
@@ -3373,7 +3373,7 @@ document.addEventListener("DOMContentLoaded",()=>{
           </section>
           <section class="kg-slide">
             <span class="kg-badge">8 / 10</span>
-            <div class="kg-big">希少級図鑑 RAREと伝説級図鑑 LEGENDはどう決まるの？</div>
+            <div class="kg-big">レアと激レアはどう決まるの？</div>
             <p class="kg-say">ここも、名前から作ったハッシュを使って決めているよ。</p>
             <div class="kg-flow">
               <div class="kg-box">名前</div>
@@ -3382,12 +3382,12 @@ document.addEventListener("DOMContentLoaded",()=>{
               <div class="kg-arrow">→</div>
               <div class="kg-box">別のハッシュ計算</div>
             </div>
-            <div class="kg-note">まず<strong>伝説級図鑑 LEGENDの鯉かどうか</strong>を判定するよ。<br>
-            1,000個の数字のうち、0〜49の<strong>50個</strong>に入ったらLEGEND。<br>
-            つまり確率は<strong>5％（約20匹に1匹）</strong>だよ。</div>
+            <div class="kg-note">まず<strong>激レア（LEGEND）かどうか</strong>を判定するよ。<br>
+            1,000個の数字のうち、0〜7の<strong>8個</strong>に入ったらLEGEND。<br>
+            つまり確率は<strong>0.8％（約125匹に1匹）</strong>だよ。</div>
             <div class="kg-note">LEGENDでなかった鯉だけ、次に<strong>レア（RARE）かどうか</strong>を判定するよ。<br>
-            別の1,000個の数字のうち、0〜59の<strong>60個</strong>に入ったらRARE。<br>
-            判定自体は<strong>6％</strong>。LEGENDを先に除くので、全体では約<strong>5.70％</strong>だよ。</div>
+            別の1,000個の数字のうち、0〜99の<strong>100個</strong>に入ったらRARE。<br>
+            判定自体は<strong>10％</strong>。LEGENDを先に除くので、全体では約<strong>9.92％</strong>だよ。</div>
           </section>
 
           <section class="kg-slide">
@@ -3395,15 +3395,15 @@ document.addEventListener("DOMContentLoaded",()=>{
             <div class="kg-big">くじ引きに見えるけれど、運まかせじゃない</div>
             <p class="kg-say">たとえば1,000個の箱が並んでいると考えてみよう。</p>
             <div class="kg-chips">
-              <span class="kg-chip">LEGEND：50箱</span>
-              <span class="kg-chip">RARE：約60箱</span>
+              <span class="kg-chip">LEGEND：8箱</span>
+              <span class="kg-chip">RARE：約100箱</span>
               <span class="kg-chip">通常：残り</span>
             </div>
             <div class="kg-note">毎回その場でサイコロを振っているわけではないよ。<br>
             名前から作った数字が、どの箱に入るかを決めるんだ。</div>
             <div class="kg-note"><strong>だから同じ名前なら、いつ調べても同じ結果。</strong><br>
             LEGENDだった名前は、もう一度入れてもLEGEND。RAREだった名前も同じだよ。</div>
-            <div class="kg-note">全体の目安は、<strong>LEGEND 5％、RARE 約5.70％、通常 約89.30％</strong>。<br>
+            <div class="kg-note">全体の目安は、<strong>LEGEND 0.8％、RARE 約9.92％、通常 約89.28％</strong>。<br>
             新生鯉（池で生まれた鯉）は、このRARE・LEGEND判定の対象外だよ。</div>
           </section>
 
@@ -3483,7 +3483,7 @@ document.addEventListener("DOMContentLoaded",()=>{
           </div>
           <div class="kg-calc-step"><strong>⑤ ここでLEGEND判定</strong><br>LEGEND専用のハッシュを作って、1,000で割った余りだけを見るよ。
             <span class="kg-formula">hash32(&quot;koshi-no-koi:v2:354317:real42&quot;) = 1,242,501,648<br>1,242,501,648 % 1,000 = 648</span>
-            <div class="kg-threshold"><strong>ここが0〜49ならLEGEND。</strong><br>鯉太郎は648なのでLEGENDではないよ。0〜49は1,000通り中50通りだから5％。</div>
+            <div class="kg-threshold"><strong>ここが0〜7ならLEGEND。</strong><br>鯉太郎は648なのでLEGENDではないよ。0〜7は1,000通り中8通りだから0.8％。</div>
           </div>
           <div class="kg-calc-step"><strong>⑥ LEGENDでなければRARE判定</strong><br>今度はRARE専用の別ハッシュを使うよ。
             <span class="kg-formula">hash32(&quot;koshi-no-koi:v2:354317:illustrationRare&quot;) = 825,928,336<br>825,928,336 % 1,000 = 336</span>
