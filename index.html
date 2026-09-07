@@ -1049,6 +1049,7 @@ const COLORS=[
 const PERSONALITIES=["力強く堂々としている","穏やかで落ち着いている","好奇心旺盛で活発","気品があり存在感がある","自由奔放で個性的","順応性が高く成長力がある"];
 const PATTERN_NAMES=["段模様","島模様","帯模様","背通り","片寄り模様","丹頂模様","尾筒模様","大斑三段","小斑散らし","流れ模様","縦流れ","横流れ","飛び石模様","網目模様","稲妻模様","散らし模様","中央大斑","前半模様","後半模様","片側大斑","二段模様","三段模様","背割れ模様","V字模様","X字模様","波形模様","矢羽根模様","半月模様","輪模様","大割り模様","斜め帯","白地多め"];
 const FINE_NAMES=["なし","胡麻","鹿子","網目","飛び墨","細波","星斑","散紅","霜降","頭部印","肩印","尾筒印","縁取り","小斑","鱗点","左右アクセント","黒点","紅点","白抜き","二重輪","小三角","小菱形","小帯","背中点列","左右点列","頭部二点","尾部二点","中央点群","細縦線","細横線","輪郭斑","細かな斑"];
+const KOI_API_URL="https://koshi-koi-api.tach244.workers.dev/api/koi";
 let state={id:1,name:"",variety:2,body:2,size:4,color:0,big:0,fine:0,balance:0};
 
 
@@ -1122,10 +1123,21 @@ function deriveFromId(id,name=""){
 function normalizeNameForSeed(name){
  return String(name||"").normalize("NFKC").replace(/\s+/g,"");
 }
-function deriveFromName(name){
- const seedName=normalizeNameForSeed(name);
- const id=(hash32(seedName)%1000000)+1;
- return deriveFromId(id,String(name||"").trim());
+async function deriveFromName(name){
+ const response=await fetch(KOI_API_URL,{
+   method:"POST",
+   headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({name:String(name||"")})
+ });
+ let payload=null;
+ try{payload=await response.json()}catch(e){}
+ if(!response.ok || !payload || !payload.koi){
+   const msg=(payload&&payload.error)?payload.error:"越鯉サーバーに接続できませんでした";
+   throw new Error(msg);
+ }
+ const koi=normalizeBodySize(payload.koi);
+ koi.name=String(name||"").trim();
+ return koi;
 }
 
 const BEAUTIFUL_PATTERN_COUNT=100;
@@ -1360,11 +1372,8 @@ function useBeautifulNormal(s){
 }
 
 function isIllustrationRare(s){
-  if(s.origin==="pond")return false;
-  // 約10%の「少しレア」。伝説級とは重複させない。
-  if(isRealRare(s))return false;
-  const h=hash32(canonicalSeed(s.id,"illustrationRare"));
-  return (h%1000)<100;
+  if(!s || s.origin==="pond")return false;
+  return s._tier==="rare";
 }
 function illustrationRareImageFor(s){
   // 背景や文字を含まない、42品種別の透過PNGを直接使用する。
@@ -1388,8 +1397,8 @@ function applyIllustrationRare(){
 }
 
 function isRealRare(s){
-  if(s.origin==="pond")return false;
-  return (hash32(canonicalSeed(s.id,"real42"))%1000)<30;
+  if(!s || s.origin==="pond")return false;
+  return s._tier==="legend";
 }
 
 function legendFullBodySVG(s){
@@ -1532,14 +1541,32 @@ function render(){
 
 
 
-function generateFromName(){
+async function generateFromName(){
  const n=nameInput.value.trim();if(!n)return alert("名前を入力してください");
- state=deriveFromName(n);
- currentHighlight={
-   variety:state.variety,
-   tier:isRealRare(state)?"legend":(isIllustrationRare(state)?"rare":"normal")
- };
- result.style.display="block";render();
+ const oldText=generateBtn.textContent;
+ generateBtn.disabled=true;
+ generateBtn.textContent="判定中…";
+ try{
+   state=await deriveFromName(n);
+   currentHighlight={
+     variety:state.variety,
+     tier:isRealRare(state)?"legend":(isIllustrationRare(state)?"rare":"normal")
+   };
+   result.style.display="block";
+   render();
+ }catch(err){
+   console.error(err);
+   let message=err&&err.message?err.message:"越鯉の生成に失敗しました";
+   if(location.protocol==="file:"){
+     message="ローカルファイルでは安全設定により越鯉サーバーへ接続できません。GitHub Pages（https://tachi-k.github.io/koshi-no-koi/）で確認してください。";
+   }else if(err instanceof TypeError && /fetch/i.test(String(err.message||""))){
+     message="越鯉サーバーへの接続に失敗しました。公開ページから再読み込みしてください。";
+   }
+   alert(message);
+ }finally{
+   generateBtn.disabled=false;
+   generateBtn.textContent=oldText;
+ }
 }
 generateBtn.onclick=generateFromName;
 
