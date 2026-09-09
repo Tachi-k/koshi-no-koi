@@ -178,11 +178,12 @@ button{font:inherit;cursor:pointer}
   color:#463a28;line-height:1.75;font-size:14px
 }
 .appraisal-comment b{display:block;color:#8c4e00;margin-bottom:5px}
-.haiku-card{margin-top:14px;padding:16px;border:1px solid #d9c89a;border-radius:10px;background:linear-gradient(135deg,#fffdf6,#fbf3dd);text-align:center}
-.haiku-card b{display:block;font-size:12px;color:#9a6a13;letter-spacing:.15em;margin-bottom:9px;font-weight:700}
-.haiku-lines{font-family:"Yu Mincho",serif;font-size:17px;line-height:1.95;color:#3d2f18;letter-spacing:.04em}
-.haiku-line{white-space:nowrap}
-.haiku-motto{margin-top:10px;padding-top:9px;border-top:1px dashed #d9c89a;font-size:12.5px;color:#6e5a34;line-height:1.6;font-family:"Yu Mincho",serif}
+.haiku-card{margin-top:14px;padding:1.25rem 1.125rem;border:1px solid #d9c89a;border-radius:10px;background:linear-gradient(135deg,#fffdf6,#fbf3dd);text-align:center}
+.haiku-card .haiku-heading{margin:0 0 .75rem;padding:0;border:0;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;font-size:.875rem;font-weight:700;line-height:1.5;letter-spacing:.12em;color:#906315}
+.haiku-lines{font-family:"Yu Mincho","Hiragino Mincho ProN",serif;font-size:1.125rem;font-weight:400;line-height:1.75;color:#3d2f18;letter-spacing:.04em}
+.haiku-line{white-space:normal;overflow-wrap:anywhere}
+.haiku-card .motto-section{margin-top:1.375rem;padding-top:1.25rem;border-top:1px solid #d9c89a}
+.haiku-motto{margin:0;font-family:"Yu Mincho","Hiragino Mincho ProN",serif;font-size:1rem;font-weight:400;line-height:1.8;color:#493c27;overflow-wrap:anywhere;line-break:strict}
 
 
 .rare-real-card{position:absolute;inset:0;display:none;z-index:3;background:#071a24;overflow:hidden}
@@ -900,7 +901,16 @@ body.pond-mode #pondView{display:block!important}
     <div class="brow"><span>地色</span><div class="bar"><i id="bar3"></i></div><b id="pct3"></b></div>
    </div>
    <h4>性格傾向</h4><div class="desc" id="personality"></div><div class="appraisal-comment"><b>鑑定コメント</b><span id="appraisalComment"></span></div>
-   <div class="haiku-card" id="haikuCard"><b>越鯉に一句</b><div class="haiku-lines" id="haikuLines"></div><div class="motto-label">格言</div><div class="haiku-motto" id="haikuMotto"></div></div>
+   <div class="haiku-card" id="haikuCard">
+     <section class="haiku-section" aria-labelledby="haikuHeading">
+       <h4 class="haiku-heading" id="haikuHeading">越鯉に一句</h4>
+       <div class="haiku-lines" id="haikuLines"></div>
+     </section>
+     <section class="haiku-section motto-section" aria-labelledby="mottoHeading">
+       <h4 class="haiku-heading" id="mottoHeading">格言</h4>
+       <p class="haiku-motto" id="haikuMotto"></p>
+     </section>
+   </div>
    <div class="price" id="priceOut"></div>
  </aside>
 </div>
