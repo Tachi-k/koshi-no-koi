@@ -1033,7 +1033,7 @@ body.pond-mode #pondView{display:block!important}
     <div style="margin-top:18px;border-top:2px solid #8c7654;padding-top:14px">
       <div style="font-size:13px;color:#765b36">性格と特徴</div>
       <div id="certPersonality" style="line-height:1.7;margin-top:4px"></div><div style="font-size:13px;color:#765b36;margin-top:10px">鑑定コメント</div><div id="certComment" style="line-height:1.7;margin-top:4px"></div>
-      <div style="font-size:13px;color:#765b36;margin-top:10px">越鯉に一句</div><div id="certHaiku" style="line-height:1.8;margin-top:4px;text-align:center"></div><div style="font-size:13px;color:#765b36;margin-top:10px">格言</div><div id="certMotto" style="margin-top:6px;font-size:13px;color:#6e5a34;text-align:center"></div>
+      <div style="font-size:13px;color:#765b36;margin-top:10px">越鯉に一句</div><div id="certHaiku" style="line-height:1.8;margin-top:4px;text-align:center"></div><div style="font-size:13px;color:#765b36;margin-top:10px">格言</div><div id="certMotto" style="margin-top:6px;font-size:13px;color:#000;text-align:center"></div>
     </div>
     <div style="margin-top:16px;text-align:center;border:2px solid #8c7654;padding:12px">
       <div style="font-size:13px;color:#765b36">見立て鑑定額</div>
@@ -2023,7 +2023,7 @@ async function saveCertificateAsPng(prepareOnly=false){
  }
 
  const c=document.createElement("canvas");
- c.width=1200; c.height=1600;
+ c.width=1200; c.height=2000;
  const ctx=c.getContext("2d");
 
  const JP_SERIF='"Hiragino Mincho ProN","Yu Mincho","Hiragino Mincho Pro",serif';
@@ -2068,8 +2068,8 @@ async function saveCertificateAsPng(prepareOnly=false){
  };
 
  ctx.fillStyle="#f6edd8";ctx.fillRect(0,0,c.width,c.height);
- ctx.strokeStyle="#5b4932";ctx.lineWidth=10;ctx.strokeRect(25,25,1150,1550);
- ctx.strokeStyle="#8a7554";ctx.lineWidth=3;ctx.strokeRect(40,40,1120,1520);
+ ctx.strokeStyle="#5b4932";ctx.lineWidth=10;ctx.strokeRect(25,25,1150,c.height-50);
+ ctx.strokeStyle="#8a7554";ctx.lineWidth=3;ctx.strokeRect(40,40,1120,c.height-80);
 
  ctx.textAlign="center";ctx.fillStyle="#211b15";
  setFont(64,true);ctx.fillText("越鯉 鑑定書",600,120);
@@ -2151,8 +2151,22 @@ async function saveCertificateAsPng(prepareOnly=false){
  const cm=appraisalText(state,currentPriceValue(),currentCertificateLengthCm());
  drawWrapped(cm,80,1065+lowerOffset,1040,32,certificateParentsText?3:4);
 
- // 鑑定額はコメント領域から十分離す
- const priceTop=1235;
+ // 画面と同じ俳句・格言を、独立した領域に描画する。
+ const certificateHaiku=haikuFor(state);
+ const certificateMotto=mottoFor(state);
+ ctx.textAlign="center";
+ setFont(22,true);ctx.fillStyle="#765b36";ctx.fillText("越鯉に一句",600,1260);
+ [certificateHaiku.kami,certificateHaiku.naka,certificateHaiku.shimo].forEach((line,i)=>{
+   fitText(line,1040,32,24,false);
+   ctx.fillStyle="#211b15";ctx.fillText(line,600,1305+i*48,1040);
+ });
+ ctx.strokeStyle="#aa9877";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(80,1438);ctx.lineTo(1120,1438);ctx.stroke();
+ setFont(22,true);ctx.fillStyle="#765b36";ctx.fillText("格言",600,1478);
+ fitText(certificateMotto,1040,28,18,false);
+ ctx.fillStyle="#000";ctx.fillText(certificateMotto,600,1530,1040);
+
+ // 鑑定額は俳句・格言の下に配置する。
+ const priceTop=1635;
  ctx.strokeStyle="#8c7654";ctx.lineWidth=3;ctx.strokeRect(180,priceTop,840,185);
  ctx.textAlign="center";ctx.fillStyle="#765b36";setFont(22);ctx.fillText("見立て鑑定額",600,priceTop+52);
  const priceText=currentPriceText();
@@ -2160,9 +2174,10 @@ async function saveCertificateAsPng(prepareOnly=false){
  ctx.fillStyle="#9a3a24";ctx.fillText(priceText,600,priceTop+128);
 
  // 下部
- ctx.textAlign="left";ctx.fillStyle="#6e604b";setFont(18);ctx.fillText("※本鑑定書はアプリ内の創作鑑定です。",80,1515);
- ctx.strokeStyle="#b5261a";ctx.lineWidth=6;ctx.strokeRect(980,1450,120,120);
- ctx.fillStyle="#b5261a";setFont(36,true);ctx.textAlign="center";ctx.fillText("越鯉",1040,1525);
+ const footerY=c.height-85;
+ ctx.textAlign="left";ctx.fillStyle="#6e604b";setFont(18);ctx.fillText("※本鑑定書はアプリ内の創作鑑定です。",80,footerY);
+ ctx.strokeStyle="#b5261a";ctx.lineWidth=6;ctx.strokeRect(980,c.height-160,120,120);
+ ctx.fillStyle="#b5261a";setFont(36,true);ctx.textAlign="center";ctx.fillText("越鯉",1040,footerY);
 
  const filename="koshi-koi-certificate-"+String(state.id).padStart(6,"0")+".png";
  const isiOS=/iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
