@@ -630,6 +630,11 @@ main > .actions button{
 .rare-real-card::before{content:none!important;display:none!important}
 .rare-full-koi{display:none!important}
 
+
+/* 長い名主名・親名も鑑定書の幅に収める。 */
+#certificateCard{overflow-wrap:anywhere}
+#certificateCard table{table-layout:fixed;width:100%}
+#certSaveBtn:disabled{opacity:.65;cursor:wait}
 </style>
 <style>
 
@@ -1949,6 +1954,9 @@ function currentPriceText(){
 }
 function openCertificate(){
  const certificateLength=currentCertificateLengthCm();
+ const snapshot={state:{...state},length:certificateLength,price:currentPriceValue(),priceText:currentPriceText(),parents:currentCertificateParents?.map(p=>({...p}))||null};
+ const version=++__certificateVersion;
+ __certificateSnapshot=snapshot;
  document.getElementById("certId").textContent="第 "+String(state.id).padStart(6,"0")+" 号";
  document.getElementById("certKoiName").textContent=makeKoiName(state);
  document.getElementById("certOwner").textContent=state.name||"";
@@ -1997,8 +2005,8 @@ function openCertificate(){
  }
  document.getElementById("certificateOverlay").classList.add("open");
  // iPhoneの共有シートを確実にタップ直後に開けるよう、鑑定書画像を先に準備しておく。
- __certificateShareFile=null; __certificateDataUrl=null; __certificatePreparedId=null;
- setTimeout(()=>{ saveCertificateAsPng(true).catch(()=>{}); },0);
+ __certificateShareFile=null; __certificateDataUrl=null; __certificatePreparedVersion=null;
+ prepareCertificate(snapshot,version);
 }
 certificateBtn.onclick=()=>{currentCertificateParents=null;currentCertificateBornAt=null;openCertificate()};
 certCloseBtn.onclick=()=>certificateOverlay.classList.remove("open");
@@ -2006,7 +2014,26 @@ certificateOverlay.addEventListener("click",e=>{if(e.target===certificateOverlay
 
 let __certificateShareFile=null;
 let __certificateDataUrl=null;
-let __certificatePreparedId=null;
+let __certificatePreparedVersion=null;
+let __certificateVersion=0;
+let __certificateSnapshot=null;
+let __certificatePreparing=false;
+async function prepareCertificate(snapshot=__certificateSnapshot,version=__certificateVersion){
+ if(!snapshot)return;
+ const button=document.getElementById("certSaveBtn");
+ __certificatePreparing=true;
+ button.disabled=true;button.textContent="画像を準備中…";
+ try{
+   await saveCertificateAsPng(true,snapshot,version);
+ }catch(e){
+   if(version===__certificateVersion){__certificateShareFile=null;__certificatePreparedVersion=null;}
+ }finally{
+   if(version===__certificateVersion){
+     __certificatePreparing=false;button.disabled=false;
+     button.textContent=__certificateShareFile?"鑑定書を保存":"画像の準備に失敗しました・再試行";
+   }
+ }
+}
 function dataUrlToBlob(dataUrl){
  const parts=dataUrl.split(",");
  const mime=(parts[0].match(/data:([^;]+)/)||[])[1]||"image/png";
@@ -2016,7 +2043,14 @@ function dataUrlToBlob(dataUrl){
  return new Blob([bytes],{type:mime});
 }
 
-async function saveCertificateAsPng(prepareOnly=false){
+async function saveCertificateAsPng(prepareOnly=false,snapshot=__certificateSnapshot,version=__certificateVersion){
+ if(!snapshot || version!==__certificateVersion)return;
+ // 開いた時点の個体・成長・価格を固定し、読み込み中の別個体への切替と分離する。
+ const state={...snapshot.state};
+ const currentCertificateParents=snapshot.parents;
+ const currentCertificateLengthCm=()=>snapshot.length;
+ const currentPriceValue=()=>snapshot.price;
+ const currentPriceText=()=>snapshot.priceText;
  // iPhone/Safariでも同じ位置になるよう、HTMLの見た目ではなく固定座標でCanvasに描画する。
  if(document.fonts && document.fonts.ready){
    try{ await document.fonts.ready; }catch(e){}
@@ -2039,32 +2073,38 @@ async function saveCertificateAsPng(prepareOnly=false){
      if(ctx.measureText(txt).width<=maxWidth) break;
      size-=1;
    }
+   setFont(size,bold);
    return size;
  };
+ const ellipsize=(txt,maxWidth)=>{
+   const chars=Array.from(String(txt??""));
+   if(ctx.measureText(chars.join("")).width<=maxWidth)return chars.join("");
+   while(chars.length && ctx.measureText(chars.join("")+"…").width>maxWidth)chars.pop();
+   return ctx.measureText("…").width<=maxWidth?chars.join("")+"…":"";
+ };
+ const drawFitted=(txt,x,y,maxWidth,startSize,minSize=16,bold=false)=>{
+   fitText(txt,maxWidth,startSize,minSize,bold);
+   ctx.fillText(ellipsize(txt,maxWidth),x,y);
+ };
  const drawWrapped=(txt,x,y,maxWidth,lineHeight,maxLines)=>{
-   txt=String(txt??"");
-   let line="",lines=[];
-   for(const ch of txt){
-     const test=line+ch;
-     if(ctx.measureText(test).width>maxWidth && line){
-       lines.push(line);
-       line=ch;
-       if(lines.length===maxLines-1) break;
-     }else{
-       line=test;
+   const chars=Array.from(String(txt??""));
+   const lines=[];
+   let offset=0;
+   while(offset<chars.length && lines.length<maxLines){
+     if(lines.length===maxLines-1){
+       lines.push(ellipsize(chars.slice(offset).join(""),maxWidth));
+       break;
      }
-   }
-   if(lines.length<maxLines && line) lines.push(line);
-
-   // まだ文字が残っている場合は最後を「…」で収める
-   const joined=lines.join("");
-   if(joined.length<txt.length && lines.length){
-     let last=lines[lines.length-1];
-     while(last && ctx.measureText(last+"…").width>maxWidth) last=last.slice(0,-1);
-     lines[lines.length-1]=last+"…";
+     let line="";
+     while(offset<chars.length){
+       const test=line+chars[offset];
+       if(line && ctx.measureText(test).width>maxWidth)break;
+       line=test;offset++;
+     }
+     lines.push(ellipsize(line,maxWidth));
    }
    lines.forEach((ln,i)=>ctx.fillText(ln,x,y+i*lineHeight));
-   return y+(lines.length-1)*lineHeight;
+   return y+Math.max(0,lines.length-1)*lineHeight;
  };
 
  ctx.fillStyle="#f6edd8";ctx.fillRect(0,0,c.width,c.height);
@@ -2102,6 +2142,8 @@ async function saveCertificateAsPng(prepareOnly=false){
    URL.revokeObjectURL(url);
  }
 
+ if(version!==__certificateVersion)return;
+
  // 右側の個体情報
  ctx.textAlign="left";
  const x=500;
@@ -2110,13 +2152,11 @@ async function saveCertificateAsPng(prepareOnly=false){
 
  setFont(22);ctx.fillStyle="#765b36";ctx.fillText("鯉名",x,370);
  const koiName=makeKoiName(state);
- fitText(koiName,610,42,24,true);
- ctx.fillStyle="#9a3a24";ctx.fillText(koiName,x,420);
+ ctx.fillStyle="#9a3a24";drawFitted(koiName,x,420,610,42,24,true);
 
  setFont(22);ctx.fillStyle="#765b36";ctx.fillText("名主",x,480);
  const owner=state.name||"";
- fitText(owner,610,32,20,true);
- ctx.fillStyle="#211b15";ctx.fillText(owner,x,525);
+ ctx.fillStyle="#211b15";drawFitted(owner,x,525,610,32,20,true);
 
  const rows=[
    ["品種",VARIETIES[state.variety]],
@@ -2133,7 +2173,7 @@ async function saveCertificateAsPng(prepareOnly=false){
  const rowStep=certificateParentsText?55:65;
  rows.forEach(([k,v])=>{
    setFont(22);ctx.fillStyle="#765b36";ctx.fillText(k,x,y);
-   fitText(v,450,28,18,true);ctx.fillStyle="#211b15";ctx.fillText(v,x+150,y);
+   ctx.fillStyle="#211b15";drawFitted(v,x+150,y,450,28,18,true);
    ctx.strokeStyle="#aa9877";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,y+12);ctx.lineTo(1110,y+12);ctx.stroke();
    y+=rowStep;
  });
@@ -2187,9 +2227,10 @@ async function saveCertificateAsPng(prepareOnly=false){
  catch(e){ if(!prepareOnly) alert("鑑定書画像を作成できませんでした。"); return; }
  const blob=dataUrlToBlob(dataUrl);
  const file=new File([blob],filename,{type:"image/png"});
+ if(version!==__certificateVersion)return;
  __certificateDataUrl=dataUrl;
  __certificateShareFile=file;
- __certificatePreparedId=state.id;
+ __certificatePreparedVersion=version;
  if(prepareOnly) return;
 
  // iPhoneでは共有シートを最優先。ここから「画像を保存」または「ファイルに保存」を選べる。
@@ -2217,44 +2258,34 @@ async function saveCertificateAsPng(prepareOnly=false){
 const certSaveButton=document.getElementById("certSaveBtn");
 if(certSaveButton){
  certSaveButton.onclick=async()=>{
+   if(__certificatePreparing)return;
+   // 準備完了後のタップから直接共有することで、iPhoneの操作権限を維持する。
+   if(!__certificateShareFile || __certificatePreparedVersion!==__certificateVersion){
+     prepareCertificate();
+     return;
+   }
+   const file=__certificateShareFile;
    const isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
      (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
-   try{
-     if(isMobile && __certificateShareFile && navigator.share){
-       const shareData={files:[__certificateShareFile],title:"越鯉 鑑定書"};
+   if(isMobile && navigator.share){
+     try{
+       const shareData={files:[file],title:"越鯉 鑑定書"};
        if(!navigator.canShare || navigator.canShare(shareData)){
          await navigator.share(shareData);
          return;
        }
+     }catch(e){
+       if(e && e.name==="AbortError")return;
+       // 共有に対応していない場合はPNGダウンロードへ進む。
      }
-     if(!__certificateShareFile || __certificatePreparedId!==state.id){
-       await saveCertificateAsPng(true);
-     }
-     if(isMobile && __certificateShareFile && navigator.share){
-       const shareData={files:[__certificateShareFile],title:"越鯉 鑑定書"};
-       if(!navigator.canShare || navigator.canShare(shareData)){
-         try{
-           await navigator.share(shareData);
-           return;
-         }catch(e){
-           if(e && e.name==="AbortError") return;
-         }
-       }
-     }
-     if(__certificateShareFile){
-       const url=URL.createObjectURL(__certificateShareFile);
-       const a=document.createElement("a");
-       a.href=url;
-       a.download=__certificateShareFile.name;
-       document.body.appendChild(a);
-       a.click();
-       a.remove();
-       setTimeout(()=>URL.revokeObjectURL(url),2000);
-       return;
-     }
-     await saveCertificateAsPng(false);
+   }
+   try{
+     const url=URL.createObjectURL(file);
+     const a=document.createElement("a");
+     a.href=url;a.download=file.name;
+     document.body.appendChild(a);a.click();a.remove();
+     setTimeout(()=>URL.revokeObjectURL(url),10000);
    }catch(e){
-     if(e && e.name==="AbortError") return;
      alert("鑑定書を保存できませんでした。もう一度お試しください。");
    }
  };
@@ -3671,3 +3702,4 @@ document.addEventListener("DOMContentLoaded",()=>{
 
 </body>
 </html>
+
