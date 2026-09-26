@@ -3438,25 +3438,26 @@ document.addEventListener("DOMContentLoaded",()=>{
             <span class="kg-badge">1 / 10</span>
             <div class="kg-big">まず、名前を入れるよ</div>
             <span class="kg-koi">🎏</span>
-            <p class="kg-say">たとえば「鯉太郎」と入力したとしよう。<br>名前の文字を、そのまま色や模様にしているわけではないんだ。</p>
+            <p class="kg-say">たとえば「コイ」と入力したとしよう。<br>名前の文字を、そのまま色や模様にしているわけではないんだ。</p>
           </section>
           <section class="kg-slide">
             <span class="kg-badge">2 / 10</span>
             <div class="kg-big">名前を「数字のたね」に変える</div>
-            <div class="kg-flow"><div class="kg-box">鯉太郎</div><div class="kg-arrow">→</div><div class="kg-box">ハッシュ計算</div><div class="kg-arrow">→</div><div class="kg-box">数字</div></div>
-            <p class="kg-say">コンピューターが、文字を決まったやり方で計算して数字に変えるよ。これが<strong>ハッシュ</strong>なんだ。</p>
+            <div class="kg-flow"><div class="kg-box">コイ</div><div class="kg-arrow">→</div><div class="kg-box">まず数字にする</div><div class="kg-arrow">→</div><div class="kg-box">例：16</div></div>
+            <p class="kg-say">わかりやすく単純化すると、まず名前の文字を数字に置きかえて、ひとつの<strong>「数字のたね」</strong>を作ると考えてね。</p>
+            <div class="kg-note"><strong>ここでの「16」は説明用の例。</strong><br>実際の越鯉では、こんな単純な足し算で16を作っているわけではなく、もっと複雑な計算をしているよ。</div>
           </section>
           <section class="kg-slide">
             <span class="kg-badge">3 / 10</span>
-            <div class="kg-big">ハッシュって、なに？</div>
-            <p class="kg-say">たとえば「鯉太郎」という名前を、数字を作る機械に入れるイメージだよ。</p>
-            <div class="kg-note">この計算でできた数字が<strong>「ハッシュ値」</strong>。<br>
-            ハッシュ値は、元のデータを見分けるための<strong>「数字の指紋」のようなもの</strong>なんだ。</div>
-            <div class="kg-flow"><div class="kg-box">鯉太郎</div><div class="kg-arrow">→</div><div class="kg-box">決まった計算</div><div class="kg-arrow">→</div><div class="kg-box">ハッシュ値</div></div>
-            <div class="kg-note">同じ文字を入れれば、同じ計算結果になる。だから同じ名前からは同じ越鯉を作れるんだ。</div>
-            <div class="kg-note"><strong>ここがハッシュの大事なところ。</strong><br>
-            名前 → ハッシュ値 は計算できる。でも、<strong>ハッシュ値だけを見て元の名前を逆算することはできない</strong>ように作られているんだ。<br>
-            たとえるなら、材料からジュースは作れても、そのジュースから元の果物を完全に元どおりには戻せないようなものだよ。</div>
+            <div class="kg-big">「16」からハッシュを作る</div>
+            <p class="kg-say">次に、この<strong>16を「たね」</strong>にして、コンピューターが決まった計算を何度も行い、もっと大きな数字に変えるよ。</p>
+            <div class="kg-flow"><div class="kg-box">16</div><div class="kg-arrow">→</div><div class="kg-box">混ぜる計算</div><div class="kg-arrow">→</div><div class="kg-box">583,421,907</div></div>
+            <div class="kg-note">この<strong>583,421,907</strong>のような大きな数字が「ハッシュ値」だと思えばOK。<br>数字をただ長くしているのではなく、元の数字を何度も混ぜて<strong>まったく別の数字に変える</strong>イメージだよ。</div>
+            <div class="kg-note"><strong>1文字でも違うと、結果が大きく変わる。</strong><br>
+            たとえば「コイ」と「コイ。」のように1文字増えただけでも、数字のたねが変わり、その後のハッシュ値も全然違う値になる。<br>
+            だから、よく似た名前でも違う越鯉になりやすいんだ。</div>
+            <div class="kg-note"><strong>※ここで示した16や583,421,907は、仕組みをわかりやすくするための説明用の数字です。</strong><br>
+            実際の越鯉では別の方法・別の計算で値を作っています。</div>
           </section>
           <section class="kg-slide">
             <span class="kg-badge">4 / 10</span>
@@ -3526,84 +3527,69 @@ document.addEventListener("DOMContentLoaded",()=>{
             <div class="kg-note kg-example"><strong>② アプリやファイルのダウンロード</strong><br>配る側のハッシュと、ダウンロードしたファイルのハッシュを比べれば「同じファイルか」を確かめられるよ。</div>
             <div class="kg-note kg-example"><strong>③ 書きかえの確認</strong><br>文章やプログラムが少し変わるとハッシュも変わる。だから、途中でデータが変えられていないか調べる手がかりになるんだ。</div>
             <div class="kg-note"><strong>ハッシュは、データにつける「指紋」みたいなもの。</strong></div>
-            <button type="button" class="kg-calc-btn">鯉太郎を実際に計算してみよう</button>
+            <button type="button" class="kg-calc-btn">数字が鯉に振り分けられる流れを見る</button>
           </section>
         </div>
 
-        <div class="kg-calc-panel" aria-label="鯉太郎の計算例">
-          <h2>「鯉太郎」を実際に計算してみよう</h2>
-          <div class="kg-calc-step"><strong>① 名前をハッシュにする</strong><br>「鯉太郎」をこのアプリの決まった計算に通すと、まず次の数字になるよ。
-            <span class="kg-formula">hash32(&quot;鯉太郎&quot;) = 2,507,354,316</span>
-          </div>
-          <div class="kg-calc-step"><strong>② 100万個の個体番号にする</strong><br>100万で割った余りを使い、最後に1を足すよ。
-            <span class="kg-formula">2,507,354,316 % 1,000,000 = 354,316<br>354,316 + 1 = 354,317</span>
-            <div class="kg-result">鯉太郎の越鯉番号は <strong>354317</strong></div>
-          </div>
-          <div class="kg-calc-step"><strong>③ 個体番号から「基本ハッシュ」を作る</strong><br>番号354317にアプリ専用の文字を組み合わせて、もう一度ハッシュ計算するよ。
-            <span class="kg-formula">hash32(&quot;koshi-no-koi:v2:354317:base&quot;) = 2,132,237,711</span>
-            この数字の「桁」をそのまま読んでいるわけではないよ。<br>
-            同じ基本ハッシュに、<a class="kg-help-link" href="#kgModuloHelp">「%」で余りを求める計算</a>や
-            <a class="kg-help-link" href="#kgShiftHelp">「&gt;&gt;&gt;」でビットを右にずらす計算</a>をして、それぞれの番号を作るんだ。
-            <div class="kg-result" id="kgCalcResult">
-              <strong>品種</strong><br>
-              2,132,237,711 % 42 = <strong>23</strong>
-              <a class="kg-help-link" href="#kgModuloHelp">（%とは？）</a><br>
-              → 0番から数えて23番、つまり24番目の<strong>銀鱗白写り</strong><br><br>
-              <strong>体型</strong><br>
-              (2,132,237,711 &gt;&gt;&gt; 6) % 8 = <strong>6</strong>
-              <a class="kg-help-link" href="#kgShiftHelp">（&gt;&gt;&gt;とは？）</a><br>
-              → <strong>ジャンボ</strong><br><br>
-              <strong>体長</strong><br>
-              (2,132,237,711 &gt;&gt;&gt; 10) % 7 = <strong>1</strong><br>
-              → <strong>40cm</strong><br><br>
-              <strong>色</strong><br>
-              (2,132,237,711 &gt;&gt;&gt; 13) % 16 = <strong>10</strong><br>
-              → 金系の色
-            </div>
+        <div class="kg-calc-panel" aria-label="ハッシュのわかりやすい計算例">
+          <h2>ハッシュから鯉が決まる流れ</h2>
 
-            <div class="kg-help-box" id="kgModuloHelp">
-              <h3>「%」は何をしているの？</h3>
-              <strong>% は「割り算をした余り」を出す記号</strong>だよ。
-              <span class="kg-mini-formula">10 % 3 = 1</span>
-              10を3で割ると、3×3=9で<strong>1余る</strong>。だから答えは1。
-              <br><br>
-              越鯉では、たとえば品種が42種類あるので、
-              <span class="kg-mini-formula">2,132,237,711 % 42 = 23</span>
-              とする。42で割った余りは必ず<strong>0〜41</strong>のどれかになるから、
-              そのまま42品種の番号として使えるんだ。
-              <br><strong>つまり「大きなハッシュ値を、必要な数の箱に振り分ける」ための計算</strong>なんだよ。
-              <br><a class="kg-back-link" href="#kgCalcResult">↑ 計算例へ戻る</a>
-            </div>
+          <div class="kg-calc-step"><strong>① 名前から「数字のたね」を作る</strong><br>
+            説明を簡単にするため、「コイ」という名前から<strong>16</strong>という数字ができたと考えてみよう。
+            <span class="kg-formula">コイ → 16</span>
+            <div class="kg-threshold"><strong>※16は説明用の例です。</strong><br>
+            実際の越鯉では、文字をこんな単純な方法で16にしているわけではありません。</div>
+          </div>
 
-            <div class="kg-help-box" id="kgShiftHelp">
-              <h3>「&gt;&gt;&gt;」は何をしているの？</h3>
-              コンピューターの数字は、内部では<strong>0と1の並び（2進数）</strong>で表されているよ。
-              「&gt;&gt;&gt; 6」は、その0と1の並びを<strong>右へ6個ずらす</strong>という意味。
-              <span class="kg-mini-formula">44 = 101100（2進数）<br>44 &gt;&gt;&gt; 2 = 001011 = 11</span>
-              右へ1つずらすと、おおよそ2で割ったのと同じ。2つなら4で割ったのと同じような動きになる。
-              <br><br>
-              では、なぜ越鯉でずらすのか。<strong>同じハッシュ値の同じ場所ばかりを使わず、別の部分を使って体型・体長・色を決めるため</strong>なんだ。
-              <br>たとえば体型は6個ずらしてから % 8、体長は10個、色は13個ずらしてから余りを求めているよ。
-              <br><br>
-              このアプリで使っている「&gt;&gt;&gt;」は<strong>符号なし右シフト</strong>といって、左側には0を入れながら右へずらす計算だよ。
-              <br><a class="kg-back-link" href="#kgCalcResult">↑ 計算例へ戻る</a>
+          <div class="kg-calc-step"><strong>② 16をもとにハッシュを作る</strong><br>
+            コンピューターは16に決まった計算を何度も行い、数字をよく混ぜるようにして大きな値へ変える。
+            <span class="kg-formula">16 → 計算して混ぜる → 583,421,907</span>
+            <div class="kg-result">この大きな数字を<strong>ハッシュ値</strong>と考えよう。</div>
+            <br>「16の後ろに数字を足して長くする」という意味ではないよ。<br>
+            <strong>16を材料に計算して、別の数字を作る</strong>ということなんだ。
+          </div>
+
+          <div class="kg-calc-step"><strong>③ 1文字違うだけでも、全然違う値になる</strong><br>
+            名前が少し変わると、最初の数字のたねが変わる。すると、その後の計算結果も大きく変わるよ。
+            <span class="kg-formula">コイ → 16 → 583,421,907<br>コイ。 → 17 → 2,914,806,352</span>
+            <div class="kg-threshold">この数字も説明用。大切なのは、<strong>1文字の違いでもハッシュ値が大きく変わる</strong>という考え方だよ。</div>
+          </div>
+
+          <div class="kg-calc-step"><strong>④ 大きなハッシュを「箱」に振り分ける</strong><br>
+            ハッシュ値ができたら、その数字を使って「どの箱に入るか」を決める。
+            <div class="kg-help-box">
+              たとえば42品種なら、<strong>0〜41の42個の箱</strong>を用意する。<br>
+              大きなハッシュ値を42で割った<strong>余り</strong>を見ると、必ず0〜41のどれかになる。
+              <span class="kg-mini-formula">583,421,907 % 42 = 15</span>
+              この例なら<strong>15番の箱</strong>へ入る。<br>
+              つまり、ハッシュを使って42種類のどれか1つに振り分けられるんだ。
             </div>
           </div>
-          <div class="kg-calc-step"><strong>④ 模様用の数字も別に作る</strong>
-            <span class="kg-formula">hash32(&quot;koshi-no-koi:v2:354317:pattern&quot;) = 1,929,311,288</span>
-            この数字から大きな模様番号や細かな模様番号を作るよ。鯉太郎では大模様番号24、細模様番号20になる。
+
+          <div class="kg-calc-step"><strong>⑤ 同じように、体型・大きさ・色・模様も決める</strong><br>
+            品種だけでなく、別の計算結果やハッシュの別の部分を使って、それぞれの箱へ振り分けていくよ。
+            <div class="kg-flow">
+              <div class="kg-box">ハッシュ</div><div class="kg-arrow">→</div>
+              <div class="kg-box">品種</div><div class="kg-arrow">→</div>
+              <div class="kg-box">体型</div><div class="kg-arrow">→</div>
+              <div class="kg-box">色・模様</div>
+            </div>
+            <div class="kg-note">同じ名前なら同じ計算をするので、いつ作っても同じ特徴の越鯉になるよ。</div>
           </div>
-          <div class="kg-calc-step"><strong>⑤ ここで伝説級図鑑 LEGEND判定</strong><br>LEGEND専用のハッシュを作って、1,000で割った余りだけを見るよ。
-            <span class="kg-formula">hash32(&quot;koshi-no-koi:v2:354317:real42&quot;) = 1,242,501,648<br>1,242,501,648 % 1,000 = 648</span>
-            <div class="kg-threshold"><strong>ここが0〜29ならLEGEND。</strong><br>鯉太郎は648なのでLEGENDではないよ。0〜29は1,000通り中30通りだから3％。</div>
+
+          <div class="kg-calc-step"><strong>⑥ RARE・LEGENDも「箱」で考えれば簡単</strong><br>
+            たとえば1,000個の箱に振り分け、LEGEND用の30箱に入ればLEGEND、そうでなければ次にRARE用の判定をする、と考えるとわかりやすい。
+            <span class="kg-formula">ハッシュ → 0〜999のどれかの箱へ</span>
+            <div class="kg-threshold">LEGEND：0〜29の30箱 → 3％<br>
+            LEGENDでなかった場合にRARE判定：0〜99の100箱</div>
           </div>
-          <div class="kg-calc-step"><strong>⑥ 伝説級図鑑 LEGENDでなければ希少級図鑑 RARE判定</strong><br>今度は希少級図鑑 RARE専用の別ハッシュを使うよ。
-            <span class="kg-formula">hash32(&quot;koshi-no-koi:v2:354317:illustrationRare&quot;) = 825,928,336<br>825,928,336 % 1,000 = 336</span>
-            <div class="kg-threshold"><strong>ここが0〜99ならRARE。</strong><br>鯉太郎は336なのでRAREでもないよ。判定枠は1,000通り中100通り。</div>
+
+          <div class="kg-calc-step"><strong>⑦ まとめ</strong><br>
+            <div class="kg-result">名前 → 数字のたね → ハッシュ → 箱に振り分ける → 鯉の特徴が決まる</div>
+            <br><strong>この説明は、仕組みを直感的に理解するために単純化したものです。</strong><br>
+            実際の越鯉では、名前から個体を決める処理や各特徴の計算は、この例とは異なる方法で行っています。
           </div>
-          <div class="kg-calc-step"><strong>⑦ 鯉太郎の結果</strong><br>名前から始まった数字が、個体番号、品種、体型、模様、希少級図鑑 RARE・伝説級図鑑 LEGEND判定まで順番につながっているよ。
-            <div class="kg-result">鯉太郎 → 354317 → 銀鱗白写り・ジャンボ・40cm → 通常個体</div>
-          </div>
+
           <button type="button" class="kg-calc-back">解説スライドに戻る</button>
         </div>
         <div class="kg-controls">
