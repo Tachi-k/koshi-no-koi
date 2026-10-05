@@ -2866,7 +2866,7 @@ body.cert-lock{
     add("normal",loadCollectionRecords());
     add("rare",loadIllustrationRareRecords());
     add("legend",loadLegendRecords());
-    const api=window.__koshiPondApi; if(api)api.loadNewbornRecords().forEach(rec=>{if(rec&&rec.state)out.push({...rec,tier:"newborn"})});
+    loadNewbornRecords().forEach(rec=>{if(rec&&rec.state)out.push({...rec,tier:"newborn"})});
     out.sort((a,b)=>((b.savedAt||0)-(a.savedAt||0))||Number(b.state.id||0)-Number(a.state.id||0));
     return out;
   }
@@ -3311,6 +3311,14 @@ body.cert-lock{
     });
   });
   window.addEventListener("hashchange",applyMode);
+  window.__koshiPondApi = {
+    loadNewbornRecords,
+    newbornGrowth,
+    isSelected,
+    addToPond,
+    openNewbornCertificate,
+    releaseNewborn
+  };
 })();
 </script>
 <script>
@@ -3839,18 +3847,21 @@ document.addEventListener("DOMContentLoaded",()=>{
 <script>
 (function(){
  function esc3(v){return String(v??"").replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'\"':"&quot;","'":"&#39;"}[c]))}
+ function api(){return window.__koshiPondApi||null}
  function unifiedRecords(){
    const out=[];
    const add=(tier,obj)=>Object.values(obj||{}).forEach(rec=>{if(rec&&rec.state)out.push({tier,...rec})});
    add("normal",loadCollectionRecords());
    add("rare",loadIllustrationRareRecords());
    add("legend",loadLegendRecords());
-   loadNewbornRecords().forEach(rec=>{if(rec&&rec.state)out.push({...rec,tier:"newborn"})});
+   const p=api();
+   if(p)p.loadNewbornRecords().forEach(rec=>{if(rec&&rec.state)out.push({...rec,tier:"newborn"})});
    out.sort((a,b)=>(a.savedAt||a.bornAt||0)-(b.savedAt||b.bornAt||0));
    return out;
  }
  function openUnified(rec){
-   if(rec.tier==="newborn"){const api=window.__koshiPondApi;if(api)api.openNewbornCertificate(rec);return}
+   const p=api();
+   if(rec.tier==="newborn"){if(p)p.openNewbornCertificate(rec);return}
    const source=rec.tier==="legend"?loadLegendRecords():rec.tier==="rare"?loadIllustrationRareRecords():loadCollectionRecords();
    const r=source[String(rec.state.id)];if(!r||!r.state)return;
    currentHighlight=null;currentCertificateParents=null;currentCertificateBornAt=null;state={...r.state};collectionPriceOverride=r.price||null;
@@ -3858,25 +3869,25 @@ document.addEventListener("DOMContentLoaded",()=>{
  }
  renderCollection=function(){
    const box=document.getElementById("collectionGrid");if(!box)return;box.innerHTML="";
-   const all=unifiedRecords();
-   all.forEach((rec,i)=>{
+   const all=unifiedRecords(),p=api();
+   all.forEach(rec=>{
      const s=rec.state,d=document.createElement("div"),tier=rec.tier;
      const label=tier==="legend"?"LEGEND":tier==="rare"?"RARE":tier==="newborn"?"新生鯉":"通常";
      d.className="collection-item found specimen-card "+(tier==="legend"?"legend-card-v2":tier==="rare"?"rare-card":tier==="newborn"?"newborn-card":"");
      let extra="";
      if(tier==="newborn"){
-       const api=window.__koshiPondApi; const g=api?api.newbornGrowth(rec):{label:"新生鯉",stage:"—"};
+       const g=p?p.newbornGrowth(rec):{label:"新生鯉",stage:"—"};
        extra=`<br>成長：${esc3(g.label)}（第${g.stage}段階）<br>親：${esc3(rec.parents?.[0]?.name||"不明")} × ${esc3(rec.parents?.[1]?.name||"不明")}`;
      }
      d.innerHTML=`<div class="specimen-top"><div class="specimen-name">${esc3(VARIETIES[s.variety]||"越鯉")}</div><span class="specimen-tier">${label}</span></div><div class="specimen-meta">${esc3(makeKoiName(s))}<br>${esc3(s.name||"名主不明")} ／ 第${String(s.id).padStart(6,"0")}号<br>体長 ${esc3(SIZES[s.size])}cm${extra}</div>`;
-     if(tier==="newborn"){
+     if(tier==="newborn" && p){
        const actions=document.createElement("div");actions.className="specimen-actions";
-       const api=window.__koshiPondApi; const selected=api?api.isSelected("newborn",s):false;
+       const selected=p.isSelected("newborn",s);
        actions.innerHTML=`<button type="button" class="pond-mini-btn${selected?" in-pond":""}">${selected?"池で泳いでいる":"池へ"}</button><button type="button" class="certificate-mini-btn">鑑定書</button><button type="button" class="newborn-release-btn">放流</button>`;
        const bs=actions.querySelectorAll("button");
-       bs[0].onclick=e=>{e.stopPropagation();if(api)api.addToPond("newborn",rec)};
-       bs[1].onclick=e=>{e.stopPropagation();if(api)api.openNewbornCertificate(rec)};
-       bs[2].onclick=e=>{e.stopPropagation();if(api)api.releaseNewborn(rec)};
+       bs[0].onclick=e=>{e.stopPropagation();p.addToPond("newborn",rec)};
+       bs[1].onclick=e=>{e.stopPropagation();p.openNewbornCertificate(rec)};
+       bs[2].onclick=e=>{e.stopPropagation();p.releaseNewborn(rec)};
        d.appendChild(actions);
      }
      d.title="タップして鑑定書を見る";d.tabIndex=0;d.setAttribute("role","button");
@@ -3886,7 +3897,6 @@ document.addEventListener("DOMContentLoaded",()=>{
    const varieties=new Set(all.map(x=>x.state.variety));
    const fc=document.getElementById("foundCount");if(fc)fc.textContent=varieties.size;
  };
- // 新生鯉専用図鑑は廃止し、更新要求が来たら統合図鑑を再描画する。
  renderNewbornCollection=function(){const sec=document.getElementById("newbornCollection");if(sec)sec.style.display="none";renderCollection()};
  renderCollection();
 })();
