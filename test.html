@@ -3759,7 +3759,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 /* ===== 個体コレクション図鑑 v2 ===== */
 #illustrationRareGrid,#legendGrid,.rare-collection-mount,.legend-collection:has(#legendGrid){display:none!important}
 #collectionGrid{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(170px,1fr))!important;gap:12px!important}
-.collection-item.specimen-card{min-height:118px;padding:12px!important;text-align:left!important;display:flex!important;flex-direction:column;justify-content:space-between;gap:6px}
+.collection-item.specimen-card{height:178px;min-height:178px;box-sizing:border-box;padding:12px!important;text-align:left!important;display:flex!important;flex-direction:column;justify-content:space-between;gap:6px;overflow:hidden}
 .specimen-card .specimen-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
 .specimen-card .specimen-name{font-weight:800;font-size:16px}
 .specimen-card .specimen-meta{font-size:12px;line-height:1.55;opacity:.82}
@@ -3780,11 +3780,11 @@ document.addEventListener("DOMContentLoaded",()=>{
 
  // 新方式では個体番号をキーにする。同じ品種が何匹出ても上書きしない。
  loadCollectionRecords=function(){memoryCollectionRecords=readObj(NORMAL_KEY);return memoryCollectionRecords};
- saveCollectionRecord=function(_varietyIndex,s,price){const r=loadCollectionRecords(),k=recKey(s);if(!k)return;r[k]={state:{...s},price,savedAt:Date.now()};memoryCollectionRecords={...r};writeObj(NORMAL_KEY,memoryCollectionRecords)};
+ saveCollectionRecord=function(_varietyIndex,s,price){const r=loadCollectionRecords(),k=recKey(s);if(!k||r[k])return;r[k]={state:{...s},price,savedAt:Date.now()};memoryCollectionRecords={...r};writeObj(NORMAL_KEY,memoryCollectionRecords)};
  loadIllustrationRareRecords=function(){memoryIllustrationRareRecords=readObj(RARE_KEY);return memoryIllustrationRareRecords};
- saveIllustrationRareRecord=function(s,price){if(!isIllustrationRare(s))return;const r=loadIllustrationRareRecords(),k=recKey(s);if(!k)return;r[k]={state:{...s},price,savedAt:Date.now()};memoryIllustrationRareRecords={...r};writeObj(RARE_KEY,memoryIllustrationRareRecords)};
+ saveIllustrationRareRecord=function(s,price){if(!isIllustrationRare(s))return;const r=loadIllustrationRareRecords(),k=recKey(s);if(!k||r[k])return;r[k]={state:{...s},price,savedAt:Date.now()};memoryIllustrationRareRecords={...r};writeObj(RARE_KEY,memoryIllustrationRareRecords)};
  loadLegendRecords=function(){memoryLegendRecords=readObj(LEGEND_KEY);return memoryLegendRecords};
- saveLegendRecord=function(s,price){if(!isRealRare(s))return;const r=loadLegendRecords(),k=recKey(s);if(!k)return;r[k]={state:{...s},price,savedAt:Date.now()};memoryLegendRecords={...r};writeObj(LEGEND_KEY,memoryLegendRecords)};
+ saveLegendRecord=function(s,price){if(!isRealRare(s))return;const r=loadLegendRecords(),k=recKey(s);if(!k||r[k])return;r[k]={state:{...s},price,savedAt:Date.now()};memoryLegendRecords={...r};writeObj(LEGEND_KEY,memoryLegendRecords)};
 
  function openRec(tier,id){
    const source=tier==="legend"?loadLegendRecords():tier==="rare"?loadIllustrationRareRecords():loadCollectionRecords();
@@ -3856,7 +3856,7 @@ document.addEventListener("DOMContentLoaded",()=>{
    add("legend",loadLegendRecords());
    const p=api();
    if(p)p.loadNewbornRecords().forEach(rec=>{if(rec&&rec.state)out.push({...rec,tier:"newborn"})});
-   out.sort((a,b)=>(a.savedAt||a.bornAt||0)-(b.savedAt||b.bornAt||0));
+   out.sort((a,b)=>((a.savedAt||a.bornAt||0)-(b.savedAt||b.bornAt||0)) || ((a.state?.id||0)-(b.state?.id||0)));
    return out;
  }
  function openUnified(rec){
@@ -3904,3 +3904,5 @@ document.addEventListener("DOMContentLoaded",()=>{
 
 </body>
 </html>
+
+
