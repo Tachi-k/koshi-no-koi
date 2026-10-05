@@ -2906,9 +2906,9 @@ body.cert-lock{
   }
   function resetAllCollections(){
     if(!confirm("通常・希少級・伝説級・新生鯉の図鑑記録をすべて消去します。池の鯉も空になります。\n\nこの操作は元に戻せません。リセットしますか？"))return;
-    ["koshiKoiSpecimenStats","koshiKoiCollection","koshiKoiCollectionRecords","koshiKoiIllustrationRareRecords","koshiKoiLegendRecords",NEWBORN_KEY,POND_KEY].forEach(key=>{try{localStorage.removeItem(key)}catch(e){}});
+    ["koshiKoiSpecimenStats","koshiKoiCollection","koshiKoiCollectionRecords","koshiKoiIllustrationRareRecords","koshiKoiLegendRecords","koshiKoiCollectionRecordsV2","koshiKoiIllustrationRareRecordsV2","koshiKoiLegendRecordsV2",NEWBORN_KEY,POND_KEY].forEach(key=>{try{localStorage.removeItem(key)}catch(e){}});
     memorySpecimenStats={ids:[],highest:0,legends:0};memoryCollection=[];memoryCollectionRecords={};memoryIllustrationRareRecords={};memoryLegendRecords={};currentHighlight=null;pondSelection=[];
-    renderSpecimenStats();renderCollection();renderIllustrationRareCollection();renderLegendCollection();renderNewbornCollection();updatePondUI();
+    renderSpecimenStats();renderCollection();renderIllustrationRareCollection();renderLegendCollection();renderNewbornCollection();updatePondUI();setTimeout(()=>{try{renderCollection()}catch(e){}},0);
     const result=document.getElementById("result");if(result)result.style.display="none";
     setStatus("図鑑をリセットし、池を空にしました。");
     alert("図鑑をリセットしました。");
