@@ -2866,7 +2866,7 @@ body.cert-lock{
     add("normal",loadCollectionRecords());
     add("rare",loadIllustrationRareRecords());
     add("legend",loadLegendRecords());
-    loadNewbornRecords().forEach(rec=>{if(rec&&rec.state)out.push({...rec,tier:"newborn"})});
+    const api=window.__koshiPondApi; if(api)api.loadNewbornRecords().forEach(rec=>{if(rec&&rec.state)out.push({...rec,tier:"newborn"})});
     out.sort((a,b)=>((b.savedAt||0)-(a.savedAt||0))||Number(b.state.id||0)-Number(a.state.id||0));
     return out;
   }
@@ -3850,7 +3850,7 @@ document.addEventListener("DOMContentLoaded",()=>{
    return out;
  }
  function openUnified(rec){
-   if(rec.tier==="newborn"){openNewbornCertificate(rec);return}
+   if(rec.tier==="newborn"){const api=window.__koshiPondApi;if(api)api.openNewbornCertificate(rec);return}
    const source=rec.tier==="legend"?loadLegendRecords():rec.tier==="rare"?loadIllustrationRareRecords():loadCollectionRecords();
    const r=source[String(rec.state.id)];if(!r||!r.state)return;
    currentHighlight=null;currentCertificateParents=null;currentCertificateBornAt=null;state={...r.state};collectionPriceOverride=r.price||null;
@@ -3865,18 +3865,18 @@ document.addEventListener("DOMContentLoaded",()=>{
      d.className="collection-item found specimen-card "+(tier==="legend"?"legend-card-v2":tier==="rare"?"rare-card":tier==="newborn"?"newborn-card":"");
      let extra="";
      if(tier==="newborn"){
-       const g=newbornGrowth(rec);
+       const api=window.__koshiPondApi; const g=api?api.newbornGrowth(rec):{label:"新生鯉",stage:"—"};
        extra=`<br>成長：${esc3(g.label)}（第${g.stage}段階）<br>親：${esc3(rec.parents?.[0]?.name||"不明")} × ${esc3(rec.parents?.[1]?.name||"不明")}`;
      }
      d.innerHTML=`<div class="specimen-top"><div class="specimen-name">${esc3(VARIETIES[s.variety]||"越鯉")}</div><span class="specimen-tier">${label}</span></div><div class="specimen-meta">${esc3(makeKoiName(s))}<br>${esc3(s.name||"名主不明")} ／ 第${String(s.id).padStart(6,"0")}号<br>体長 ${esc3(SIZES[s.size])}cm${extra}</div>`;
      if(tier==="newborn"){
        const actions=document.createElement("div");actions.className="specimen-actions";
-       const selected=isSelected("newborn",s);
+       const api=window.__koshiPondApi; const selected=api?api.isSelected("newborn",s):false;
        actions.innerHTML=`<button type="button" class="pond-mini-btn${selected?" in-pond":""}">${selected?"池で泳いでいる":"池へ"}</button><button type="button" class="certificate-mini-btn">鑑定書</button><button type="button" class="newborn-release-btn">放流</button>`;
        const bs=actions.querySelectorAll("button");
-       bs[0].onclick=e=>{e.stopPropagation();addToPond("newborn",rec)};
-       bs[1].onclick=e=>{e.stopPropagation();openNewbornCertificate(rec)};
-       bs[2].onclick=e=>{e.stopPropagation();releaseNewborn(rec)};
+       bs[0].onclick=e=>{e.stopPropagation();if(api)api.addToPond("newborn",rec)};
+       bs[1].onclick=e=>{e.stopPropagation();if(api)api.openNewbornCertificate(rec)};
+       bs[2].onclick=e=>{e.stopPropagation();if(api)api.releaseNewborn(rec)};
        d.appendChild(actions);
      }
      d.title="タップして鑑定書を見る";d.tabIndex=0;d.setAttribute("role","button");
