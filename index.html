@@ -3840,6 +3840,9 @@ document.addEventListener("DOMContentLoaded",()=>{
 <style>
 /* ===== 新生鯉も同じ越鯉図鑑へ統合 v3 ===== */
 #newbornCollection{display:none!important}
+#collectionGrid .specimen-card{height:auto;justify-content:flex-start}
+.specimen-card .specimen-image{display:block;width:100%;height:112px;object-fit:contain}
+.specimen-card .specimen-meta{overflow-wrap:anywhere}
 .specimen-card.newborn-card{border-color:#d9bd7b!important;background:linear-gradient(#fffdf4,#fff4ce)!important}
 .specimen-card .specimen-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px}
 .specimen-card .specimen-actions button{font-size:11px;padding:5px 8px}
@@ -3858,6 +3861,23 @@ document.addEventListener("DOMContentLoaded",()=>{
    if(p)p.loadNewbornRecords().forEach(rec=>{if(rec&&rec.state)out.push({...rec,tier:"newborn"})});
    out.sort((a,b)=>((a.savedAt||a.bornAt||0)-(b.savedAt||b.bornAt||0)) || ((a.state?.id||0)-(b.state?.id||0)));
    return out;
+ }
+ function specimenImage(rec){
+   const s=rec.state,img=document.createElement("img");
+   img.className="specimen-image";
+   img.alt="";
+   img.loading="lazy";
+   img.decoding="async";
+   const useDrawing=()=>{
+     img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(legendFullBodySVG(s));
+   };
+   if(rec.tier==="rare"||rec.tier==="legend"){
+     img.addEventListener("error",useDrawing,{once:true});
+     img.src=rec.tier==="rare"?illustrationRareImageFor(s):rareImageFor(s);
+   }else{
+     useDrawing();
+   }
+   return img;
  }
  function openUnified(rec){
    const p=api();
@@ -3880,6 +3900,7 @@ document.addEventListener("DOMContentLoaded",()=>{
        extra=`<br>成長：${esc3(g.label)}（第${g.stage}段階）<br>親：${esc3(rec.parents?.[0]?.name||"不明")} × ${esc3(rec.parents?.[1]?.name||"不明")}`;
      }
      d.innerHTML=`<div class="specimen-top"><div class="specimen-name">${esc3(VARIETIES[s.variety]||"越鯉")}</div><span class="specimen-tier">${label}</span></div><div class="specimen-meta">${esc3(makeKoiName(s))}<br>${esc3(s.name||"名主不明")} ／ 第${String(s.id).padStart(6,"0")}号<br>体長 ${esc3(SIZES[s.size])}cm${extra}</div>`;
+     d.querySelector(".specimen-top").after(specimenImage(rec));
      if(tier==="newborn" && p){
        const actions=document.createElement("div");actions.className="specimen-actions";
        const selected=p.isSelected("newborn",s);
