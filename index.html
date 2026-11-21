@@ -166,6 +166,23 @@ button{font:inherit;cursor:pointer}
 }
 .collection-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
 .collection-head h3{margin:0;color:#194d9e}
+.collection-head{flex-wrap:wrap}
+.collection-head-actions{display:flex;flex-wrap:wrap;gap:8px}
+.stamp-card-btn,.stamp-card-close{border:1px solid #92744e;border-radius:999px;padding:8px 13px;background:#fff8e8;color:#60451e;font-weight:800}
+.stamp-card-btn:hover,.stamp-card-close:hover{background:#f5e6c7}
+.stamp-card-dialog{width:min(660px,calc(100% - 24px));max-height:calc(100% - 24px);padding:16px;border:2px solid #bda276;border-radius:14px;background:#fffaf0;color:#3e301d}
+.stamp-card-dialog::backdrop{background:rgba(14,26,41,.65)}
+.stamp-card-head,.stamp-card-controls{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.stamp-card-head{justify-content:space-between}
+.stamp-card-head h4{margin:0;font-size:18px}
+.stamp-card-head form{margin:0}
+.stamp-card-controls select{font:inherit;padding:5px 8px;border:1px solid #92744e;border-radius:6px;background:#fff;color:inherit}
+.stamp-card-controls strong{margin-inline-start:auto;font-variant-numeric:tabular-nums}
+.stamp-card-grid{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(78px,1fr));gap:6px;margin:0;padding:0}
+.stamp-card-grid li{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:5px;min-height:73px;padding:6px 3px;border:1px dashed #ae9a7b;border-radius:8px;background:#fffdf7;text-align:center;font-size:11px;overflow-wrap:anywhere}
+.stamp-card-grid .stamp-discovered{border-style:solid;background:#fff1d5}
+.stamp-mark{display:grid;place-items:center;min-width:36px;min-height:30px;padding:2px;border:1px dashed #ae9a7b;border-radius:50%;color:#66573d;font-size:9px}
+.stamp-discovered .stamp-mark{border:3px double currentColor;color:#a72f25;font-weight:900;transform:rotate(-8deg)}
 .collection-progress-title{margin:0 0 6px;color:var(--navy);font-size:14px}
 .collection-progress{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 12px}
 .collection-progress>div{padding:8px 4px;text-align:center;border:1px solid #d6dfec;border-radius:8px;background:#f7f9fc}
@@ -956,7 +973,10 @@ body.pond-mode #pondView{display:block!important}
 <div class="collection-card">
   <div class="collection-head">
     <h3>越鯉図鑑</h3>
-    <button type="button" id="collectionResetBtn" class="collection-reset-btn">図鑑をリセット</button>
+    <div class="collection-head-actions">
+      <button type="button" id="stampCardBtn" class="stamp-card-btn" aria-haspopup="dialog">スタンプカード</button>
+      <button type="button" id="collectionResetBtn" class="collection-reset-btn">図鑑をリセット</button>
+    </div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">
     <div style="background:#f7f9fc;border:1px solid #d6dfec;border-radius:8px;padding:10px;text-align:center"><small>発見個体数</small><div style="font-size:20px;font-weight:700"><span id="specimenCount">0</span> / 1,000,000</div></div>
@@ -971,6 +991,22 @@ body.pond-mode #pondView{display:block!important}
     <div><dt>伝説級</dt><dd id="legendVarietyCount">0 / 42</dd></div>
   </dl>
   <div class="collection-grid" id="collectionGrid"></div>
+  <dialog id="stampCardDialog" class="stamp-card-dialog" aria-labelledby="stampCardTitle">
+    <div class="stamp-card-head">
+      <h4 id="stampCardTitle">越鯉スタンプカード</h4>
+      <form method="dialog"><button type="submit" class="stamp-card-close">閉じる</button></form>
+    </div>
+    <div class="stamp-card-controls">
+      <label for="stampCardTier">等級</label>
+      <select id="stampCardTier" autofocus>
+        <option value="normal">通常</option>
+        <option value="rare">希少級</option>
+        <option value="legend">伝説級</option>
+      </select>
+      <strong id="stampCardCount" aria-live="polite"></strong>
+    </div>
+    <ul id="stampCardGrid" class="stamp-card-grid"></ul>
+  </dialog>
 
 <div class="legend-collection rare-collection-mount" style="border-top-color:#8fb5cb">
   <div class="legend-collection-title" style="color:#47738d">希少級図鑑 RARE</div>
@@ -3875,14 +3911,40 @@ document.addEventListener("DOMContentLoaded",()=>{
    out.sort((a,b)=>((a.savedAt||a.bornAt||0)-(b.savedAt||b.bornAt||0)) || ((a.state?.id||0)-(b.state?.id||0)));
    return out;
  }
+ const stampDialog=document.getElementById("stampCardDialog");
+ const stampTier=document.getElementById("stampCardTier");
+ const stampGrid=document.getElementById("stampCardGrid");
+ const stampCount=document.getElementById("stampCardCount");
+ let varietiesByTier;
+ function renderStampCard(){
+   const discovered=varietiesByTier.get(stampTier.value);
+   stampCount.textContent="発見 "+discovered.size+" / "+VARIETIES.length;
+   const slots=VARIETIES.map((name,index)=>{
+     const slot=document.createElement("li");
+     const mark=document.createElement("span");
+     const found=discovered.has(index);
+     slot.classList.toggle("stamp-discovered",found);
+     mark.className="stamp-mark";
+     mark.textContent=found?"発見":"未発見";
+     slot.append(mark,name);
+     return slot;
+   });
+   stampGrid.replaceChildren(...slots);
+ }
+ document.getElementById("stampCardBtn").addEventListener("click",()=>{
+   renderStampCard();
+   stampDialog.showModal();
+ });
+ stampTier.addEventListener("change",renderStampCard);
  function renderVarietyProgress(records){
-   const varietiesByTier=new Map([["normal",new Set()],["rare",new Set()],["legend",new Set()]]);
+   varietiesByTier=new Map([["normal",new Set()],["rare",new Set()],["legend",new Set()]]);
    for(const {tier,state} of records){
      if(VARIETIES[state.variety])varietiesByTier.get(tier)?.add(Number(state.variety));
    }
    for(const [tier,varieties] of varietiesByTier){
      document.getElementById(tier+"VarietyCount").textContent=varieties.size+" / "+VARIETIES.length;
    }
+   if(stampDialog.open)renderStampCard();
  }
  function specimenImage(rec){
    const s=rec.state,img=document.createElement("img");
