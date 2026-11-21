@@ -2862,18 +2862,12 @@ body.cert-lock{
   }
   function allAtlasRecords(){
     const out=[];
-    const normal=loadCollectionRecords();
-    const rare=loadIllustrationRareRecords();
-    const legend=loadLegendRecords();
-    const newborn=loadNewbornRecords();
-    for(let i=0;i<42;i++){
-      const n=normal[String(i)]||normal[i];if(n&&n.state)out.push({tier:"normal",state:{...n.state},price:n.price||null,savedAt:n.savedAt||0});
-      const r=rare[String(i)];if(r&&r.state)out.push({tier:"rare",state:{...r.state},price:r.price||null,savedAt:r.savedAt||0});
-      const l=legend[String(i)];if(l&&l.state)out.push({tier:"legend",state:{...l.state},price:l.price||null,savedAt:l.savedAt||0});
-    }
-    newborn.forEach(rec=>{if(rec&&rec.state)out.push({...rec,tier:"newborn"})});
-    const rank={legend:0,newborn:1,rare:2,normal:3};
-    out.sort((a,b)=>(rank[a.tier]-rank[b.tier])||((b.savedAt||0)-(a.savedAt||0))||a.state.variety-b.state.variety);
+    const add=(tier,source)=>Object.values(source||{}).forEach(rec=>{if(rec&&rec.state)out.push({tier,state:{...rec.state},price:rec.price||null,savedAt:rec.savedAt||0})});
+    add("normal",loadCollectionRecords());
+    add("rare",loadIllustrationRareRecords());
+    add("legend",loadLegendRecords());
+    loadNewbornRecords().forEach(rec=>{if(rec&&rec.state)out.push({...rec,tier:"newborn"})});
+    out.sort((a,b)=>((b.savedAt||0)-(a.savedAt||0))||Number(b.state.id||0)-Number(a.state.id||0));
     return out;
   }
   function isSelected(tier,s){const k=itemKey(tier,s);return pondSelection.some(x=>itemKey(x.tier,x.state)===k)}
@@ -2912,9 +2906,9 @@ body.cert-lock{
   }
   function resetAllCollections(){
     if(!confirm("通常・希少級・伝説級・新生鯉の図鑑記録をすべて消去します。池の鯉も空になります。\n\nこの操作は元に戻せません。リセットしますか？"))return;
-    ["koshiKoiSpecimenStats","koshiKoiCollection","koshiKoiCollectionRecords","koshiKoiIllustrationRareRecords","koshiKoiLegendRecords",NEWBORN_KEY,POND_KEY].forEach(key=>{try{localStorage.removeItem(key)}catch(e){}});
+    ["koshiKoiSpecimenStats","koshiKoiCollection","koshiKoiCollectionRecords","koshiKoiIllustrationRareRecords","koshiKoiLegendRecords","koshiKoiCollectionRecordsV2","koshiKoiIllustrationRareRecordsV2","koshiKoiLegendRecordsV2",NEWBORN_KEY,POND_KEY].forEach(key=>{try{localStorage.removeItem(key)}catch(e){}});
     memorySpecimenStats={ids:[],highest:0,legends:0};memoryCollection=[];memoryCollectionRecords={};memoryIllustrationRareRecords={};memoryLegendRecords={};currentHighlight=null;pondSelection=[];
-    renderSpecimenStats();renderCollection();renderIllustrationRareCollection();renderLegendCollection();renderNewbornCollection();updatePondUI();
+    renderSpecimenStats();renderCollection();renderIllustrationRareCollection();renderLegendCollection();renderNewbornCollection();updatePondUI();setTimeout(()=>{try{renderCollection()}catch(e){}},0);
     const result=document.getElementById("result");if(result)result.style.display="none";
     setStatus("図鑑をリセットし、池を空にしました。");
     alert("図鑑をリセットしました。");
@@ -3317,6 +3311,14 @@ body.cert-lock{
     });
   });
   window.addEventListener("hashchange",applyMode);
+  window.__koshiPondApi = {
+    loadNewbornRecords,
+    newbornGrowth,
+    isSelected,
+    addToPond,
+    openNewbornCertificate,
+    releaseNewborn
+  };
 })();
 </script>
 <script>
@@ -3749,6 +3751,154 @@ document.addEventListener("DOMContentLoaded",()=>{
 
   // 読み込み完了イベントが来ない環境でも、開始ボタンだけは使えるようにする。
   setTimeout(enableStart,12000);
+})();
+</script>
+
+
+<style>
+/* ===== 個体コレクション図鑑 v2 ===== */
+#illustrationRareGrid,#legendGrid,.rare-collection-mount,.legend-collection:has(#legendGrid){display:none!important}
+#collectionGrid{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(170px,1fr))!important;gap:12px!important}
+.collection-item.specimen-card{height:178px;min-height:178px;box-sizing:border-box;padding:12px!important;text-align:left!important;display:flex!important;flex-direction:column;justify-content:space-between;gap:6px;overflow:hidden}
+.specimen-card .specimen-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.specimen-card .specimen-name{font-weight:800;font-size:16px}
+.specimen-card .specimen-meta{font-size:12px;line-height:1.55;opacity:.82}
+.specimen-card .specimen-tier{font-size:10px;font-weight:800;border:1px solid currentColor;border-radius:999px;padding:2px 6px;white-space:nowrap}
+.specimen-card.rare-card{border-color:#7aa7c4!important}
+.specimen-card.legend-card-v2{border-color:#b8822b!important;box-shadow:0 0 0 1px rgba(184,130,43,.18)}
+#collectionGrid:empty::after{content:"まだ越鯉はいません。名前を入力して最初の一匹を生み出してください。";grid-column:1/-1;padding:28px 16px;text-align:center;color:#7a6a54;border:1px dashed #c9bda9;border-radius:10px;background:#fffdf8}
+</style>
+<script>
+/* ===== 図鑑を「品種42枠」から「出会った個体をそのまま残す」方式へ ===== */
+(function(){
+ const NORMAL_KEY="koshiKoiCollectionRecordsV2";
+ const RARE_KEY="koshiKoiIllustrationRareRecordsV2";
+ const LEGEND_KEY="koshiKoiLegendRecordsV2";
+ const readObj=(key)=>{try{const v=JSON.parse(localStorage.getItem(key)||"{}");return v&&typeof v==="object"&&!Array.isArray(v)?v:{}}catch(e){return {}}};
+ const writeObj=(key,v)=>{try{localStorage.setItem(key,JSON.stringify(v))}catch(e){}};
+ const recKey=s=>String(s&&s.id!=null?s.id:"");
+
+ // 新方式では個体番号をキーにする。同じ品種が何匹出ても上書きしない。
+ loadCollectionRecords=function(){memoryCollectionRecords=readObj(NORMAL_KEY);return memoryCollectionRecords};
+ saveCollectionRecord=function(_varietyIndex,s,price){const r=loadCollectionRecords(),k=recKey(s);if(!k||r[k])return;r[k]={state:{...s},price,savedAt:Date.now()};memoryCollectionRecords={...r};writeObj(NORMAL_KEY,memoryCollectionRecords)};
+ loadIllustrationRareRecords=function(){memoryIllustrationRareRecords=readObj(RARE_KEY);return memoryIllustrationRareRecords};
+ saveIllustrationRareRecord=function(s,price){if(!isIllustrationRare(s))return;const r=loadIllustrationRareRecords(),k=recKey(s);if(!k||r[k])return;r[k]={state:{...s},price,savedAt:Date.now()};memoryIllustrationRareRecords={...r};writeObj(RARE_KEY,memoryIllustrationRareRecords)};
+ loadLegendRecords=function(){memoryLegendRecords=readObj(LEGEND_KEY);return memoryLegendRecords};
+ saveLegendRecord=function(s,price){if(!isRealRare(s))return;const r=loadLegendRecords(),k=recKey(s);if(!k||r[k])return;r[k]={state:{...s},price,savedAt:Date.now()};memoryLegendRecords={...r};writeObj(LEGEND_KEY,memoryLegendRecords)};
+
+ function openRec(tier,id){
+   const source=tier==="legend"?loadLegendRecords():tier==="rare"?loadIllustrationRareRecords():loadCollectionRecords();
+   const rec=source[String(id)];if(!rec||!rec.state)return;
+   currentHighlight=null;currentCertificateParents=null;currentCertificateBornAt=null;state={...rec.state};collectionPriceOverride=rec.price||null;
+   document.getElementById("result").style.display="block";suppressCatalogRegistration=true;try{render()}finally{suppressCatalogRegistration=false}setTimeout(()=>openCertificate(),0);
+ }
+ openCollectionCertificate=function(id){openRec("normal",id)};
+ openIllustrationRareCertificate=function(id){openRec("rare",id)};
+ openLegendCertificate=function(id){openRec("legend",id)};
+
+ function esc2(v){return String(v??"").replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'\"':"&quot;","'":"&#39;"}[c]))}
+ function records(){
+   const out=[];
+   const add=(tier,obj)=>Object.values(obj||{}).forEach(rec=>{if(rec&&rec.state)out.push({tier,...rec})});
+   add("normal",loadCollectionRecords());add("rare",loadIllustrationRareRecords());add("legend",loadLegendRecords());
+   out.sort((a,b)=>(a.savedAt||0)-(b.savedAt||0));
+   return out;
+ }
+ renderCollection=function(){
+   const box=document.getElementById("collectionGrid");if(!box)return;box.innerHTML="";
+   const all=records();
+   all.forEach(rec=>{
+     const s=rec.state,d=document.createElement("div");
+     const tier=rec.tier,label=tier==="legend"?"LEGEND":tier==="rare"?"RARE":"通常";
+     d.className="collection-item found specimen-card "+(tier==="legend"?"legend-card-v2":tier==="rare"?"rare-card":"");
+     d.innerHTML=`<div class="specimen-top"><div class="specimen-name">${esc2(VARIETIES[s.variety]||"越鯉")}</div><span class="specimen-tier">${label}</span></div><div class="specimen-meta">${esc2(makeKoiName(s))}<br>${esc2(s.name||"名主不明")} ／ 第${String(s.id).padStart(6,"0")}号<br>体長 ${esc2(SIZES[s.size])}cm</div>`;
+     d.title="タップして鑑定書を見る";d.tabIndex=0;d.setAttribute("role","button");
+     d.onclick=()=>openRec(tier,s.id);d.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openRec(tier,s.id)}};box.appendChild(d);
+   });
+   const varieties=new Set(all.map(x=>x.state.variety));
+   const fc=document.getElementById("foundCount");if(fc)fc.textContent=varieties.size;
+ };
+ renderIllustrationRareCollection=function(){};
+ renderLegendCollection=function(){};
+
+ // 初期状態は完全にゼロ件。RARE/LEGENDの空42枠は表示しない。
+ const oldReset=resetAllCollections;
+ resetAllCollections=function(){
+   if(!confirm("通常・希少級・伝説級・新生鯉の図鑑記録をすべて消去します。池の鯉も空になります。\n\nこの操作は元に戻せません。リセットしますか？"))return;
+   ["koshiKoiSpecimenStats","koshiKoiCollection","koshiKoiCollectionRecords","koshiKoiIllustrationRareRecords","koshiKoiLegendRecords",NORMAL_KEY,RARE_KEY,LEGEND_KEY,"koshiKoiNewbornRecordsV1","koshiKoiPondSelectionV1"].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
+   memorySpecimenStats={ids:[],highest:0,legends:0};memoryCollection=[];memoryCollectionRecords={};memoryIllustrationRareRecords={};memoryLegendRecords={};currentHighlight=null;
+   renderSpecimenStats();renderCollection();renderNewbornCollection();location.hash="";location.reload();
+ };
+ const resetBtn=document.getElementById("collectionResetBtn");if(resetBtn)resetBtn.onclick=resetAllCollections;
+
+ // 旧版の品種別保存は表示しない。新V2図鑑だけで開始する。
+ renderCollection();renderIllustrationRareCollection();renderLegendCollection();
+})();
+</script>
+
+
+<style>
+/* ===== 新生鯉も同じ越鯉図鑑へ統合 v3 ===== */
+#newbornCollection{display:none!important}
+.specimen-card.newborn-card{border-color:#d9bd7b!important;background:linear-gradient(#fffdf4,#fff4ce)!important}
+.specimen-card .specimen-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px}
+.specimen-card .specimen-actions button{font-size:11px;padding:5px 8px}
+</style>
+<script>
+(function(){
+ function esc3(v){return String(v??"").replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'\"':"&quot;","'":"&#39;"}[c]))}
+ function api(){return window.__koshiPondApi||null}
+ function unifiedRecords(){
+   const out=[];
+   const add=(tier,obj)=>Object.values(obj||{}).forEach(rec=>{if(rec&&rec.state)out.push({tier,...rec})});
+   add("normal",loadCollectionRecords());
+   add("rare",loadIllustrationRareRecords());
+   add("legend",loadLegendRecords());
+   const p=api();
+   if(p)p.loadNewbornRecords().forEach(rec=>{if(rec&&rec.state)out.push({...rec,tier:"newborn"})});
+   out.sort((a,b)=>((a.savedAt||a.bornAt||0)-(b.savedAt||b.bornAt||0)) || ((a.state?.id||0)-(b.state?.id||0)));
+   return out;
+ }
+ function openUnified(rec){
+   const p=api();
+   if(rec.tier==="newborn"){if(p)p.openNewbornCertificate(rec);return}
+   const source=rec.tier==="legend"?loadLegendRecords():rec.tier==="rare"?loadIllustrationRareRecords():loadCollectionRecords();
+   const r=source[String(rec.state.id)];if(!r||!r.state)return;
+   currentHighlight=null;currentCertificateParents=null;currentCertificateBornAt=null;state={...r.state};collectionPriceOverride=r.price||null;
+   document.getElementById("result").style.display="block";suppressCatalogRegistration=true;try{render()}finally{suppressCatalogRegistration=false}setTimeout(()=>openCertificate(),0);
+ }
+ renderCollection=function(){
+   const box=document.getElementById("collectionGrid");if(!box)return;box.innerHTML="";
+   const all=unifiedRecords(),p=api();
+   all.forEach(rec=>{
+     const s=rec.state,d=document.createElement("div"),tier=rec.tier;
+     const label=tier==="legend"?"LEGEND":tier==="rare"?"RARE":tier==="newborn"?"新生鯉":"通常";
+     d.className="collection-item found specimen-card "+(tier==="legend"?"legend-card-v2":tier==="rare"?"rare-card":tier==="newborn"?"newborn-card":"");
+     let extra="";
+     if(tier==="newborn"){
+       const g=p?p.newbornGrowth(rec):{label:"新生鯉",stage:"—"};
+       extra=`<br>成長：${esc3(g.label)}（第${g.stage}段階）<br>親：${esc3(rec.parents?.[0]?.name||"不明")} × ${esc3(rec.parents?.[1]?.name||"不明")}`;
+     }
+     d.innerHTML=`<div class="specimen-top"><div class="specimen-name">${esc3(VARIETIES[s.variety]||"越鯉")}</div><span class="specimen-tier">${label}</span></div><div class="specimen-meta">${esc3(makeKoiName(s))}<br>${esc3(s.name||"名主不明")} ／ 第${String(s.id).padStart(6,"0")}号<br>体長 ${esc3(SIZES[s.size])}cm${extra}</div>`;
+     if(tier==="newborn" && p){
+       const actions=document.createElement("div");actions.className="specimen-actions";
+       const selected=p.isSelected("newborn",s);
+       actions.innerHTML=`<button type="button" class="pond-mini-btn${selected?" in-pond":""}">${selected?"池で泳いでいる":"池へ"}</button><button type="button" class="certificate-mini-btn">鑑定書</button><button type="button" class="newborn-release-btn">放流</button>`;
+       const bs=actions.querySelectorAll("button");
+       bs[0].onclick=e=>{e.stopPropagation();p.addToPond("newborn",rec)};
+       bs[1].onclick=e=>{e.stopPropagation();p.openNewbornCertificate(rec)};
+       bs[2].onclick=e=>{e.stopPropagation();p.releaseNewborn(rec)};
+       d.appendChild(actions);
+     }
+     d.title="タップして鑑定書を見る";d.tabIndex=0;d.setAttribute("role","button");
+     d.onclick=()=>openUnified(rec);d.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openUnified(rec)}};
+     box.appendChild(d);
+   });
+   const varieties=new Set(all.map(x=>x.state.variety));
+   const fc=document.getElementById("foundCount");if(fc)fc.textContent=varieties.size;
+ };
+ renderNewbornCollection=function(){const sec=document.getElementById("newbornCollection");if(sec)sec.style.display="none";renderCollection()};
+ renderCollection();
 })();
 </script>
 
