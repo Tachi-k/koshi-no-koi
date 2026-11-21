@@ -166,6 +166,13 @@ button{font:inherit;cursor:pointer}
 }
 .collection-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
 .collection-head h3{margin:0;color:#194d9e}
+.collection-progress-title{margin:0 0 6px;color:var(--navy);font-size:14px}
+.collection-progress{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 12px}
+.collection-progress>div{padding:8px 4px;text-align:center;border:1px solid #d6dfec;border-radius:8px;background:#f7f9fc}
+.collection-progress dt{font-size:12px;font-weight:700}
+.collection-progress dd{margin:2px 0 0;font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
+.collection-progress>div:nth-child(2){background:#eef7fc;color:#24536e}
+.collection-progress>div:nth-child(3){background:#fff6df;color:#724b10}
 .collection-reset-btn{border:1px solid #b85c52;border-radius:999px;background:#fff;color:#9c3028;padding:8px 13px;font-weight:800;cursor:pointer}.collection-reset-btn:hover{background:#fff0ee}
 .collection-count{font-size:22px;font-weight:700;color:#b8822b}
 .collection-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
@@ -957,6 +964,12 @@ body.pond-mode #pondView{display:block!important}
     <div style="background:#f7f9fc;border:1px solid #d6dfec;border-radius:8px;padding:10px;text-align:center"><small>最高鑑定額</small><div id="highestPrice" style="font-size:18px;font-weight:700;color:#b8822b">—</div></div>
     <div style="background:#f7f9fc;border:1px solid #d6dfec;border-radius:8px;padding:10px;text-align:center"><small>伝説級</small><div style="font-size:20px;font-weight:700"><span id="legendCount">0</span> 匹</div></div>
   </div>
+  <h4 class="collection-progress-title">等級別の発見品種</h4>
+  <dl class="collection-progress">
+    <div><dt>通常</dt><dd id="normalVarietyCount">0 / 42</dd></div>
+    <div><dt>希少級</dt><dd id="rareVarietyCount">0 / 42</dd></div>
+    <div><dt>伝説級</dt><dd id="legendVarietyCount">0 / 42</dd></div>
+  </dl>
   <div class="collection-grid" id="collectionGrid"></div>
 
 <div class="legend-collection rare-collection-mount" style="border-top-color:#8fb5cb">
@@ -3862,6 +3875,15 @@ document.addEventListener("DOMContentLoaded",()=>{
    out.sort((a,b)=>((a.savedAt||a.bornAt||0)-(b.savedAt||b.bornAt||0)) || ((a.state?.id||0)-(b.state?.id||0)));
    return out;
  }
+ function renderVarietyProgress(records){
+   const varietiesByTier=new Map([["normal",new Set()],["rare",new Set()],["legend",new Set()]]);
+   for(const {tier,state} of records){
+     if(VARIETIES[state.variety])varietiesByTier.get(tier)?.add(Number(state.variety));
+   }
+   for(const [tier,varieties] of varietiesByTier){
+     document.getElementById(tier+"VarietyCount").textContent=varieties.size+" / "+VARIETIES.length;
+   }
+ }
  function specimenImage(rec){
    const s=rec.state,img=document.createElement("img");
    img.className="specimen-image";
@@ -3890,6 +3912,7 @@ document.addEventListener("DOMContentLoaded",()=>{
  renderCollection=function(){
    const box=document.getElementById("collectionGrid");if(!box)return;box.innerHTML="";
    const all=unifiedRecords(),p=api();
+   renderVarietyProgress(all);
    all.forEach(rec=>{
      const s=rec.state,d=document.createElement("div"),tier=rec.tier;
      const label=tier==="legend"?"LEGEND":tier==="rare"?"RARE":tier==="newborn"?"新生鯉":"通常";
